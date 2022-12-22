@@ -1,0 +1,688 @@
+{
+  "O": [
+    {
+      "subject_name": "Accounting",
+      "subject_code": 7707,
+      "start_year": 2019,
+      "end_year": 2020
+    },
+    {
+      "subject_name": "Agriculture",
+      "subject_code": 5038,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Arabic",
+      "subject_code": 3180,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Art & Design (BD, MV, MU, PK)",
+      "subject_code": 6090,
+      "start_year": 2015,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Bangladesh Studies",
+      "subject_code": 7094,
+      "start_year": 2006,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Bengali",
+      "subject_code": 3204,
+      "start_year": 2003,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Biology",
+      "subject_code": 5090,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Business Studies",
+      "subject_code": 7115,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Chemistry",
+      "subject_code": 5070,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Commerce",
+      "subject_code": 7100,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Computer Science",
+      "subject_code": 2210,
+      "start_year": 2015,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "CDT - Design & Communication",
+      "subject_code": 7048,
+      "start_year": 2005,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Design & Technology",
+      "subject_code": 6043,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Economics",
+      "subject_code": 2281,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "English Language",
+      "subject_code": 1123,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Environmental Management",
+      "subject_code": 5014,
+      "start_year": 2004,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Fashion & Textiles",
+      "subject_code": 6130,
+      "start_year": 2014,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Food & Nutrition",
+      "subject_code": 6065,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "French",
+      "subject_code": 3015,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Geography",
+      "subject_code": 2217,
+      "start_year": 2004,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Global Perspectives",
+      "subject_code": 2069,
+      "start_year": 2018,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Hinduism",
+      "subject_code": 2055,
+      "start_year": 2004,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "History",
+      "subject_code": 2147,
+      "start_year": 2019,
+      "end_year": 2020
+    },
+    {
+      "subject_name": "History (Modern World Affairs)",
+      "subject_code": 2134,
+      "start_year": 2015,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Islamic Studies",
+      "subject_code": 2068,
+      "start_year": 2017,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Islamiyat",
+      "subject_code": 2058,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Literature in English",
+      "subject_code": 2010,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Marine Science",
+      "subject_code": 5180,
+      "start_year": 2014,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Additional Mathematics",
+      "subject_code": 4037,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Mathematics D",
+      "subject_code": 4024,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Nepali",
+      "subject_code": 3202,
+      "start_year": 2003,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Pakistan Studies",
+      "subject_code": 2059,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Physics",
+      "subject_code": 5054,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Principles of Accounts",
+      "subject_code": 7110,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Religious Studies",
+      "subject_code": 2048,
+      "start_year": 2005,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Science - Combined",
+      "subject_code": 5129,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Setswana",
+      "subject_code": 3158,
+      "start_year": 2005,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Sinhala",
+      "subject_code": 3205,
+      "start_year": 2004,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Sociology",
+      "subject_code": 2251,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Statistics",
+      "subject_code": 4040,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Swahili",
+      "subject_code": 3162,
+      "start_year": 2003,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Tamil",
+      "subject_code": 3226,
+      "start_year": 2016,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Travel & Tourism",
+      "subject_code": 7096,
+      "start_year": 2005,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Urdu - First Language",
+      "subject_code": 3247,
+      "start_year": 2003,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Urdu - Second Language",
+      "subject_code": 3248,
+      "start_year": 2003,
+      "end_year": 2019
+    }
+  ],
+  "A": [
+    {
+      "subject_name": "Accounting",
+      "subject_code": 9706,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Afrikaans",
+      "subject_code": 9679,
+      "start_year": 2010,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Afrikaans Language(AS)",
+      "subject_code": 8679,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Arabic",
+      "subject_code": 9680,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Arabic Language(AS)",
+      "subject_code": 8680,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Art & Design(New)",
+      "subject_code": 9479,
+      "start_year": 2019,
+      "end_year": 2020
+    },
+    {
+      "subject_name": "Art & Design",
+      "subject_code": 9704,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Biology",
+      "subject_code": 9700,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Business",
+      "subject_code": 9609,
+      "start_year": 2016,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Chemistry",
+      "subject_code": 9701,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Chinese Language(AS)",
+      "subject_code": 8681,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Chinese(A Level)",
+      "subject_code": 9715,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Classical Studies",
+      "subject_code": 9274,
+      "start_year": 2011,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Computer Science",
+      "subject_code": 9608,
+      "start_year": 2015,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Computer Science",
+      "subject_code": 9618,
+      "start_year": 2021,
+      "end_year": 2022
+    },
+    {
+      "subject_name": "Design & Technology",
+      "subject_code": 9705,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Design & Textiles",
+      "subject_code": 9631,
+      "start_year": 2008,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Divinity",
+      "subject_code": 9011,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Divinity(AS)",
+      "subject_code": 8041,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Economics",
+      "subject_code": 9708,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "English Language",
+      "subject_code": 9093,
+      "start_year": 2014,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "English Language & Literature(AS)",
+      "subject_code": 8695,
+      "start_year": 2011,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "English - Literature",
+      "subject_code": 9695,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "General Paper(AS)",
+      "subject_code": 8021,
+      "start_year": 2019,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Environmental Management(AS)",
+      "subject_code": 8291,
+      "start_year": 2005,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Food Studies",
+      "subject_code": 9336,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "French - Literature(AS)",
+      "subject_code": 8670,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "French(A Level)",
+      "subject_code": 9716,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "French Language(AS)",
+      "subject_code": 8682,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Geography",
+      "subject_code": 9696,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "German Language(AS)",
+      "subject_code": 8683,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "German(A Level)",
+      "subject_code": 9717,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Global Perspectives & Research",
+      "subject_code": 9239,
+      "start_year": 2015,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Hindi Language(AS)",
+      "subject_code": 8687,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Hindi - Literature(AS)",
+      "subject_code": 8675,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Hindi(A Level)",
+      "subject_code": 9687,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Hinduism",
+      "subject_code": 9014,
+      "start_year": 2008,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Hinduism(AS)",
+      "subject_code": 8058,
+      "start_year": 2009,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "History",
+      "subject_code": 9389,
+      "start_year": 2014,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Information Technology",
+      "subject_code": 9626,
+      "start_year": 2017,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Islamic Studies",
+      "subject_code": 9013,
+      "start_year": 2003,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Islamic Studies(AS)",
+      "subject_code": 8053,
+      "start_year": 2003,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Japanese Language(AS)",
+      "subject_code": 8281,
+      "start_year": 2005,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Law",
+      "subject_code": 9084,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Marine Science",
+      "subject_code": 9693,
+      "start_year": 2008,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Mathematics",
+      "subject_code": 9709,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Mathematics - Further",
+      "subject_code": 9231,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Media Studies",
+      "subject_code": 9607,
+      "start_year": 2015,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Music(New)",
+      "subject_code": 9483,
+      "start_year": 2019,
+      "end_year": 2020
+    },
+    {
+      "subject_name": "Music",
+      "subject_code": 9703,
+      "start_year": 2006,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Nepal Studies(AS)",
+      "subject_code": 8024,
+      "start_year": 2016,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Physical Education",
+      "subject_code": 9396,
+      "start_year": 2009,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Physics",
+      "subject_code": 9702,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Portuguese Language(AS)",
+      "subject_code": 8684,
+      "start_year": 2003,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Portuguese - Literature(AS)",
+      "subject_code": 8672,
+      "start_year": 2003,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Portuguese(A Level)",
+      "subject_code": 9718,
+      "start_year": 2003,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Psychology",
+      "subject_code": 9990,
+      "start_year": 2018,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Sociology",
+      "subject_code": 9699
+    },
+    {
+      "subject_name": "Spanish First Language(AS)",
+      "subject_code": 8665,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Spanish Language(AS)",
+      "subject_code": 8685,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Spanish - Literature(AS)",
+      "subject_code": 8673,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Spanish(A Level)",
+      "subject_code": 9719,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Tamil",
+      "subject_code": 9689,
+      "start_year": 2003,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Tamil Language(AS)",
+      "subject_code": 8689,
+      "start_year": 2003,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Thinking Skills",
+      "subject_code": 9694,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Travel & Tourism",
+      "subject_code": 9395,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Urdu Language(AS)",
+      "subject_code": 8686,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Urdu - Pakistan(A Level)",
+      "subject_code": 9686,
+      "start_year": 2002,
+      "end_year": 2019
+    },
+    {
+      "subject_name": "Urdu(A Level)",
+      "subject_code": 9676,
+      "start_year": 2006,
+      "end_year": 2019
+    }
+  ]
+}
