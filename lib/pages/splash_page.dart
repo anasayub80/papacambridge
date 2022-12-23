@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:studento/model/user_data.dart';
-
 import 'home_page.dart';
 import 'intro.dart';
 
@@ -87,9 +86,10 @@ class _SplashPageState extends State<SplashPage> {
         children: [
           Center(
             child: Image.asset(
-              'assets/icons/launcher-icon.png',
+              'assets/icons/logo.png',
               height: 125,
-              width: 125,
+              fit: BoxFit.contain,
+              width: MediaQuery.of(context).size.width * 0.85,
             ),
           ),
         ],

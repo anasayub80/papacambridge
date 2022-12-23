@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:async';
 import 'dart:developer';
-import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:studento/CAIE/subject_st_viewS.dart';
 import 'package:studento/UI/error_report_dialog.dart';
@@ -10,17 +9,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:studento/UI/studento_app_bar.dart';
-import 'package:studento/UI/subjects_staggered_viewS.dart';
 import 'package:studento/model/MainFolder.dart';
 import 'package:studento/UI/loading_indicator.dart';
 import 'package:studento/UI/show_message_dialog.dart';
 import 'package:studento/utils/pdf_helper.dart';
 import '../UI/loading_page.dart';
-import '../UI/mainFilesList.dart';
-import '../services/backend.dart';
 
 class SyllabusPageCAIE extends StatefulWidget {
   @override
+  // ignore: library_private_types_in_public_api
   _SyllabusPageCAIEState createState() => _SyllabusPageCAIEState();
 }
 
@@ -103,6 +100,7 @@ class _SyllabusPageCAIEState extends State<SyllabusPageCAIE> {
   @override
   void dispose() {
     _streamController.close();
+    // ignore: todo
     // TODO: implement dispose
     super.dispose();
   }
@@ -203,6 +201,7 @@ class SyllabusPdfViewCAIE extends StatefulWidget {
   final MainFolder subject;
 
   @override
+  // ignore: library_private_types_in_public_api
   _SyllabusPdfViewCAIEState createState() => _SyllabusPdfViewCAIEState();
 }
 

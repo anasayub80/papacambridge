@@ -11,6 +11,7 @@ import 'package:studento/model/user_data.dart';
 import 'package:studento/model/Filtered.dart';
 import 'package:studento/UI/steps/year.dart';
 import 'package:studento/UI/steps/season.dart';
+import 'package:studento/pages/home_page.dart';
 import 'package:studento/pages/past_paper_view.dart';
 import 'package:studento/model/MainFolderInit.dart';
 import 'package:http/http.dart' as http;
@@ -553,6 +554,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
             ...moreUrls,
           ], //..retainWhere((url) => url != null),
           fileName,
+          boardId,
         ),
       ),
     );

@@ -6,14 +6,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:studento/UI/rate_dialog.dart';
 import 'package:studento/UI/studento_drawer.dart';
-import 'package:studento/UI/random_quote_container.dart';
 import 'package:studento/pages/notes_page.dart';
 import 'package:studento/pages/otherres_page.dart';
+import 'package:studento/pages/schedule.dart';
 import 'package:studento/pages/timetable_page.dart';
+import 'package:studento/pages/todo_list.dart';
 import 'package:studento/utils/theme_provider.dart';
 
 import '../CAIE/syllabusPage.dart';
-import '../UI/studento_app_bar.dart';
+import '../UI/customDelgate.dart';
 import '../services/backend.dart';
 import 'ebook_page.dart';
 import 'past_papers.dart';
@@ -70,57 +71,74 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
     );
   }
 
+// Use for stop snapshot list from updating
+  bool updated = false;
+
   @override
   Widget build(BuildContext context) {
-    Widget buttonRow2 =
-        buildButtonRow(button1: todoListButton, button2: scheduleButton);
     return Scaffold(
       drawer: studentoDrawer(),
-      appBar: StudentoAppBar(
-        context: context,
-        title: "PapaCambridge",
+      appBar: AppBar(
+        title: Text('Papa Cambridge'),
+        //  Padding(
+        //   padding: const EdgeInsets.all(8.0),
+        //   child: Image.asset(
+        //     'assets/icons/logo.png',
+        //     height: 50,
+        //     width: 200,
+        //     fit: BoxFit.contain,
+        //   ),
+        // ),
+        iconTheme: Theme.of(context).iconTheme,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         // titleStyle: TextStyle(
         //   fontSize: 25,
         //   fontWeight: FontWeight.w400,
         //   color: Theme.of(context).textTheme.bodyText1!.color,
         // ),
       ),
-      body: ListView(
-        // mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          // RandomQuoteContainer(),
-          StreamBuilder<dynamic>(
-            // future: backEnd().fetchDomains(boardId),
-            stream: _domainStream.stream,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return GridView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: snapshot.data.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 2.0,
-                    mainAxisSpacing: 5.0,
+      backgroundColor: Theme.of(context).cardColor,
+      body: StreamBuilder<dynamic>(
+        // future: backEnd().fetchDomains(boardId),
+        stream: _domainStream.stream,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List snap = snapshot.data;
+            if (!updated) {
+              // Merging Static data with api requested data
+              snap.addAll([
+                {'id': 'static', 'domain': 'Schedule'},
+                {'id': 'static', 'domain': 'Todo List'},
+              ]);
+              updated = true;
+            }
+            return GridView.builder(
+              // physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: snapshot.data.length,
+              gridDelegate:
+                  SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
+                crossAxisCount: 2,
+                crossAxisSpacing: 2.0,
+                mainAxisSpacing: 5.0,
+              ),
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: HomePageButton(
+                    label: snap[index]['domain'],
+                    iconFileName: returnfileName(snap[index]['domain']),
+                    routeToBePushedWhenTapped: 'ignorethisline',
+                    domainId: snap[index]['id'],
                   ),
-                  itemBuilder: (context, index) {
-                    return HomePageButton(
-                      label: snapshot.data[index]['domain'],
-                      iconFileName:
-                          returnfileName(snapshot.data[index]['domain']),
-                      routeToBePushedWhenTapped: 'ignorethisline',
-                      domainId: snapshot.data[index]['id'],
-                    );
-                  },
                 );
-              }
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            },
-          ),
-          buttonRow2,
-        ],
+              },
+            );
+          }
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        },
       ),
     );
   }
@@ -146,72 +164,18 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
       case 'Timetables':
         asset = 'time-table.png';
         break;
+      case 'Schedule':
+        asset = 'schedule.png';
+        break;
+      case 'Todo List':
+        asset = 'todo-list.png';
+        break;
       default:
-        asset = 'launcher-icon.png';
+        asset = 'logo.png';
     }
 
     return asset;
   }
-
-  // Widget pastPapersButton = HomePageButton(
-  //   label: "PAST PAPERS",
-  //   iconFileName: "exam.png",
-  //   routeToBePushedWhenTapped: 'past_papers_page',
-  // );
-
-  Widget scheduleButton = HomePageButton(
-    label: "SCHEDULE",
-    iconFileName: "schedule.png",
-    routeToBePushedWhenTapped: 'schedule_page',
-    domainId: '',
-  );
-
-  Widget todoListButton = HomePageButton(
-    label: "TODO LIST",
-    iconFileName: "todo-list.png",
-    routeToBePushedWhenTapped: 'todo_list_page',
-    domainId: '',
-  );
-
-  // Widget syllabusButton = HomePageButton(
-  //   label: "SYLLABUS",
-  //   iconFileName: "syllabus.png",
-  //   routeToBePushedWhenTapped: 'syllabus_page',
-  // );
-  // Widget timeTableButton = HomePageButton(
-  //   label: "TIME TABLE",
-  //   iconFileName: "time-table.png",
-  //   routeToBePushedWhenTapped: 'timetable_page',
-  // );
-  // Widget notesButton = HomePageButton(
-  //   label: "NOTES",
-  //   iconFileName: "notes.png",
-  //   routeToBePushedWhenTapped: 'notes_page',
-  // );
-  // Widget eBookButton = HomePageButton(
-  //   label: "E-BOOKS",
-  //   iconFileName: "e-book.png",
-  //   routeToBePushedWhenTapped: 'ebook_page',
-  // );
-  // Widget otherResButton = HomePageButton(
-  //   label: "OTHER RESOURCES",
-  //   iconFileName: "descriptor.png",
-  //   routeToBePushedWhenTapped: 'otherres_page',
-  // );
-
-  Widget buildButtonRow({required Widget button1, required Widget button2}) =>
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          button1,
-          // VerticalDivider(
-          //   color: Colors.blue,
-          //   width: 3.0,
-          // ),
-          button2,
-        ],
-      );
 }
 
 class HomePageButton extends StatefulWidget {
@@ -255,50 +219,41 @@ class _HomePageButtonState extends State<HomePageButton> {
           style: labelStyle,
           textAlign: TextAlign.center,
         );
-    buttonsContainer() => Padding(
-          padding: const EdgeInsets.only(
-            top: 8.0,
-            bottom: 8.0,
-            left: 4,
-            right: 4,
-          ),
-          child: SizedBox(
-            child: Card(
-              child: ClipPath(
-                child: Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(),
-                      icon(),
-                      labelText(),
-                    ],
-                  ),
-                  decoration: BoxDecoration(
-                    // borderRadius: BorderRadius.circular(20),
-                    border: Border(
-                      right: BorderSide(
-                        color: secColor,
-                        width: 2,
-                      ),
+    buttonsContainer() => SizedBox(
+          child: Card(
+            child: ClipPath(
+              child: Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(),
+                    icon(),
+                    labelText(),
+                  ],
+                ),
+                decoration: BoxDecoration(
+                  // borderRadius: BorderRadius.circular(20),
+                  border: Border(
+                    right: BorderSide(
+                      color: secColor,
+                      width: 2,
                     ),
                   ),
                 ),
-                clipper: ShapeBorderClipper(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                ),
               ),
-              color: Theme.of(context).cardColor,
-              elevation: 20,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
+              clipper: ShapeBorderClipper(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
               ),
             ),
-            height: 200,
-            width: MediaQuery.of(context).size.width * 0.45,
+            color: Theme.of(context).cardColor,
+            elevation: 20,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
           ),
+          height: 200,
         );
 
     return Tooltip(
@@ -377,6 +332,20 @@ class _HomePageButtonState extends State<HomePageButton> {
         Navigator.push(context, MaterialPageRoute(
           builder: (context) {
             return TimeTablePage(domainId: domaindId);
+          },
+        ));
+        break;
+      case 'Schedule':
+        Navigator.push(context, MaterialPageRoute(
+          builder: (context) {
+            return SchedulePage();
+          },
+        ));
+        break;
+      case 'Todo List':
+        Navigator.push(context, MaterialPageRoute(
+          builder: (context) {
+            return TodoListPage();
           },
         ));
         break;

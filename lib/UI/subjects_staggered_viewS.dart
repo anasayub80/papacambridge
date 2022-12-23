@@ -5,7 +5,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:studento/UI/random_gradient.dart';
 import 'package:studento/UI/loading_page.dart';

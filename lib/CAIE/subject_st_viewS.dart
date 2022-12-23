@@ -10,9 +10,6 @@ import 'package:studento/UI/loading_page.dart';
 import 'package:studento/model/MainFolder.dart';
 import 'package:http/http.dart' as http;
 
-import '../pages/syllabus.dart';
-import '../services/backend.dart';
-
 // ignore: must_be_immutable
 class SubjectsStaggeredListViewSCAIE extends StatefulWidget {
   // String mainFolder;

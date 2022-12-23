@@ -313,7 +313,7 @@ class TaskCard extends StatelessWidget {
                         child: Text(task.name,
                             style: Theme.of(context)
                                 .textTheme
-                                .headline1!
+                                .headline2!
                                 .copyWith(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w500)),

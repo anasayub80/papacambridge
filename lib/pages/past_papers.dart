@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:studento/model/MainFolder.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +11,7 @@ import 'past_papers_details_select.dart';
 import 'package:studento/UI/studento_app_bar.dart';
 import 'package:studento/UI/subjects_staggered_view.dart';
 
+// ignore: must_be_immutable
 class PastPapersPage extends StatefulWidget {
   String domainId;
   PastPapersPage({required this.domainId});
@@ -152,6 +152,7 @@ class _PastPapersPageCAIEState extends State<PastPapersPageCAIE> {
   @override
   void dispose() {
     _streamController.close();
+    // ignore: todo
     // TODO: implement dispose
     super.dispose();
   }

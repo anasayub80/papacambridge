@@ -1,14 +1,8 @@
-import 'package:studento/pages/ebook_page.dart';
 import 'package:studento/pages/get_pro.dart';
 import 'package:flutter/material.dart';
 import 'package:studento/pages/home_page.dart';
-import 'package:studento/pages/notes_page.dart';
-import 'package:studento/pages/otherres_page.dart';
-import 'package:studento/pages/past_papers.dart';
-import 'package:studento/pages/syllabus.dart';
 import 'package:studento/pages/settings.dart';
 import 'package:studento/pages/schedule.dart';
-import 'package:studento/pages/timetable_page.dart';
 import 'package:studento/pages/todo_list.dart';
 
 const String homeRoute = 'home_page';

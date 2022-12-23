@@ -1,13 +1,11 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:studento/pages/home_page.dart';
 import 'package:studento/pages/past_paper_view.dart';
-import 'package:studento/pages/syllabus.dart';
 import 'package:studento/services/backend.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../UI/studento_app_bar.dart';
-import '../model/MainFolder.dart';
 import 'other_fileView.dart';
 
 class innerfileScreen extends StatefulWidget {
@@ -21,24 +19,6 @@ class innerfileScreen extends StatefulWidget {
 }
 
 class _innerfileScreenState extends State<innerfileScreen> {
-  // String returnfileName(String url) {
-  //   var find = "";
-  //   switch (widget.title) {
-  //     case 'Past Papers':
-  //       find =
-  //           'https://pastpapers.papacambridge.com/directories/OCR/OCR-pastpapers/upload/';
-  //       break;
-  //     case 'E-Books':
-  //       find =
-  //           'https://ebooks.papacambridge.com/directories/OCR/OCR-ebooks/upload/';
-  //       break;
-  //     default:
-  //   }
-  //   final replaceWith = '';
-  //   final fileName = url.replaceAll(find, replaceWith);
-  //   return fileName;
-  // }
-
   var mytotalAmount = '';
 
   var listUpdate = false;
@@ -73,6 +53,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
               url,
             ],
             fileName,
+            boardId,
           ),
         ),
       );

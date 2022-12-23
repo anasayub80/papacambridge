@@ -9,8 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:studento/pages/splash_page.dart';
-import 'package:studento/provider/loadigProvider.dart';
-import '../UI/loading_page.dart';
 import '../UI/setup_page.dart';
 import '../UI/subjects_list_select.dart';
 import '../UI/show_message_dialog.dart';
@@ -18,7 +16,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:studento/Globals.dart' as globals;
 
 import '../services/backend.dart';
-import 'package:provider/provider.dart';
 
 List level = [];
 List levelid = [];
@@ -151,6 +148,7 @@ class _SetupState extends State<Setup> {
     selectedboard = null;
     selectedItem = [];
     selectedlevelid = [];
+    // ignore: todo
     // TODO: implement dispose
     super.dispose();
   }

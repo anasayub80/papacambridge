@@ -22,7 +22,7 @@ class studentoDrawer extends StatelessWidget {
         ListView(
           children: <Widget>[
             timeHeader(currentTime.format(context)),
-            getProFragment,
+            // getProFragment,
             ListTile(
               leading: Container(
                   width: 20,
@@ -60,12 +60,12 @@ class studentoDrawer extends StatelessWidget {
         ),
       );
 
-  final getProFragment = DrawerFragment(
-    icon: Icons.card_membership,
-    title: "Get Pro 🌟🚀",
-    subtitle: "Get rid of ads and unlock cool features!",
-    routeName: 'get_pro_page',
-  );
+  // final getProFragment = DrawerFragment(
+  //   icon: Icons.card_membership,
+  //   title: "Get Pro 🌟🚀",
+  //   subtitle: "Get rid of ads and unlock cool features!",
+  //   routeName: 'get_pro_page',
+  // );
 
   final settingsFragment = DrawerFragment(
     icon: Icons.settings,

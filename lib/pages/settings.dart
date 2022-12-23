@@ -124,7 +124,7 @@ class studentoLogo extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(25),
       child: Text(
-        "studento",
+        "papacambridge",
         textAlign: TextAlign.center,
         style: TextStyle(fontSize: 30),
       ),
