@@ -60,7 +60,7 @@ class _ComponentStepState extends State<ComponentStep> {
         ),
       ),
     );
-
+    debugPrint("components ${components.toString()}");
     return Container(
       child: Column(
         children: <Widget>[

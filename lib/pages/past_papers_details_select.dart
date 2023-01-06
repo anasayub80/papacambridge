@@ -1,6 +1,7 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers
 
 import 'dart:convert';
+import 'dart:developer';
 import 'package:studento/UI/studento_app_bar.dart';
 import 'package:studento/model/MainFolder.dart';
 import 'package:studento/model/PdfModal.dart';
@@ -16,7 +17,9 @@ import 'package:studento/pages/past_paper_view.dart';
 import 'package:studento/model/MainFolderInit.dart';
 import 'package:http/http.dart' as http;
 
-enum Season { summer, winter }
+enum Season { spring, summer, winter }
+
+bool showPapers = false;
 
 class PaperDetailsSelectionPage extends StatefulWidget {
   final MainFolder subject;
@@ -80,7 +83,6 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
 
   String? mirrorName;
   String? mirrorName2;
-  bool showPapers = false;
   bool isLoading = true;
   List<Filtered> filtered = [];
   bool isLoaded = false;
@@ -154,6 +156,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
   getPapersData() async {
     String url =
         'https://myaccount.papacambridge.com/api.php?main_folder=${widget.subject.parent}&id=${widget.subject.id}';
+    log('Url $url');
     http.Response res = await http.get(Uri.parse(url));
     List<MainFolderInit> data = mainFolderInitFromJson(res.body);
     int _startDate = int.parse(data[0].year![0][0]);
@@ -165,6 +168,8 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
       loading = false;
     });
   }
+
+  String? season;
 
   loadData(Season selectedSeason) async {
     setState(() {
@@ -180,7 +185,24 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
     print('ledngggggggggggggggggggggggggg');
     if (filteredL != []) {
       print('qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq');
-      String season = selectedSeason == Season.summer ? 'Summer' : 'Winter';
+      switch (selectedSeason) {
+        case Season.summer:
+          season = 'Summer';
+          break;
+        case Season.spring:
+          season = 'Spring';
+          break;
+        case Season.winter:
+          season = 'Winter';
+          break;
+        default:
+      }
+      // String season = selectedSeason == Season.summer
+      //     ? 'Summer'
+      //     : Season.spring
+      //         ? 'Spring'
+      //         : 'Winter';
+      print('My Season $season');
       int? id;
       for (var e in filteredL) {
         if (season == e.weather) {
@@ -200,10 +222,6 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
         isLoading = false;
       });
     }
-    // setState(() {
-    //   filtered = filteredL;
-
-    // });
   }
 
   @override
@@ -266,18 +284,68 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
                                       children: pdfModal
                                           .map((e) {
                                             int index = pdfModal.indexOf(e);
-                                            // String weather = selectedSeason == Season.summer
+                                            if (!isLoading &&
+                                                pdfModal.isEmpty) {
+                                              return Center(
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Text(
+                                                    'No Past Paper Founds!',
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodyText1!
+                                                        .copyWith(
+                                                            color: Colors.grey),
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                            // else {
+                                            //   log('Get DATA');
+                                            //   return Center(
+                                            //     child: Padding(
+                                            //       padding:
+                                            //           const EdgeInsets.all(8.0),
+                                            //       child: Text(
+                                            //         'No Past Paper Founds!',
+                                            //         style: Theme.of(context)
+                                            //             .textTheme
+                                            //             .bodyText1!
+                                            //             .copyWith(
+                                            //                 color: Colors.grey),
+                                            //       ),
+                                            //     ),
+                                            //   );
+                                            // }
+                                            // // String weather = selectedSeason == Season.summer
                                             //     ? 'Summer'
                                             //     : 'Winter';
                                             // return Container(width: 100,height: 40,color: Colors.red,);
-                                            if (e.paper == 'QP') {
-                                              return ComponentWidget(index,
-                                                  pdf: e);
+                                            else if (e.paper == 'QP') {
+                                              log("Comg Widget Called!");
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: ComponentWidget(index,
+                                                    pdf: e),
+                                              );
                                             } else {
+                                              log("No Past paper Called!");
                                               return Container(
                                                 width: 0,
                                                 height: 0,
                                               );
+                                              // return Center(
+                                              //   child: Text(
+                                              //     'No Past Paper Founds!',
+                                              //     style: Theme.of(context)
+                                              //         .textTheme
+                                              //         .bodyText1!
+                                              //         .copyWith(
+                                              //             color: Colors.grey),
+                                              //   ),
+                                              // );
                                             }
                                           })
                                           .toList()
@@ -391,6 +459,24 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
     print("Step cancelled, step is $_currentStep!");
   }
 
+  String returnSeasonName(selectedSeason) {
+    var find;
+    switch (selectedSeason) {
+      case Season.summer:
+        find = 's';
+        break;
+      case Season.spring:
+        find = 'spr';
+        break;
+      case Season.winter:
+        find = 'w';
+        break;
+      default:
+    }
+
+    return find;
+  }
+
   StepState getState(int stepNo) {
     if (_currentStep == stepNo) {
       return StepState.editing;
@@ -399,7 +485,13 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
   }
 
   String get codeStr => widget.subject.folderCode.toString();
-  String get seasonChar => selectedSeason == Season.summer ? 's' : 'w';
+  String get seasonChar => returnSeasonName(selectedSeason);
+
+  // selectedSeason == Season.summer
+  //     ? 's'
+  //     : Season.spring
+  //         ? 'spr'
+  //         : 'w';
   String get twoDigitYear => selectedYear.toString().substring(2, 4);
   String get componentStr => (selectedYear! >= 2018 && selectedComponent! < 10)
       ? "0$selectedComponent"
@@ -490,6 +582,9 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
         break;
       case Season.winter:
         seasonWord = (selectedYear! < 2018) ? 'Nov' : 'Oct-Nov';
+        break;
+      case Season.spring:
+        seasonWord = (selectedYear! < 2018) ? 'March' : 'March';
         break;
     }
 
@@ -629,6 +724,7 @@ class ComponentWidget extends StatelessWidget {
       child: InkWell(
         onTap: () {
           // var route=MaterialPageRoute(builder: (context)=>PdfDemo());
+
           PaperDetailsSelectionPage.of(context)!.selectedComponent = component;
           PaperDetailsSelectionPage.of(context)!.selectedPdf = pdf;
         },

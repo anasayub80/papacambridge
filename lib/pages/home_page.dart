@@ -79,7 +79,12 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
     return Scaffold(
       drawer: studentoDrawer(),
       appBar: AppBar(
-        title: Text('Papa Cambridge'),
+        title: Text(
+          'Papa Cambridge',
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyText1!.color,
+          ),
+        ),
         //  Padding(
         //   padding: const EdgeInsets.all(8.0),
         //   child: Image.asset(
@@ -292,19 +297,19 @@ class _HomePageButtonState extends State<HomePageButton> {
         }
         break;
       case 'Syllabus':
-        if (boardId != '1') {
-          Navigator.push(context, MaterialPageRoute(
-            builder: (context) {
-              return SyllabusPage(domainId: domaindId);
-            },
-          ));
-        } else {
-          Navigator.push(context, MaterialPageRoute(
-            builder: (context) {
-              return SyllabusPageCAIE();
-            },
-          ));
-        }
+        // if (boardId != '1') {
+        Navigator.push(context, MaterialPageRoute(
+          builder: (context) {
+            return SyllabusPage(domainId: domaindId);
+          },
+        ));
+        // } else {
+        //   Navigator.push(context, MaterialPageRoute(
+        //     builder: (context) {
+        //       return SyllabusPageCAIE();
+        //     },
+        //   ));
+        // }
         break;
 
       case 'E Books':

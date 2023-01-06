@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:bot_toast/bot_toast.dart';
@@ -23,9 +24,9 @@ class mainFilesList extends StatefulWidget {
 
 class _mainFilesListState extends State<mainFilesList> {
   List<MainFolder> allItem = [];
-  List<String> favItem = [];
-  List<String> favItemName = [];
-  List<MainFolder> selectedM = [];
+  List<MainFolder> favItem = [];
+  // List<String> favItemName = [];
+  // List<MainFolder> selectedM = [];
   @override
   void initState() {
     // ignore: todo
@@ -39,8 +40,7 @@ class _mainFilesListState extends State<mainFilesList> {
     _streamController.close();
     allItem = [];
     favItem = [];
-    favItemName = [];
-    selectedM = [];
+    // favItemName = [];
     // ignore: todo
     // TODO: implement dispose
     super.dispose();
@@ -49,52 +49,56 @@ class _mainFilesListState extends State<mainFilesList> {
   void initSubjects() async {
     log('***subject init***');
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    favItem = prefs.getStringList('favItem$boardId') ?? [];
-    favItemName = prefs.getStringList('favItemName$boardId') ?? [];
+    // List<String> basicData = prefs.getStringList('favItem$boardId')!;
+    // Map<String, dynamic> jsonDatais = jsonDecode(basicData);
+    // List<MainFolder> basicInfoModel = mainFolderFromJson(jsonDatais);
+    // favItem = prefs.getString('favItem$boardId');
+
+    // favItemName = prefs.getStringList('favItemName$boardId') ?? [];
     http.Response res = await http.post(Uri.parse(mainFileApi), body: {
       'token': token,
       'domain': widget.domainId,
     });
     List<MainFolder> dataL = mainFolderFromJson(res.body);
-    selectedM.addAll(dataL);
-    for (var subject in dataL) {
-      if (favItem.contains(subject.id.toString())) {
-        log('contain');
-        // selectedM.removeWhere((item) => item.id == subject.id);
-        selectedM.remove(subject);
-      } else {
-        log('not contain');
-      }
-    }
+    List<MainFolder> selectedM = dataL;
+    // for (var subject in dataL) {
+    //   if (favItem.contains(subject.id.toString())) {
+    //     log('contain');
+    //     // selectedM.removeWhere((item) => item.id == subject.id);
+    //     selectedM.remove(subject);
+    //   } else {
+    //     log('not contain');
+    //   }
+    // }
     setState(() {
-      allItem.addAll(selectedM);
+      // allItem.addAll(selectedM);
+      allItem = selectedM;
     });
     _streamController.add('event');
   }
 
-  void modifySubjects() async {}
+  // addtoFav(index, id, name) async {
+  //   log('to save $id & $name');
+  //   BotToast.showLoading();
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   favItem.add(id);
+  //   favItemName.add(name);
+  //   prefs.setStringList('favItem$boardId', favItem);
+  //   prefs.setStringList('favItemName$boardId', favItem);
+  //   // for (var subject in allItem) {
+  //   //   if (favItem.contains(id)) {
+  //   //     log('contain');
+  //   //     // selectedM.remove(subject);
 
-  addtoFav(id, name) async {
-    log('to save $id & $name');
-    BotToast.showLoading();
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    favItem.add(id);
-    favItemName.add(name);
-    prefs.setStringList('favItem$boardId', favItem);
-    prefs.setStringList('favItemName$boardId', favItem);
-    for (var subject in allItem) {
-      if (favItem.contains(id)) {
-        log('contain');
-        // selectedM.remove(subject);
-        selectedM.removeWhere((item) => item.id == subject.id);
-      } else {
-        log('not contain');
-      }
-    }
-    setState(() {
-      allItem = selectedM;
-    });
-  }
+  //   //   } else {
+  //   //     log('not contain');
+  //   //   }
+  //   // }
+  //   setState(() {
+  //     allItem.removeWhere((item) => item.id == allItem[index].id);
+  //   });
+  //   BotToast.closeAllLoading();
+  // }
 
   StreamController _streamController = StreamController();
 
@@ -109,120 +113,114 @@ class _mainFilesListState extends State<mainFilesList> {
             child: CircularProgressIndicator(),
           );
         } else {
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                Expanded(
-                  child: favItem.isEmpty
-                      ? SizedBox.shrink()
-                      : ListView.builder(
-                          itemCount: favItem.length,
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              onTap: () {
-                                if (widget.title != 'Syllabus') {
-                                  log('not syllabus');
-                                  Navigator.push(context, MaterialPageRoute(
-                                    builder: (context) {
-                                      return innerfileScreen(
-                                        inner_file: favItem[index],
-                                        title: widget.title,
-                                      );
-                                    },
-                                  ));
-                                } else {
-                                  log('syllabus');
-                                  Navigator.push(context, MaterialPageRoute(
-                                    builder: (context) {
-                                      return SubjectsStaggeredListViewS(
-                                        // launchSyllabusView(snapshot.data[index]['name']),
-                                        allItem[index].name!,
-                                        allItem[index].id,
-                                      );
-                                    },
-                                  ));
-                                }
-                              },
-                              leading: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Image.asset('assets/icons/folder.png'),
+          return Column(
+            children: [
+              favItem.isEmpty
+                  ? SizedBox.shrink()
+                  : Expanded(
+                      child: ListView.builder(
+                        itemCount: favItem.length,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            onTap: () {
+                              if (widget.title != 'Syllabus') {
+                                log('not syllabus');
+                                Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) {
+                                    return innerfileScreen(
+                                      inner_file: favItem[index],
+                                      title: widget.title,
+                                    );
+                                  },
+                                ));
+                              } else {
+                                log('syllabus');
+                                Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) {
+                                    return SubjectsStaggeredListViewS(
+                                      // launchSyllabusView(snapshot.data[index]['name']),
+                                      allItem[index].name!,
+                                      allItem[index].id,
+                                    );
+                                  },
+                                ));
+                              }
+                            },
+                            leading: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Image.asset('assets/icons/folder.png'),
+                            ),
+                            trailing: IconButton(
+                              onPressed: (() {}),
+                              icon: Icon(
+                                Icons.favorite,
+                                color: Colors.red,
                               ),
-                              trailing: IconButton(
-                                onPressed: (() {
-                                  addtoFav(
-                                    allItem[index].id,
-                                    allItem[index].name!,
-                                  );
-                                }),
-                                icon: Icon(
-                                  Icons.favorite,
-                                  color: Colors.red,
-                                ),
-                              ),
-                              title: Text(
-                                allItem[index].name ?? 'NONE',
-                                style: TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                            );
-                          },
-                        ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: allItem.length,
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        onTap: () {
-                          if (widget.title != 'Syllabus') {
-                            log('not syllabus');
-                            Navigator.push(context, MaterialPageRoute(
-                              builder: (context) {
-                                return innerfileScreen(
-                                  inner_file: allItem[index].id,
-                                  title: widget.title,
-                                );
-                              },
-                            ));
-                          } else {
-                            log('syllabus');
-                            Navigator.push(context, MaterialPageRoute(
-                              builder: (context) {
-                                return SubjectsStaggeredListViewS(
-                                  // launchSyllabusView(snapshot.data[index]['name']),
-                                  allItem[index].name!,
-                                  allItem[index].id,
-                                );
-                              },
-                            ));
-                          }
+                            ),
+                            title: Text(
+                              allItem[index].name ?? 'NONE',
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                          );
                         },
-                        leading: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Image.asset('assets/icons/folder.png'),
-                        ),
-                        trailing: IconButton(
-                          onPressed: (() {
-                            addtoFav(
-                              allItem[index].id,
-                              allItem[index].name,
-                            );
-                          }),
-                          icon: Icon(Icons.favorite_border),
-                        ),
-                        title: Text(
-                          allItem[index].name ?? 'NONE',
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                      );
-                    },
-                  ),
+                      ),
+                    ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: allItem.length,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      onTap: () {
+                        if (widget.title != 'Syllabus') {
+                          log('not syllabus');
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (context) {
+                              return innerfileScreen(
+                                inner_file: allItem[index].id,
+                                title: widget.title,
+                              );
+                            },
+                          ));
+                        } else {
+                          log('syllabus');
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (context) {
+                              return SubjectsStaggeredListViewS(
+                                // launchSyllabusView(snapshot.data[index]['name']),
+                                allItem[index].name!,
+                                allItem[index].id,
+                              );
+                            },
+                          ));
+                        }
+                      },
+                      leading: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Image.asset('assets/icons/folder.png'),
+                      ),
+                      // trailing: IconButton(
+                      //   onPressed: (() {
+                      //     addtoFav(
+                      //       index,
+                      //       allItem[index].id,
+                      //       allItem[index].name,
+                      //     );
+                      //   }),
+                      //   icon: Icon(Icons.favorite_border),
+                      // ),
+                      title: Text(
+                        allItem[index].name ?? 'NONE',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    );
+                  },
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         }
       },

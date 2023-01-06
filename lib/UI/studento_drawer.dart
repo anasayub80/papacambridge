@@ -15,20 +15,21 @@ String? encodeQueryParameters(Map<String, String> params) {
 class studentoDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var currentTime = TimeOfDay.now();
+    // var currentTime = TimeOfDay.now();
     return Drawer(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       child: Stack(children: <Widget>[
         ListView(
           children: <Widget>[
-            timeHeader(currentTime.format(context)),
+            timeHeader('PapaCambridge'),
+
             // getProFragment,
             ListTile(
               leading: Container(
                   width: 20,
                   alignment: Alignment.centerLeft,
                   child: Icon(Icons.menu_book)),
-              title: Text("Change Board"),
+              title: Text("Boards"),
               subtitle: Text('Change your board'),
               onTap: () => {
                 Navigator.of(context).push(MaterialPageRoute(
@@ -53,9 +54,9 @@ class studentoDrawer extends StatelessWidget {
           child: Text(
             time,
             style: TextStyle(
-                fontSize: 50.0,
+                fontSize: 20.0,
                 color: Colors.white,
-                fontWeight: FontWeight.w100),
+                fontWeight: FontWeight.w400),
           ),
         ),
       );
@@ -110,11 +111,11 @@ class studentoDrawer extends StatelessWidget {
     alignment: Alignment.bottomCenter,
     child: ListTile(
       onTap: () {
-        const url = 'https://maskys.com';
+        const url = 'https://papacambridge.com/home/index.html';
         NewHelper().launchInBrowser(Uri.parse(url));
       },
       title: Text(
-        "Made with 💖 by MaskyS",
+        "Created with💖 ",
         textAlign: TextAlign.center,
       ),
     ),

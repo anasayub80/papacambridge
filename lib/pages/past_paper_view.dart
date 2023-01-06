@@ -61,17 +61,11 @@ class _PastPaperViewState extends State<PastPaperView> {
 
   @override
   void initState() {
-    print("past paper view ${widget.urls}");
+    print("past paper view fileName ${widget.fileName}");
     super.initState();
     print(widget.fileName);
     _fileName = widget.fileName;
-    // PdfHelper.checkIfPro().then((isPro) {
-    //   setState(() => _isPro = isPro);
-    //   if (!_isPro) {
-    //     _interstitialAd?.dispose();
-    //     _interstitialAd = createInterstitialAd()..load();
-    //   }
-    // });
+
     initPapers();
     // loadDocs();
   }
@@ -116,17 +110,8 @@ class _PastPaperViewState extends State<PastPaperView> {
             IconButton(
               icon: Icon(Icons.share),
               onPressed: () async {
-                // if (_isPro)
+                // PdfHelper.shareFile(filePath!, "paper");
                 PdfHelper.shareFile(filePath!, "paper");
-                // else {
-                //   var isNowPro =
-                //       await Navigator.pushNamed(context, 'get_pro_page') ??
-                //           false;
-                //   if (isNowPro as bool) {
-                //     setState(() => _isPro = isNowPro);
-                //     PdfHelper.shareFile(filePath!, "paper");
-                //   }
-                // }
               },
             ),
           ],

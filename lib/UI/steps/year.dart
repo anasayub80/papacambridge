@@ -77,7 +77,6 @@ class _YearStepState extends State<YearStep> {
                   data: theme,
                   child: NumberPicker(
                     decoration: decoration,
-
                     minValue: widget.startDate!, // widget.subject.startYear,
                     maxValue: widget.endDate!, //widget.subject.endYear,
                     infiniteLoop: true,

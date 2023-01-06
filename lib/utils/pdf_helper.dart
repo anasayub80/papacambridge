@@ -21,17 +21,21 @@ abstract class PdfHelper {
     return File(filePath).delete();
   }
 
+  // static Future<String> getFilePath(String fileName) async {
+  //   var dir = await getExternalStorageDirectory();
+  //   var knockDir =
+  //       await Directory('${dir!.path}/PapaCambridge').create(recursive: true);
+  //   return "${knockDir.path}/$fileName";
+  // }
+
   static Future<String> getFilePath(String fileName) async {
     var dir = await getApplicationDocumentsDirectory();
     return "${dir.path}/$fileName";
   }
 
   static void shareFile(String filePath, String pdfType) {
-    // ignore: deprecated_member_use
-    Share.shareFiles([File(filePath).toString()],
-        // mimeType: 'application/pdf',
-        text: "Hi, here's the $pdfType",
-        subject: "Share PDF");
+    Share.shareXFiles([XFile(filePath)],
+        text: "Hi, here's the $pdfType", subject: "Share PDF");
   }
 
   // static Future<bool?> checkIfPro() async {
