@@ -46,11 +46,6 @@ class _SubjectsStaggeredListViewStateS
   void initState() {
     super.initState();
     initSubjects();
-    // PdfHelper.checkIfPro().then((isPro) {
-    // if (!isPro!) {
-    //     // _bannerAd = createBannerAd()..load();
-    //   }
-    // });
   }
 
   @override

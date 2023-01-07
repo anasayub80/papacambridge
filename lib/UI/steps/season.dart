@@ -1,7 +1,8 @@
 import 'dart:developer';
-
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:studento/pages/past_papers_details_select.dart';
+import 'package:studento/utils/theme_provider.dart';
 
 class SeasonStep extends StatefulWidget {
   @override
@@ -27,14 +28,20 @@ class _SeasonStepState extends State<SeasonStep> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: <Widget>[
-          headerText,
-          SeasonTile(Season.spring),
-          SeasonTile(Season.summer),
-          SeasonTile(Season.winter),
-        ],
+    return Theme(
+      data: Provider.of<ThemeSettings>(context, listen: false).currentTheme ==
+              ThemeMode.dark
+          ? MyTheme().darkTheme
+          : MyTheme().lightTheme,
+      child: Container(
+        child: Column(
+          children: <Widget>[
+            headerText,
+            SeasonTile(Season.spring),
+            SeasonTile(Season.summer),
+            SeasonTile(Season.winter),
+          ],
+        ),
       ),
     );
   }
@@ -113,12 +120,9 @@ class _SeasonTileState extends State<SeasonTile> {
         padding: EdgeInsets.only(right: 12.0),
         child: Icon(
           returnIcons(widget.season),
-          // (season == Season.summer)
-          //     ? Icons.wb_sunny
-          //     : Season.spring
-          //         ? Icons.abc
-          //         : Icons.ac_unit,
-          color: (isSeasonSelected) ? Colors.blue : Colors.black,
+          color: (isSeasonSelected)
+              ? Colors.blue
+              : Theme.of(context).textTheme.bodyText1!.color,
         ),
       ),
       title: Text(
@@ -129,7 +133,9 @@ class _SeasonTileState extends State<SeasonTile> {
         //         ? "Spring"
         //         : "Winter",
         style: TextStyle(
-          color: (isSeasonSelected) ? Colors.white : Colors.black,
+          color: (isSeasonSelected)
+              ? Colors.blue
+              : Theme.of(context).textTheme.bodyText1!.color,
           fontSize: 14,
           fontWeight: FontWeight.bold,
         ),
@@ -142,7 +148,9 @@ class _SeasonTileState extends State<SeasonTile> {
         //         ? "March"
         //         : "October/November",
         style: TextStyle(
-          color: (isSeasonSelected) ? Colors.white : Colors.black,
+          color: (isSeasonSelected)
+              ? Colors.blue
+              : Theme.of(context).textTheme.bodyText1!.color,
         ),
       ),
     );
@@ -167,7 +175,9 @@ class _SeasonTileState extends State<SeasonTile> {
         shape: borderDeco,
         child: Container(
           decoration: ShapeDecoration(
-            color: (isSeasonSelected) ? Colors.black87 : Colors.transparent,
+            color: (isSeasonSelected)
+                ? Theme.of(context).iconTheme.color
+                : Colors.transparent,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20.0),
               side: BorderSide(

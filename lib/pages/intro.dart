@@ -73,7 +73,8 @@ class IntroPageState extends State<IntroPage> {
             ),
             child: Text(
               "GET STARTED!",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style:
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
             ),
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => Setup()),

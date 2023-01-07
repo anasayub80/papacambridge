@@ -60,19 +60,16 @@ class _SetupState extends State<Setup> {
         onFloatingButtonPressed: validateAndPushBoardPage,
         issubject: false,
       ),
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SetupPage(
-          leadIcon: Icons.poll,
-          caption: "Which CAIE syllabus are you taking part in?",
-          body: selectedboardid == null
-              ? SizedBox()
-              : _buildInfoBody(
-                  selectedboardid,
-                ),
-          onFloatingButtonPressed: validateAndPushSubjectsPage,
-          issubject: true,
-        ),
+      SetupPage(
+        leadIcon: Icons.poll,
+        caption: "Which CAIE syllabus are you taking part in?",
+        body: selectedboardid == null
+            ? SizedBox()
+            : _buildInfoBody(
+                selectedboardid,
+              ),
+        onFloatingButtonPressed: validateAndPushSubjectsPage,
+        issubject: true,
       ),
       // SetupPage(
       //   leadIcon: Icons.book,

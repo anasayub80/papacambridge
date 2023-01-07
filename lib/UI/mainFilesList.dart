@@ -121,59 +121,59 @@ class _mainFilesListState extends State<mainFilesList> {
         } else {
           return Column(
             children: [
-              favItem.isEmpty
-                  ? SizedBox.shrink()
-                  : Expanded(
-                      child: ListView.builder(
-                        itemCount: favItem.length,
-                        shrinkWrap: true,
-                        // physics: NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, i) {
-                          return ListTile(
-                            onTap: () {
-                              if (widget.title != 'Syllabus') {
-                                log('not syllabus');
-                                Navigator.push(context, MaterialPageRoute(
-                                  builder: (context) {
-                                    return innerfileScreen(
-                                      inner_file: favItem[i],
-                                      title: widget.title,
-                                    );
-                                  },
-                                ));
-                              } else {
-                                log('syllabus');
-                                Navigator.push(context, MaterialPageRoute(
-                                  builder: (context) {
-                                    return SubjectsStaggeredListViewS(
-                                      // launchSyllabusView(snapshot.data[i]['name']),
-                                      favItemName[i].replaceFirst(" ", " \n"),
-                                      favItem[i].replaceFirst(" ", " \n"),
-                                    );
-                                  },
-                                ));
-                              }
-                            },
-                            leading: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Image.asset('assets/icons/folder.png'),
-                            ),
-                            trailing: IconButton(
-                              onPressed: (() {}),
-                              icon: Icon(
-                                Icons.favorite,
-                                color: Colors.red,
-                              ),
-                            ),
-                            subtitle: Text(allItem[i].id),
-                            title: Text(
-                              favItemName[i],
-                              style: TextStyle(fontWeight: FontWeight.w600),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+              // favItem.isEmpty
+              //     ? SizedBox.shrink()
+              //     : Expanded(
+              //         child: ListView.builder(
+              //           itemCount: favItem.length,
+              //           shrinkWrap: true,
+              //           // physics: NeverScrollableScrollPhysics(),
+              //           itemBuilder: (context, i) {
+              //             return ListTile(
+              //               onTap: () {
+              //                 if (widget.title != 'Syllabus') {
+              //                   log('not syllabus');
+              //                   Navigator.push(context, MaterialPageRoute(
+              //                     builder: (context) {
+              //                       return innerfileScreen(
+              //                         inner_file: favItem[i],
+              //                         title: widget.title,
+              //                       );
+              //                     },
+              //                   ));
+              //                 } else {
+              //                   log('syllabus');
+              //                   Navigator.push(context, MaterialPageRoute(
+              //                     builder: (context) {
+              //                       return SubjectsStaggeredListViewS(
+              //                         // launchSyllabusView(snapshot.data[i]['name']),
+              //                         favItemName[i].replaceFirst(" ", " \n"),
+              //                         favItem[i].replaceFirst(" ", " \n"),
+              //                       );
+              //                     },
+              //                   ));
+              //                 }
+              //               },
+              //               leading: Padding(
+              //                 padding: const EdgeInsets.all(8.0),
+              //                 child: Image.asset('assets/icons/folder.png'),
+              //               ),
+              //               // trailing: IconButton(
+              //               //   onPressed: (() {}),
+              //               //   icon: Icon(
+              //               //     Icons.favorite,
+              //               //     color: Colors.red,
+              //               //   ),
+              //               // ),
+              //               // subtitle: Text(allItem[i].id),
+              //               title: Text(
+              //                 favItemName[i],
+              //                 style: TextStyle(fontWeight: FontWeight.w600),
+              //               ),
+              //             );
+              //           },
+              //         ),
+              //       ),
               Expanded(
                 child: ListView.builder(
                   itemCount: allItem.length,
@@ -198,7 +198,7 @@ class _mainFilesListState extends State<mainFilesList> {
                             builder: (context) {
                               return SubjectsStaggeredListViewS(
                                 // launchSyllabusView(snapshot.data[index]['name']),
-                                allItem[index].name!.replaceFirst(" ", " \n"),
+                                allItem[index].name!,
                                 allItem[index].id.replaceFirst(" ", " \n"),
                               );
                             },
@@ -209,24 +209,24 @@ class _mainFilesListState extends State<mainFilesList> {
                         padding: const EdgeInsets.all(8.0),
                         child: Image.asset('assets/icons/folder.png'),
                       ),
-                      trailing: IconButton(
-                        onPressed: (() {
-                          addtoFav(
-                            index,
-                            allItem[index].id,
-                            allItem[index].name,
-                          );
-                        }),
-                        icon: Icon(
-                          Icons.favorite_border,
-                          color: Colors.black,
-                        ),
-                      ),
+                      // trailing: IconButton(
+                      //   onPressed: (() {
+                      //     addtoFav(
+                      //       index,
+                      //       allItem[index].id,
+                      //       allItem[index].name,
+                      //     );
+                      //   }),
+                      //   icon: Icon(
+                      //     Icons.favorite_border,
+                      //     color: Colors.black,
+                      //   ),
+                      // ),
                       title: Text(
                         allItem[index].name ?? 'NONE',
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
-                      subtitle: Text(allItem[index].id),
+                      // subtitle: Text(allItem[index].id),
                     );
                   },
                 ),

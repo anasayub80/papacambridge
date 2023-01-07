@@ -148,12 +148,12 @@ class _innerfileScreenState extends State<innerfileScreen> {
                   ),
                   // subtitle: Text(snapshot.data[index]['id']),
                   title: Text(
-                    snapshot.data[index]['name'].replaceFirst("", " \n") ??
+                    snapshot.data[index]['name'] ??
                         snapshot.data[index]['name'] ??
                         'fileName',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      fontSize: 14,
+                      fontSize: 16,
                     ),
                   ),
                 );

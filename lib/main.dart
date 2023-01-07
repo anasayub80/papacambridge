@@ -3,15 +3,15 @@
 import 'dart:async';
 
 import 'package:bot_toast/bot_toast.dart';
-import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import 'package:scoped_model/scoped_model.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+// import 'package:firebase_analytics/firebase_analytics.dart';
+// import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:studento/model/todo/todo_list_model.dart';
@@ -29,14 +29,14 @@ void main() async {
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
   final isDark = sharedPreferences.getBool('is_dark') ?? false;
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  // await Firebase.initializeApp();
   await runZonedGuarded(() async {
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+    // FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
     runApp(Studento(
       isDark: isDark,
     ));
   }, (error, stackTrace) {
-    FirebaseCrashlytics.instance.recordError(error, stackTrace);
+    // FirebaseCrashlytics.instance.recordError(error, stackTrace);
   });
 }
 
@@ -53,9 +53,12 @@ class Studento extends StatefulWidget {
 
 class _StudentoState extends State<Studento> {
   // bool isSetupComplete;
-  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  final FirebaseAnalyticsObserver observer =
-      FirebaseAnalyticsObserver(analytics: analytics);
+  // firebase removed
+  // static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  // final FirebaseAnalyticsObserver observer =
+  //     FirebaseAnalyticsObserver(analytics: analytics);
+  // firebase removed
+
   // bool timeUp = false;
   // void checkifSetupComplete() async {
   //   SharedPreferences prefs = await SharedPreferences.getInstance();

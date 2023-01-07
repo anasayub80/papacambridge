@@ -166,7 +166,7 @@ class _SubjectsStaggeredListViewState extends State<SubjectsStaggeredListView> {
     TextStyle subjectNameStyle = TextStyle(
       fontWeight: FontWeight.w600,
       color: Colors.white,
-      fontSize: 16.0,
+      fontSize: 20.0,
     );
 
     Widget subjectNameText = Text(
