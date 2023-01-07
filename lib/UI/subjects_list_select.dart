@@ -39,7 +39,7 @@ class _SubjectsListState extends State<SubjectsList> {
   initState() {
     super.initState();
     // userData = Hive.box<UserData>('userData').get(0);
-    getSubjects();
+    if (subjects != []) getSubjects();
   }
 
   void getSubjects() async {
@@ -55,7 +55,7 @@ class _SubjectsListState extends State<SubjectsList> {
 
     // api only get 1 level subject
     String url1 =
-        'https://myaccount.papacambridge.com/api.php?main_folder=${widget.levelid}';
+        'https://papacambridge.com/api.php?main_folder=${widget.levelid}&papers=pastpapers';
     print(url1);
     http.Response res = await http.get(Uri.parse(url1));
     print("subject list ${res.body}");
@@ -103,8 +103,10 @@ class _SubjectsListState extends State<SubjectsList> {
                   itemCount: subjects.length,
                   itemBuilder: (_, int index) {
                     MainFolder currentSubject = subjects[index];
-                    String subjectName = currentSubject.name!;
-                    String subjectCode = currentSubject.folderCode!;
+                    String subjectName =
+                        currentSubject.name!.replaceAll("\n", "");
+                    String subjectCode =
+                        currentSubject.folderCode!.replaceAll("\n", "");
                     // bool isSubjectSelected = currentSubject.year == null ? false : true;
                     return CheckboxListTile(
                       activeColor: Colors.blue,
@@ -194,7 +196,7 @@ class _SubjectsListState extends State<SubjectsList> {
       }
       // prefs.setStringList('selectedSubject+$lev\elid', selected);
       log('Selected $selected');
-      prefs.setStringList('selectedSubject', selected);
+      prefs.setStringList('selectedSubject${widget.levelid}', selected);
       // subjects[index].year = isSelected;
       // userData
       //   ..chosenSubjects1 =

@@ -84,7 +84,10 @@ class _SetupPageState extends State<SetupPage> {
               Text("NEXT",
                   style: Theme.of(context).textTheme.subtitle1!.copyWith(
                       color: Colors.white, fontWeight: FontWeight.w600)),
-              Icon(Icons.arrow_forward),
+              Icon(
+                Icons.arrow_forward,
+                color: Colors.white,
+              ),
             ],
           ),
           onPressed: widget.onFloatingButtonPressed,

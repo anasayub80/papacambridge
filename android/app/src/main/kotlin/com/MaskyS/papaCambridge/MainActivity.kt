@@ -1,4 +1,4 @@
-package com.MaskyS.studento
+package com.MaskyS.papaCambridge
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -12,7 +12,7 @@ class SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight
     required this.crossAxisCount,
     this.mainAxisSpacing = 0.0,
     this.crossAxisSpacing = 0.0,
-    this.height = 200.0,
+    this.height = 175.0,
   })  : assert(crossAxisCount > 0),
         assert(mainAxisSpacing >= 0),
         assert(crossAxisSpacing >= 0),

@@ -74,7 +74,7 @@ class _SubjectsStaggeredListViewStateS
               "Choose a subject",
               style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: 30,
+                  fontSize: 24,
                   color: Theme.of(context).textTheme.titleMedium!.color),
             ),
           ),

@@ -60,7 +60,7 @@ class RateDialog extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop();
             showThankUDialog();
-            LaunchReview.launch(androidAppId: 'com.MaskyS.studento');
+            LaunchReview.launch(androidAppId: 'com.MaskyS.papaCambridge');
           },
         ),
       ],

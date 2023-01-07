@@ -19,6 +19,8 @@ import 'package:http/http.dart' as http;
 
 enum Season { spring, summer, winter }
 
+final dataKey = GlobalKey();
+
 bool showPapers = false;
 
 class PaperDetailsSelectionPage extends StatefulWidget {
@@ -64,9 +66,12 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
   set selectedPdf(PdfModal? pdf) => setState(() => _selectedPdf = pdf);
   PdfModal? get selectedPdf => _selectedPdf;
   int? _selectedYear;
+  // to change data from another file
   set selectedYear(int? year) => setState(() => _selectedYear = year);
   int? get selectedYear => _selectedYear;
-
+  bool _isLoading = true;
+  set isLoading(bool? val) => setState(() => _isLoading = val!);
+  bool? get isLoading => _isLoading;
   Season? _selectedSeason;
   set selectedSeason(Season? season) =>
       setState(() => _selectedSeason = season);
@@ -83,14 +88,17 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
 
   String? mirrorName;
   String? mirrorName2;
-  bool isLoading = true;
   List<Filtered> filtered = [];
   bool isLoaded = false;
   List<PdfModal> pdfModal = [];
   bool singleSelect = false;
   List<Step> steps() => <Step>[
         Step(
-          title: Text("Year"),
+          title: Text(
+            "Year",
+            style:
+                TextStyle(color: Theme.of(context).textTheme.bodyText1!.color),
+          ),
           content: startDate == endDate
               ? InkWell(
                   onTap: () {
@@ -118,7 +126,11 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
           state: getState(_yearStepNo),
         ),
         Step(
-          title: Text("Season"),
+          title: Text(
+            "Season",
+            style:
+                TextStyle(color: Theme.of(context).textTheme.bodyText1!.color),
+          ),
           content: SeasonStep(),
           isActive: (_currentStep == _seasonStepNo),
           state: getState(_seasonStepNo),
@@ -155,7 +167,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
   int? endDate;
   getPapersData() async {
     String url =
-        'https://myaccount.papacambridge.com/api.php?main_folder=${widget.subject.parent}&id=${widget.subject.id}';
+        'https://papacambridge.com/api.php?main_folder=${widget.subject.parent}&papers=pastpapers&id=${widget.subject.id}';
     log('Url $url');
     http.Response res = await http.get(Uri.parse(url));
     List<MainFolderInit> data = mainFolderInitFromJson(res.body);
@@ -165,6 +177,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
       selectedYear = median([_startDate, _endDate]);
       startDate = _startDate;
       endDate = _endDate;
+      _selectedYear = _endDate;
       loading = false;
     });
   }
@@ -176,7 +189,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
       showPapers = true;
     });
     String url =
-        'https://myaccount.papacambridge.com/api.php?main_folder=${widget.subject.parent}&id=${widget.subject.id}&year=$selectedYear';
+        'https://papacambridge.com/api.php?main_folder=${widget.subject.parent}&papers=pastpapers&id=${widget.subject.id}&year=$selectedYear';
     print(url);
     http.Response res = await http.get(Uri.parse(url));
     print(res.body);
@@ -209,39 +222,48 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
           id = e.id;
         }
       }
+
       print('iddddddddddddddddddddddddd');
       String url1 =
-          'https://myaccount.papacambridge.com/api.php?main_folder=${widget.subject.parent}&id=$id&year=skip';
+          'https://papacambridge.com/api.php?main_folder=${widget.subject.parent}&papers=pastpapers&id=$id&year=skip';
       print(url1);
       http.Response res1 = await http.get(Uri.parse(url1));
       print(res1.body);
-
       List<PdfModal> pdfModalL = pdfModalFromJson(res1.body);
       setState(() {
+        resCheck = res1.body;
         pdfModal = pdfModalL;
-        isLoading = false;
+        _isLoading = false;
       });
     }
+    Scrollable.ensureVisible(dataKey.currentContext!,
+        duration: Duration(seconds: 1));
   }
 
+  var resCheck;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        key: _scaffoldKey,
-        appBar: StudentoAppBar(
-          title: "Past Paper Details",
-          context: context,
-          leading: IconButton(
-            icon: Icon(Icons.close),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
+      key: _scaffoldKey,
+      appBar: StudentoAppBar(
+        title: "Past Paper Details",
+        context: context,
+        leading: IconButton(
+          icon: Icon(Icons.close),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        body: loading
-            ? Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Container(
+      ),
+      body: loading
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    child: Theme(
+                      data: ThemeData(
+                        primarySwatch: Colors.blue,
+                        colorScheme: ColorScheme.light(primary: Colors.blue),
+                      ),
                       child: Stepper(
                         physics: NeverScrollableScrollPhysics(),
                         steps: steps(),
@@ -256,162 +278,134 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
                         onStepContinue: continueStep,
                       ),
                     ),
-                    if (showPapers)
-                      Container(
-                          child: Column(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(
-                                top: 15.0, bottom: 30.0, left: 30, right: 30),
-                            child: Text(
-                              "Pick a number, any number... the component number!",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 18.0,
+                  ),
+                  if (showPapers)
+                    Container(
+                        key: dataKey,
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  top: 15.0, bottom: 30.0, left: 30, right: 30),
+                              child: Text(
+                                "Pick a number, any number... the component number!",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 16.0,
+                                ),
                               ),
                             ),
-                          ),
-                          isLoading
-                              ? Center(
-                                  child: CircularProgressIndicator(),
-                                )
-                              : Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 20),
-                                  width: MediaQuery.of(context).size.width,
-                                  child: Wrap(
-                                      direction: Axis.horizontal,
-                                      children: pdfModal
-                                          .map((e) {
-                                            int index = pdfModal.indexOf(e);
-                                            if (!isLoading &&
-                                                pdfModal.isEmpty) {
-                                              return Center(
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: Text(
-                                                    'No Past Paper Founds!',
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .bodyText1!
-                                                        .copyWith(
-                                                            color: Colors.grey),
-                                                  ),
-                                                ),
-                                              );
-                                            }
-                                            // else {
-                                            //   log('Get DATA');
-                                            //   return Center(
-                                            //     child: Padding(
-                                            //       padding:
-                                            //           const EdgeInsets.all(8.0),
-                                            //       child: Text(
-                                            //         'No Past Paper Founds!',
-                                            //         style: Theme.of(context)
-                                            //             .textTheme
-                                            //             .bodyText1!
-                                            //             .copyWith(
-                                            //                 color: Colors.grey),
-                                            //       ),
-                                            //     ),
-                                            //   );
-                                            // }
-                                            // // String weather = selectedSeason == Season.summer
-                                            //     ? 'Summer'
-                                            //     : 'Winter';
-                                            // return Container(width: 100,height: 40,color: Colors.red,);
-                                            else if (e.paper == 'QP') {
-                                              log("Comg Widget Called!");
-                                              return Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: ComponentWidget(index,
-                                                    pdf: e),
-                                              );
-                                            } else {
-                                              log("No Past paper Called!");
-                                              return Container(
-                                                width: 0,
-                                                height: 0,
-                                              );
-                                              // return Center(
-                                              //   child: Text(
-                                              //     'No Past Paper Founds!',
-                                              //     style: Theme.of(context)
-                                              //         .textTheme
-                                              //         .bodyText1!
-                                              //         .copyWith(
-                                              //             color: Colors.grey),
-                                              //   ),
-                                              // );
-                                            }
-                                          })
-                                          .toList()
-                                          .cast<Widget>()),
-                                ),
-                          // GridView.builder(
-                          //     itemCount: filtered.length,
-                          //     physics: NeverScrollableScrollPhysics(),
-                          //     padding: EdgeInsets.symmetric(vertical: 30.0),
-                          //     gridDelegate:
-                          //         SliverGridDelegateWithFixedCrossAxisCount(
-                          //       childAspectRatio: 2.5,
-                          //       crossAxisCount: 3,
-                          //       mainAxisSpacing: 10.0,
-                          //     ),
-                          //     shrinkWrap: true,
-                          //     itemBuilder: (_, i) {
-                          //       String weather=selectedSeason==Season.summer?'Summer':'Winter';
-                          //       if(filtered[i].weather==weather)return ComponentWidget(i);
-                          // //  return ComponentWidget(i);
-                          // return Container();
-
-                          //     },
-                          //   ),
-                          if (selectedPdf != null)
-                            InkWell(
-                                onTap: () {
-                                  // print(selectedComponent);
-                                  // Filtered item =
-                                  //     filtered.elementAt(selectedComponent);
-                                  // print(item.id);
-                                  // return;
-                                  openPaper(selectedPdf!);
-                                },
-                                child: Container(
-                                  height: 50,
-                                  width: 100,
-                                  margin: EdgeInsets.only(
-                                      top: 25, bottom: 25, left: 40),
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                      color: Colors.blue,
-                                      boxShadow: [
-                                        BoxShadow(color: Colors.grey)
-                                      ],
-                                      borderRadius: BorderRadius.circular(30)),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Show',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      Icon(
-                                        Icons.arrow_forward_ios,
-                                        color: Colors.white,
-                                        size: 12,
+                            _isLoading
+                                ? Center(
+                                    child: CircularProgressIndicator(),
+                                  )
+                                : resCheck.toString() == '[]'
+                                    ? Center(
+                                        child: Text(
+                                          'No Past Paper Founds!',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
                                       )
-                                    ],
-                                  ),
-                                ))
-                        ],
-                      ))
-                  ],
-                ),
-              ));
+                                    : Container(
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        child: Wrap(
+                                            direction: Axis.horizontal,
+                                            alignment: WrapAlignment.center,
+                                            children: pdfModal
+                                                .map((e) {
+                                                  int index =
+                                                      pdfModal.indexOf(e);
+                                                  log('my component index is $e');
+                                                  if (e.paper == 'QP') {
+                                                    log("Comg Widget Called!");
+                                                    return Container(
+                                                      child: ComponentWidget(
+                                                          index,
+                                                          pdf: e),
+                                                    );
+                                                  } else {
+                                                    log("No Past paper Called!");
+                                                    return Container(
+                                                      width: 0,
+                                                      height: 0,
+                                                    );
+                                                  }
+                                                })
+                                                .toList()
+                                                .cast<Widget>()),
+                                      ),
+                            // GridView.builder(
+                            //     itemCount: filtered.length,
+                            //     physics: NeverScrollableScrollPhysics(),
+                            //     padding: EdgeInsets.symmetric(vertical: 30.0),
+                            //     gridDelegate:
+                            //         SliverGridDelegateWithFixedCrossAxisCount(
+                            //       childAspectRatio: 2.5,
+                            //       crossAxisCount: 3,
+                            //       mainAxisSpacing: 10.0,
+                            //     ),
+                            //     shrinkWrap: true,
+                            //     itemBuilder: (_, i) {
+                            //       String weather=selectedSeason==Season.summer?'Summer':'Winter';
+                            //       if(filtered[i].weather==weather)return ComponentWidget(i);
+                            // //  return ComponentWidget(i);
+                            // return Container();
+
+                            //     },
+                            //   ),
+                            if (selectedPdf != null)
+                              InkWell(
+                                  onTap: () {
+                                    // print(selectedComponent);
+                                    // Filtered item =
+                                    //     filtered.elementAt(selectedComponent);
+                                    // print(item.id);
+                                    // return;
+                                    openPaper(selectedPdf!);
+                                  },
+                                  child: Container(
+                                    height: 50,
+                                    width: 100,
+                                    margin: EdgeInsets.only(
+                                        top: 25, bottom: 25, left: 40),
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                        color: Colors.blue,
+                                        boxShadow: [
+                                          BoxShadow(color: Colors.grey)
+                                        ],
+                                        borderRadius:
+                                            BorderRadius.circular(30)),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'View',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        Icon(
+                                          Icons.arrow_forward_ios,
+                                          color: Colors.white,
+                                          size: 12,
+                                        )
+                                      ],
+                                    ),
+                                  )),
+                            SizedBox(
+                              height: 150,
+                            ),
+                          ],
+                        ))
+                ],
+              ),
+            ),
+    );
   }
 
   void changeStep(int stepTapped) {
@@ -425,6 +419,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
     bool isAllDetailsSelected = (_selectedSeason != null &&
         // _selectedComponent != null &&
         _selectedYear != null);
+
     print(_selectedSeason);
     print('#########################');
     // if(_selectedSeason)
@@ -569,6 +564,16 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
 
       isLoaded = true;
     });
+  }
+
+  @override
+  void dispose() {
+    // ignore: todo
+    // TODO: implement dispose
+    _selectedPdf = null;
+    _isLoading = true;
+    showPapers = false;
+    super.dispose();
   }
 
   String? generateMirror1Url() {
@@ -724,7 +729,8 @@ class ComponentWidget extends StatelessWidget {
       child: InkWell(
         onTap: () {
           // var route=MaterialPageRoute(builder: (context)=>PdfDemo());
-
+          Scrollable.ensureVisible(dataKey.currentContext!,
+              duration: Duration(seconds: 1));
           PaperDetailsSelectionPage.of(context)!.selectedComponent = component;
           PaperDetailsSelectionPage.of(context)!.selectedPdf = pdf;
         },

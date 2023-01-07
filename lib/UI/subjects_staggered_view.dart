@@ -57,9 +57,12 @@ class _SubjectsStaggeredListViewState extends State<SubjectsStaggeredListView> {
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 25),
-          child: Text(
-            "Choose a subject",
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 30),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "Choose a subject",
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 25),
+            ),
           ),
         ),
         isloading == true
@@ -127,11 +130,11 @@ class _SubjectsStaggeredListViewState extends State<SubjectsStaggeredListView> {
     log('***subject init simple***');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> selectedSubjectList =
-        prefs.getStringList('selectedSubject') ?? [];
+        prefs.getStringList('selectedSubject${widget.levelid}') ?? [];
     print("selected subject list $selectedSubjectList & id${widget.levelid}");
     // var mainFolder = await getfolderid();
     String url =
-        'https://myaccount.papacambridge.com/api.php?main_folder=${widget.levelid}';
+        'https://papacambridge.com/api.php?main_folder=${widget.levelid}&papers=pastpapers';
     log(url.toString());
     http.Response res = await http.get(Uri.parse(url));
     // http.Response res = await http.post(Uri.parse(innerFileApi), body: {
@@ -163,7 +166,7 @@ class _SubjectsStaggeredListViewState extends State<SubjectsStaggeredListView> {
     TextStyle subjectNameStyle = TextStyle(
       fontWeight: FontWeight.w600,
       color: Colors.white,
-      fontSize: 20.0,
+      fontSize: 16.0,
     );
 
     Widget subjectNameText = Text(
@@ -188,7 +191,7 @@ class _SubjectsStaggeredListViewState extends State<SubjectsStaggeredListView> {
         child: InkWell(
           onTap: () => widget.onGridTileTap(subject),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               subjectNameText,
               subjectCodeText,

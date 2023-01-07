@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:studento/model/user_data.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -59,17 +60,19 @@ class _SetupState extends State<Setup> {
         onFloatingButtonPressed: validateAndPushBoardPage,
         issubject: false,
       ),
-      SetupPage(
-        leadIcon: Icons.poll,
-        caption:
-            "Which Cambridge International Examination are you taking part in?",
-        body: selectedboardid == null
-            ? SizedBox()
-            : _buildInfoBody(
-                selectedboardid,
-              ),
-        onFloatingButtonPressed: validateAndPushSubjectsPage,
-        issubject: true,
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SetupPage(
+          leadIcon: Icons.poll,
+          caption: "Which CAIE syllabus are you taking part in?",
+          body: selectedboardid == null
+              ? SizedBox()
+              : _buildInfoBody(
+                  selectedboardid,
+                ),
+          onFloatingButtonPressed: validateAndPushSubjectsPage,
+          issubject: true,
+        ),
       ),
       // SetupPage(
       //   leadIcon: Icons.book,
@@ -161,19 +164,21 @@ class _SetupState extends State<Setup> {
   Level? levelG;
   getLevel(boardId) async {
     var res = await backEnd().fetchMainFiles(boardId);
+    var resp = res.toString().replaceAll("\n", "");
+    debugPrint("checking response ${res.toString()}");
     if (dataUpdated == false) {
       for (var i = 0; i < res.length; i++) {
-        level.add(res[i]['name']);
-        levelid.add(res[i]['id']);
-        log(res[i]['name']);
+        level.add(res[i]['name'].replaceAll("\n", ""));
+        levelid.add(res[i]['id'].replaceAll("\n", ""));
+        log(res[i]['name'].replaceAll("\n", ""));
       }
       dataUpdated = true;
     }
     _levelController.add(res);
   }
 
-  StreamController _levelController = StreamController();
-  StreamController _boardController = StreamController();
+  StreamController _levelController = BehaviorSubject();
+  StreamController _boardController = BehaviorSubject();
   _buildInfoBody(boardId) {
     // save from auto refresh data in setState
     getLevel(boardId);
@@ -197,7 +202,7 @@ class _SetupState extends State<Setup> {
                       selected: selectedItem.contains(level[index]),
                       title: Text(
                         level[index].toString(),
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                        style: TextStyle(fontWeight: FontWeight.w500),
                       ),
                       // secondary: Text(subjectCode),
                       onChanged: (bool? isSelected) async {
@@ -464,6 +469,12 @@ class _SetupState extends State<Setup> {
   // void pushSubjectsPage() => pushNextPage(2);
   void pushPermissionsPage() => pushNextPage(selectedboardid != '1' ? 1 : 2);
   void pushHomePage() async {
+    levelid = [];
+    level = [];
+    selectedboardid = null;
+    selectedboard = null;
+    selectedItem = [];
+    selectedlevelid = [];
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('setup', true);
     // ignore: use_build_context_synchronously

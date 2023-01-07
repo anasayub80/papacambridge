@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:studento/model/user_data.dart';
+import '../utils/theme_provider.dart';
 import 'home_page.dart';
 import 'intro.dart';
+import 'package:provider/provider.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -81,12 +83,15 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeSettings>(context, listen: false);
     return Scaffold(
       body: Column(
         children: [
           Center(
             child: Image.asset(
-              'assets/icons/logo.png',
+              themeProvider.currentTheme == ThemeMode.light
+                  ? 'assets/icons/logo.png'
+                  : 'assets/icons/Darklogo.png',
               height: 125,
               fit: BoxFit.contain,
               width: MediaQuery.of(context).size.width * 0.85,

@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../pages/setup.dart';
 import '../utils/newHelper.dart';
+import 'changeThemeButton.dart';
 
 String? encodeQueryParameters(Map<String, String> params) {
   return params.entries
@@ -21,7 +22,7 @@ class studentoDrawer extends StatelessWidget {
       child: Stack(children: <Widget>[
         ListView(
           children: <Widget>[
-            timeHeader('PapaCambridge'),
+            timeHeader('PapaCambridge', context),
 
             // getProFragment,
             ListTile(
@@ -29,8 +30,18 @@ class studentoDrawer extends StatelessWidget {
                   width: 20,
                   alignment: Alignment.centerLeft,
                   child: Icon(Icons.menu_book)),
-              title: Text("Boards"),
-              subtitle: Text('Change your board'),
+              title: Text(
+                "BOARDS",
+                style: TextStyle(
+                  fontSize: 12,
+                ),
+              ),
+              subtitle: Text(
+                'Change your board',
+                style: TextStyle(
+                  fontSize: 12,
+                ),
+              ),
               onTap: () => {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => Setup(
@@ -38,7 +49,7 @@ class studentoDrawer extends StatelessWidget {
                         ))),
               },
             ),
-            settingsFragment,
+            // settingsFragment,
             sendFeedbackFragment,
             shareFragment,
           ],
@@ -48,16 +59,43 @@ class studentoDrawer extends StatelessWidget {
     );
   }
 
-  Widget timeHeader(String time) => DrawerHeader(
+  Widget timeHeader(String time, BuildContext context) => DrawerHeader(
         decoration: BoxDecoration(color: Color(0xFF24243e)),
-        child: Center(
-          child: Text(
-            time,
-            style: TextStyle(
-                fontSize: 20.0,
-                color: Colors.white,
-                fontWeight: FontWeight.w400),
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Center(
+            //   child: Text(
+            //     time,
+            //     style: TextStyle(
+            //         fontSize: 20.0,
+            //         color: Colors.white,
+            //         fontWeight: FontWeight.w400),
+            //   ),
+            // ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'Light',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText1!
+                      .copyWith(color: Colors.white),
+                ),
+                ChangeThemeButton(),
+                Text(
+                  'Dark',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText1!
+                      .copyWith(color: Colors.white),
+                ),
+              ],
+            ),
+          ],
         ),
       );
 
@@ -68,19 +106,29 @@ class studentoDrawer extends StatelessWidget {
   //   routeName: 'get_pro_page',
   // );
 
-  final settingsFragment = DrawerFragment(
-    icon: Icons.settings,
-    title: "Settings",
-    subtitle: "Configure your app settings.",
-    routeName: 'settings_page',
-  );
+  // final settingsFragment = DrawerFragment(
+  //   icon: Icons.settings,
+  //   title: "Settings",
+  //   subtitle: "Configure your app settings.",
+  //   routeName: 'settings_page',
+  // );
   final sendFeedbackFragment = ListTile(
     leading: Container(
         width: 20,
         alignment: Alignment.centerLeft,
         child: Icon(Icons.feedback)),
-    title: Text("Send Feedback"),
-    subtitle: Text("Report a nasty bug or send awesome ideas our way."),
+    title: Text(
+      "SEND FEEDBACK",
+      style: TextStyle(
+        fontSize: 12,
+      ),
+    ),
+    subtitle: Text(
+      "Report a nasty bug or send awesome ideas our way.",
+      style: TextStyle(
+        fontSize: 12,
+      ),
+    ),
     onTap: () {
       print("You're a good user, thanks for reporting bugs.");
 
@@ -98,11 +146,21 @@ class studentoDrawer extends StatelessWidget {
   final shareFragment = ListTile(
     leading: Container(
         width: 20, alignment: Alignment.centerLeft, child: Icon(Icons.share)),
-    title: Text("Share App"),
-    subtitle: Text("Share Papa Cambridge with a friend."),
+    title: Text(
+      "SHARE APP",
+      style: TextStyle(
+        fontSize: 12,
+      ),
+    ),
+    subtitle: Text(
+      "Share app with a friend.",
+      style: TextStyle(
+        fontSize: 12,
+      ),
+    ),
     onTap: () {
       Share.share(
-        "Hey! I think you'll find Papa Cambridge useful. It's a student assistant app for O/A Level students, with past papers, syllabus, schedule, and more. Link: https://play.google.com/store/apps/details?id=com.MaskyS.studento",
+        "Hey! I think you'll find Papa Cambridge useful. It's a student assistant app for O/A Level students, with past papers, syllabus, schedule, and more. Link: https://play.google.com/store/apps/details?id=com.MaskyS.papaCambridge",
         subject: "Check out this amazing app",
       );
     },
@@ -115,8 +173,11 @@ class studentoDrawer extends StatelessWidget {
         NewHelper().launchInBrowser(Uri.parse(url));
       },
       title: Text(
-        "Created with💖 ",
+        "Created with 💖 ",
         textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 12,
+        ),
       ),
     ),
   );

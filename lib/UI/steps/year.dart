@@ -28,7 +28,7 @@ class _YearStepState extends State<YearStep> {
       "Choose the year of the paper! How old?",
       style: TextStyle(
         fontWeight: FontWeight.w500,
-        fontSize: 20.0,
+        fontSize: 16.0,
       ),
     ),
   );
@@ -79,6 +79,7 @@ class _YearStepState extends State<YearStep> {
                     decoration: decoration,
                     minValue: widget.startDate!, // widget.subject.startYear,
                     maxValue: widget.endDate!, //widget.subject.endYear,
+                    axis: Axis.vertical,
                     infiniteLoop: true,
                     onChanged: setYear,
                     value: PaperDetailsSelectionPage.of(context)!.selectedYear!,

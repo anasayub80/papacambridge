@@ -87,14 +87,9 @@ class _innerfileScreenState extends State<innerfileScreen> {
               ),
             );
           } else if (snapshot.hasData) {
-            // if (snapshot.data[0]['name'] != null) {
-
             return ListView.builder(
               itemCount: snapshot.data.length,
               itemBuilder: (context, index) {
-                // url = snapshot.data[0]['link'] == ""
-                //     ? snapshot.data[1]['link']
-                //     : snapshot.data[0]['link'];
                 return ListTile(
                   onTap: () {
                     if (snapshot.data[index]['url_pdf'] == "") {
@@ -115,8 +110,11 @@ class _innerfileScreenState extends State<innerfileScreen> {
                         snapshot.data[index]['url_pdf']
                                 .toString()
                                 .contains('.pdf')
-                            ? openPaper(snapshot.data[index]['url_pdf'],
-                                snapshot.data[index]['name'] ?? 'fileName')
+                            ? openPaper(
+                                snapshot.data[index]['url_pdf'],
+                                snapshot.data[index]['name']
+                                        .replaceFirst(" ", " \n") ??
+                                    'fileName')
                             : Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -124,19 +122,15 @@ class _innerfileScreenState extends State<innerfileScreen> {
                                     [
                                       snapshot.data[index]['url_pdf'],
                                     ],
-                                    snapshot.data[index]['name'] ?? 'fileName',
-                                    snapshot.data[index]['id'] ?? 'fileName',
+                                    snapshot.data[index]['name']
+                                            .replaceFirst(" ", " \n") ??
+                                        'fileName',
+                                    snapshot.data[index]['id']
+                                            .replaceFirst(" ", " \n") ??
+                                        'fileName',
                                   ),
                                 ),
                               );
-
-                        // snapshot.data[index]['url_pdf']
-                        //         .toString()
-                        //         .contains('.doc')
-                        //     ? _launchURL(snapshot.data[index]['url_pdf'])
-                        //     : 'assets/icons/folder.png';
-                        // openPaper(snapshot.data[index]['url_pdf'],
-                        //     snapshot.data[index]['name'] ?? 'fileName');
                       }
                     }
                   },
@@ -154,11 +148,12 @@ class _innerfileScreenState extends State<innerfileScreen> {
                   ),
                   // subtitle: Text(snapshot.data[index]['id']),
                   title: Text(
-                    snapshot.data[index]['name'] ??
+                    snapshot.data[index]['name'].replaceFirst("", " \n") ??
                         snapshot.data[index]['name'] ??
                         'fileName',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
+                      fontSize: 14,
                     ),
                   ),
                 );

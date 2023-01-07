@@ -24,8 +24,8 @@ class mainFilesList extends StatefulWidget {
 
 class _mainFilesListState extends State<mainFilesList> {
   List<MainFolder> allItem = [];
-  List<MainFolder> favItem = [];
-  // List<String> favItemName = [];
+  List<String> favItem = [];
+  List<String> favItemName = [];
   // List<MainFolder> selectedM = [];
   @override
   void initState() {
@@ -40,7 +40,7 @@ class _mainFilesListState extends State<mainFilesList> {
     _streamController.close();
     allItem = [];
     favItem = [];
-    // favItemName = [];
+    favItemName = [];
     // ignore: todo
     // TODO: implement dispose
     super.dispose();
@@ -52,24 +52,29 @@ class _mainFilesListState extends State<mainFilesList> {
     // List<String> basicData = prefs.getStringList('favItem$boardId')!;
     // Map<String, dynamic> jsonDatais = jsonDecode(basicData);
     // List<MainFolder> basicInfoModel = mainFolderFromJson(jsonDatais);
-    // favItem = prefs.getString('favItem$boardId');
+    favItem = prefs.getStringList('favItem$boardId') ?? [];
+    favItemName = prefs.getStringList('favItemName$boardId') ?? [];
 
     // favItemName = prefs.getStringList('favItemName$boardId') ?? [];
     http.Response res = await http.post(Uri.parse(mainFileApi), body: {
       'token': token,
       'domain': widget.domainId,
     });
+    print(favItem.toString());
     List<MainFolder> dataL = mainFolderFromJson(res.body);
     List<MainFolder> selectedM = dataL;
-    // for (var subject in dataL) {
-    //   if (favItem.contains(subject.id.toString())) {
-    //     log('contain');
-    //     // selectedM.removeWhere((item) => item.id == subject.id);
-    //     selectedM.remove(subject);
-    //   } else {
-    //     log('not contain');
-    //   }
-    // }
+    for (var subject in dataL) {
+      if (favItem.contains(subject.id.toString())) {
+        log('contain');
+        // favItem.add(subject.id);
+        // allItem.remove(subject.id);
+        allItem.removeWhere((item) => item.id == subject.id);
+        // selectedM.remove(subject);
+      } else {
+        // favItem.remove(subject.id);
+        log('not contain');
+      }
+    }
     setState(() {
       // allItem.addAll(selectedM);
       allItem = selectedM;
@@ -77,28 +82,29 @@ class _mainFilesListState extends State<mainFilesList> {
     _streamController.add('event');
   }
 
-  // addtoFav(index, id, name) async {
-  //   log('to save $id & $name');
-  //   BotToast.showLoading();
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   favItem.add(id);
-  //   favItemName.add(name);
-  //   prefs.setStringList('favItem$boardId', favItem);
-  //   prefs.setStringList('favItemName$boardId', favItem);
-  //   // for (var subject in allItem) {
-  //   //   if (favItem.contains(id)) {
-  //   //     log('contain');
-  //   //     // selectedM.remove(subject);
+  addtoFav(index, id, name) async {
+    log('to save $id & $name');
+    BotToast.showLoading();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    favItem.add(id);
+    favItemName.add(name);
+    prefs.setStringList('favItem$boardId', favItem);
+    prefs.setStringList('favItemName$boardId', favItemName);
+    // prefs.setStringList('favItemName$boardId', favItem);
+    // for (var subject in allItem) {
+    //   if (favItem.contains(id)) {
+    //     log('contain');
+    //     // selectedM.remove(subject);
 
-  //   //   } else {
-  //   //     log('not contain');
-  //   //   }
-  //   // }
-  //   setState(() {
-  //     allItem.removeWhere((item) => item.id == allItem[index].id);
-  //   });
-  //   BotToast.closeAllLoading();
-  // }
+    //   } else {
+    //     log('not contain');
+    //   }
+    // }
+    setState(() {
+      allItem.removeWhere((item) => item.id == allItem[index].id);
+    });
+    BotToast.closeAllLoading();
+  }
 
   StreamController _streamController = StreamController();
 
@@ -121,8 +127,8 @@ class _mainFilesListState extends State<mainFilesList> {
                       child: ListView.builder(
                         itemCount: favItem.length,
                         shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
+                        // physics: NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, i) {
                           return ListTile(
                             onTap: () {
                               if (widget.title != 'Syllabus') {
@@ -130,7 +136,7 @@ class _mainFilesListState extends State<mainFilesList> {
                                 Navigator.push(context, MaterialPageRoute(
                                   builder: (context) {
                                     return innerfileScreen(
-                                      inner_file: favItem[index],
+                                      inner_file: favItem[i],
                                       title: widget.title,
                                     );
                                   },
@@ -140,9 +146,9 @@ class _mainFilesListState extends State<mainFilesList> {
                                 Navigator.push(context, MaterialPageRoute(
                                   builder: (context) {
                                     return SubjectsStaggeredListViewS(
-                                      // launchSyllabusView(snapshot.data[index]['name']),
-                                      allItem[index].name!,
-                                      allItem[index].id,
+                                      // launchSyllabusView(snapshot.data[i]['name']),
+                                      favItemName[i].replaceFirst(" ", " \n"),
+                                      favItem[i].replaceFirst(" ", " \n"),
                                     );
                                   },
                                 ));
@@ -159,8 +165,9 @@ class _mainFilesListState extends State<mainFilesList> {
                                 color: Colors.red,
                               ),
                             ),
+                            subtitle: Text(allItem[i].id),
                             title: Text(
-                              allItem[index].name ?? 'NONE',
+                              favItemName[i],
                               style: TextStyle(fontWeight: FontWeight.w600),
                             ),
                           );
@@ -171,7 +178,7 @@ class _mainFilesListState extends State<mainFilesList> {
                 child: ListView.builder(
                   itemCount: allItem.length,
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  // physics: NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
                     return ListTile(
                       onTap: () {
@@ -191,8 +198,8 @@ class _mainFilesListState extends State<mainFilesList> {
                             builder: (context) {
                               return SubjectsStaggeredListViewS(
                                 // launchSyllabusView(snapshot.data[index]['name']),
-                                allItem[index].name!,
-                                allItem[index].id,
+                                allItem[index].name!.replaceFirst(" ", " \n"),
+                                allItem[index].id.replaceFirst(" ", " \n"),
                               );
                             },
                           ));
@@ -202,20 +209,24 @@ class _mainFilesListState extends State<mainFilesList> {
                         padding: const EdgeInsets.all(8.0),
                         child: Image.asset('assets/icons/folder.png'),
                       ),
-                      // trailing: IconButton(
-                      //   onPressed: (() {
-                      //     addtoFav(
-                      //       index,
-                      //       allItem[index].id,
-                      //       allItem[index].name,
-                      //     );
-                      //   }),
-                      //   icon: Icon(Icons.favorite_border),
-                      // ),
+                      trailing: IconButton(
+                        onPressed: (() {
+                          addtoFav(
+                            index,
+                            allItem[index].id,
+                            allItem[index].name,
+                          );
+                        }),
+                        icon: Icon(
+                          Icons.favorite_border,
+                          color: Colors.black,
+                        ),
+                      ),
                       title: Text(
                         allItem[index].name ?? 'NONE',
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
+                      subtitle: Text(allItem[index].id),
                     );
                   },
                 ),

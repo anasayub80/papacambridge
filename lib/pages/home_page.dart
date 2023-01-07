@@ -12,6 +12,7 @@ import 'package:studento/pages/schedule.dart';
 import 'package:studento/pages/timetable_page.dart';
 import 'package:studento/pages/todo_list.dart';
 import 'package:studento/utils/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 import '../CAIE/syllabusPage.dart';
 import '../UI/customDelgate.dart';
@@ -76,24 +77,29 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeSettings>(context, listen: false);
+
     return Scaffold(
       drawer: studentoDrawer(),
       appBar: AppBar(
-        title: Text(
-          'Papa Cambridge',
-          style: TextStyle(
-            color: Theme.of(context).textTheme.bodyText1!.color,
+        title:
+            // Text(
+            //   'Papa Cambridge',
+            //   style: TextStyle(
+            //     color: Theme.of(context).textTheme.bodyText1!.color,
+            //   ),
+            // ),
+            Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset(
+            themeProvider.currentTheme == ThemeMode.light
+                ? 'assets/icons/logo.png'
+                : 'assets/icons/Darklogo.png',
+            height: 50,
+            width: 200,
+            fit: BoxFit.contain,
           ),
         ),
-        //  Padding(
-        //   padding: const EdgeInsets.all(8.0),
-        //   child: Image.asset(
-        //     'assets/icons/logo.png',
-        //     height: 50,
-        //     width: 200,
-        //     fit: BoxFit.contain,
-        //   ),
-        // ),
         iconTheme: Theme.of(context).iconTheme,
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         // titleStyle: TextStyle(
@@ -125,7 +131,7 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
                   SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
                 crossAxisCount: 2,
                 crossAxisSpacing: 2.0,
-                mainAxisSpacing: 5.0,
+                mainAxisSpacing: 2.0,
               ),
               itemBuilder: (context, index) {
                 return Padding(

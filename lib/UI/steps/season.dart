@@ -20,7 +20,7 @@ class _SeasonStepState extends State<SeasonStep> {
       "Choose your season! Hot or cold?",
       style: TextStyle(
         fontWeight: FontWeight.w500,
-        fontSize: 20.0,
+        fontSize: 14.0,
       ),
     ),
   );
@@ -31,14 +31,7 @@ class _SeasonStepState extends State<SeasonStep> {
       child: Column(
         children: <Widget>[
           headerText,
-          GestureDetector(
-              onTap: (() {
-                setState(() {
-                  showPapers = false;
-                });
-                log('setState');
-              }),
-              child: SeasonTile(Season.spring)),
+          SeasonTile(Season.spring),
           SeasonTile(Season.summer),
           SeasonTile(Season.winter),
         ],
@@ -64,10 +57,10 @@ class _SeasonTileState extends State<SeasonTile> {
       IconData? icon;
       switch (selectedSeason) {
         case Season.summer:
-          icon = Icons.wb_sunny;
+          icon = Icons.sunny;
           break;
         case Season.spring:
-          icon = Icons.sunny_snowing;
+          icon = Icons.spa;
           break;
         case Season.winter:
           icon = Icons.ac_unit;
@@ -125,7 +118,7 @@ class _SeasonTileState extends State<SeasonTile> {
           //     : Season.spring
           //         ? Icons.abc
           //         : Icons.ac_unit,
-          color: (isSeasonSelected) ? Colors.blue : Colors.grey,
+          color: (isSeasonSelected) ? Colors.blue : Colors.black,
         ),
       ),
       title: Text(
@@ -136,7 +129,8 @@ class _SeasonTileState extends State<SeasonTile> {
         //         ? "Spring"
         //         : "Winter",
         style: TextStyle(
-          color: (isSeasonSelected) ? Colors.white : Colors.grey,
+          color: (isSeasonSelected) ? Colors.white : Colors.black,
+          fontSize: 14,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -147,8 +141,9 @@ class _SeasonTileState extends State<SeasonTile> {
         //     : Season.spring
         //         ? "March"
         //         : "October/November",
-        style:
-            TextStyle(color: (isSeasonSelected) ? Colors.white : Colors.grey),
+        style: TextStyle(
+          color: (isSeasonSelected) ? Colors.white : Colors.black,
+        ),
       ),
     );
 
@@ -161,6 +156,8 @@ class _SeasonTileState extends State<SeasonTile> {
       onTap: () {
         setSeason(widget.season, context);
         setState(() {
+          PaperDetailsSelectionPage.of(context)!.selectedPdf = null;
+          PaperDetailsSelectionPage.of(context)!.isLoading = true;
           showPapers = false;
         });
       },

@@ -58,7 +58,7 @@ class _SubjectsStaggeredListViewSCAIEtateS
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 25),
           child: Text(
             "Choose a subject",
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 30),
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
           ),
         ),
         // Expanded(
@@ -154,7 +154,7 @@ class _SubjectsStaggeredListViewSCAIEtateS
     print("selected subject list $selectedSubjectList & id${widget.levelid}");
     // var mainFolder = await getfolderid();
     String url =
-        'https://myaccount.papacambridge.com/api.php?main_folder=${widget.levelid}';
+        'https://papacambridge.com/api.php?main_folder=${widget.levelid}';
     log(url.toString());
     http.Response res = await http.get(Uri.parse(url));
     // http.Response res = await http.post(Uri.parse(innerFileApi), body: {
@@ -188,7 +188,7 @@ class _SubjectsStaggeredListViewSCAIEtateS
     TextStyle subjectNameStyle = TextStyle(
       fontWeight: FontWeight.w600,
       color: Colors.white,
-      fontSize: 20.0,
+      fontSize: 18.0,
     );
 
     Widget subjectNameText = Text(
