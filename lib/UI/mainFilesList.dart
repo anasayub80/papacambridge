@@ -9,6 +9,7 @@ import 'package:studento/UI/subjects_staggered_viewS.dart';
 import 'package:studento/pages/home_page.dart';
 import 'package:studento/pages/inner_files_screen.dart';
 import 'package:studento/services/backend.dart';
+import 'package:studento/utils/like_icon.dart';
 
 import '../model/MainFolder.dart';
 import 'package:http/http.dart' as http;
@@ -26,6 +27,7 @@ class _mainFilesListState extends State<mainFilesList> {
   List<MainFolder> allItem = [];
   List<String> favItem = [];
   List<String> favItemName = [];
+
   // List<MainFolder> selectedM = [];
   @override
   void initState() {
@@ -41,6 +43,7 @@ class _mainFilesListState extends State<mainFilesList> {
     allItem = [];
     favItem = [];
     favItemName = [];
+
     // ignore: todo
     // TODO: implement dispose
     super.dispose();
@@ -52,8 +55,8 @@ class _mainFilesListState extends State<mainFilesList> {
     // List<String> basicData = prefs.getStringList('favItem$boardId')!;
     // Map<String, dynamic> jsonDatais = jsonDecode(basicData);
     // List<MainFolder> basicInfoModel = mainFolderFromJson(jsonDatais);
-    favItem = prefs.getStringList('favItem$boardId') ?? [];
-    favItemName = prefs.getStringList('favItemName$boardId') ?? [];
+    favItem = prefs.getStringList('favItem${widget.domainId}') ?? [];
+    favItemName = prefs.getStringList('favItemName${widget.domainId}') ?? [];
 
     // favItemName = prefs.getStringList('favItemName$boardId') ?? [];
     http.Response res = await http.post(Uri.parse(mainFileApi), body: {
@@ -62,47 +65,61 @@ class _mainFilesListState extends State<mainFilesList> {
     });
     print(favItem.toString());
     List<MainFolder> dataL = mainFolderFromJson(res.body);
-    List<MainFolder> selectedM = dataL;
+    List<MainFolder> selectedM = [];
+    debugPrint('mainFile list ${res.body}');
+
     for (var subject in dataL) {
       if (favItem.contains(subject.id.toString())) {
-        log('contain');
-        // favItem.add(subject.id);
-        // allItem.remove(subject.id);
-        allItem.removeWhere((item) => item.id == subject.id);
-        // selectedM.remove(subject);
+        // if that specific item already in fav item
+        // selectedM.removeWhere((item) => item.id == subject.id);
       } else {
-        // favItem.remove(subject.id);
-        log('not contain');
+        selectedM.add(subject);
       }
     }
     setState(() {
-      // allItem.addAll(selectedM);
       allItem = selectedM;
     });
     _streamController.add('event');
   }
 
-  addtoFav(index, id, name) async {
+  addtoFav(index, String id, String name) async {
     log('to save $id & $name');
     BotToast.showLoading();
+    showDialog(
+      context: context,
+      builder: (context) => CustomAlertDialog(),
+    );
     SharedPreferences prefs = await SharedPreferences.getInstance();
     favItem.add(id);
     favItemName.add(name);
-    prefs.setStringList('favItem$boardId', favItem);
-    prefs.setStringList('favItemName$boardId', favItemName);
-    // prefs.setStringList('favItemName$boardId', favItem);
-    // for (var subject in allItem) {
-    //   if (favItem.contains(id)) {
-    //     log('contain');
-    //     // selectedM.remove(subject);
-
-    //   } else {
-    //     log('not contain');
-    //   }
-    // }
+    prefs.setStringList('favItem${widget.domainId}', favItem);
+    prefs.setStringList('favItemName${widget.domainId}', favItemName);
     setState(() {
       allItem.removeWhere((item) => item.id == allItem[index].id);
     });
+    BotToast.closeAllLoading();
+  }
+
+  removeFromFav(index, id, name) async {
+    log('to remove $id & $name');
+    BotToast.showLoading();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    MainFolder folderModel = MainFolder(
+      name: favItemName[index],
+      id: favItem[index],
+    );
+    setState(() {
+      allItem.add(folderModel);
+      favItem.removeWhere((item) => item == favItem[index]);
+      favItemName.removeWhere((item2) => item2 == favItemName[index]);
+      prefs.setStringList('favItem${widget.domainId}', favItem);
+      prefs.setStringList('favItemName${widget.domainId}', favItemName);
+      // favItem.remove(id);
+      // favItemName.remove(name);
+    });
+
+    prefs.setStringList('favItem$boardId', favItem);
+    prefs.setStringList('favItemName$boardId', favItemName);
     BotToast.closeAllLoading();
   }
 
@@ -119,66 +136,76 @@ class _mainFilesListState extends State<mainFilesList> {
             child: CircularProgressIndicator(),
           );
         } else {
-          return Column(
+          return ListView(
             children: [
-              // favItem.isEmpty
-              //     ? SizedBox.shrink()
-              //     : Expanded(
-              //         child: ListView.builder(
-              //           itemCount: favItem.length,
-              //           shrinkWrap: true,
-              //           // physics: NeverScrollableScrollPhysics(),
-              //           itemBuilder: (context, i) {
-              //             return ListTile(
-              //               onTap: () {
-              //                 if (widget.title != 'Syllabus') {
-              //                   log('not syllabus');
-              //                   Navigator.push(context, MaterialPageRoute(
-              //                     builder: (context) {
-              //                       return innerfileScreen(
-              //                         inner_file: favItem[i],
-              //                         title: widget.title,
-              //                       );
-              //                     },
-              //                   ));
-              //                 } else {
-              //                   log('syllabus');
-              //                   Navigator.push(context, MaterialPageRoute(
-              //                     builder: (context) {
-              //                       return SubjectsStaggeredListViewS(
-              //                         // launchSyllabusView(snapshot.data[i]['name']),
-              //                         favItemName[i].replaceFirst(" ", " \n"),
-              //                         favItem[i].replaceFirst(" ", " \n"),
-              //                       );
-              //                     },
-              //                   ));
-              //                 }
-              //               },
-              //               leading: Padding(
-              //                 padding: const EdgeInsets.all(8.0),
-              //                 child: Image.asset('assets/icons/folder.png'),
-              //               ),
-              //               // trailing: IconButton(
-              //               //   onPressed: (() {}),
-              //               //   icon: Icon(
-              //               //     Icons.favorite,
-              //               //     color: Colors.red,
-              //               //   ),
-              //               // ),
-              //               // subtitle: Text(allItem[i].id),
-              //               title: Text(
-              //                 favItemName[i],
-              //                 style: TextStyle(fontWeight: FontWeight.w600),
-              //               ),
-              //             );
-              //           },
-              //         ),
-              //       ),
-              Expanded(
+              favItem.isEmpty
+                  ? SizedBox.shrink()
+                  : SizedBox(
+                      height: favItem.length * 60,
+                      child: ListView.builder(
+                        itemCount: favItem.length,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, i) {
+                          return ListTile(
+                            onTap: () {
+                              if (widget.title != 'Syllabus') {
+                                log('not syllabus');
+                                Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) {
+                                    return innerfileScreen(
+                                      inner_file: favItem[i],
+                                      title: widget.title,
+                                    );
+                                  },
+                                ));
+                              } else {
+                                log('syllabus');
+                                Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) {
+                                    return SubjectsStaggeredListViewS(
+                                      // launchSyllabusView(snapshot.data[i]['name']),
+                                      favItemName[i],
+                                      favItem[i],
+                                    );
+                                  },
+                                ));
+                              }
+                            },
+                            leading: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Image.asset('assets/icons/folder.png'),
+                            ),
+                            trailing: IconButton(
+                              onPressed: (() {
+                                removeFromFav(
+                                  i,
+                                  favItem[i],
+                                  favItemName[i],
+                                );
+                              }),
+                              icon: Icon(
+                                Icons.favorite,
+                                color: Colors.red,
+                              ),
+                            ),
+                            // subtitle: Text(allItem[i].id),
+                            title: Text(
+                              favItemName[i],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+              SizedBox(
+                height: allItem.length * 60,
                 child: ListView.builder(
                   itemCount: allItem.length,
                   shrinkWrap: true,
-                  // physics: NeverScrollableScrollPhysics(),
+                  physics: NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
                     return ListTile(
                       onTap: () {
@@ -209,27 +236,39 @@ class _mainFilesListState extends State<mainFilesList> {
                         padding: const EdgeInsets.all(8.0),
                         child: Image.asset('assets/icons/folder.png'),
                       ),
-                      // trailing: IconButton(
-                      //   onPressed: (() {
-                      //     addtoFav(
-                      //       index,
-                      //       allItem[index].id,
-                      //       allItem[index].name,
-                      //     );
-                      //   }),
-                      //   icon: Icon(
-                      //     Icons.favorite_border,
-                      //     color: Colors.black,
-                      //   ),
-                      // ),
+                      trailing:
+                          //  Container(
+                          //   color: Colors.green,
+                          //   child: Center(child: LikeIcon()),
+                          //   height: 85,
+                          //   width: 85,
+                          // ),
+                          IconButton(
+                        onPressed: (() {
+                          addtoFav(
+                            index,
+                            allItem[index].id,
+                            allItem[index].name!,
+                          );
+                        }),
+                        icon: Icon(
+                          Icons.favorite_border,
+                          color: Theme.of(context).textTheme.bodyText1!.color,
+                        ),
+                      ),
                       title: Text(
                         allItem[index].name ?? 'NONE',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                       // subtitle: Text(allItem[index].id),
                     );
                   },
                 ),
+              ),
+              SizedBox(
+                height: 50,
               ),
             ],
           );

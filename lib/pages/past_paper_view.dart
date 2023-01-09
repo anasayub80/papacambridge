@@ -16,8 +16,9 @@ import '../UI/studento_app_bar.dart';
 class PastPaperView extends StatefulWidget {
   final List<String> urls;
 
-  const PastPaperView(this.urls, this.fileName, this.boarId);
+  const PastPaperView(this.urls, this.fileName, this.boarId, this.isOthers);
   final String fileName;
+  final bool isOthers;
   final String boarId;
   @override
   _PastPaperViewState createState() => _PastPaperViewState();
@@ -89,24 +90,26 @@ class _PastPaperViewState extends State<PastPaperView> {
           title: (isQP) ? widget.fileName : "Marking Scheme",
           actions: <Widget>[
             widget.boarId == '1'
-                ? Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        shape: StadiumBorder(),
-                      ),
-                      icon: Icon(
-                        Icons.swap_horiz,
-                        color: Colors.white,
-                      ),
-                      label: Text(
-                        (isQP) ? "Open MS" : "Open QP",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      onPressed: () => switchToPaperOrMS(context),
-                    ),
-                  )
+                ? widget.isOthers == true
+                    ? SizedBox.shrink()
+                    : Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            shape: StadiumBorder(),
+                          ),
+                          icon: Icon(
+                            Icons.swap_horiz,
+                            color: Colors.white,
+                          ),
+                          label: Text(
+                            (isQP) ? "Open MS" : "Open QP",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          onPressed: () => switchToPaperOrMS(context),
+                        ),
+                      )
                 : SizedBox.shrink(),
             IconButton(
               icon: Icon(Icons.share),

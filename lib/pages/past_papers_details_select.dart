@@ -302,16 +302,13 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
                                     onPressed: () {
                                       setState(() {
                                         type = 'QP';
+                                        selectedPdf = null;
                                       });
                                     },
                                     child: Center(
                                       child: Text(
                                         '  QP  ',
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .textTheme
-                                                .bodyText1
-                                                ?.color),
+                                        style: TextStyle(color: Colors.white),
                                       ),
                                     )),
                                 ElevatedButton(
@@ -322,17 +319,14 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
                                     ),
                                     onPressed: () {
                                       setState(() {
+                                        selectedPdf = null;
                                         type = 'MS';
                                       });
                                     },
                                     child: Center(
                                       child: Text(
                                         '  MS  ',
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .textTheme
-                                                .bodyText1
-                                                ?.color),
+                                        style: TextStyle(color: Colors.white),
                                       ),
                                     )),
                                 ElevatedButton(
@@ -344,34 +338,38 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
                                     onPressed: () {
                                       setState(() {
                                         type = 'Others';
+                                        selectedPdf = null;
                                       });
                                     },
                                     child: Center(
                                       child: Text(
                                         'Others',
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .textTheme
-                                                .bodyText1
-                                                ?.color),
+                                        style: TextStyle(color: Colors.white),
                                       ),
                                     )),
                               ],
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             ),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  top: 15.0, bottom: 30.0, left: 30, right: 30),
-                              child: Text(
-                                "Pick a number, any number... the component number!",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                            ),
+                            type != 'Others'
+                                ? Padding(
+                                    padding: EdgeInsets.only(
+                                        top: 15.0,
+                                        bottom: 30.0,
+                                        left: 30,
+                                        right: 30),
+                                    child: Text(
+                                      "Pick a number, any number... the component number!",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 16.0,
+                                      ),
+                                    ),
+                                  )
+                                : SizedBox(
+                                    height: 10,
+                                  ),
                             _isLoading
                                 ? Center(
                                     child: CircularProgressIndicator(),
@@ -720,26 +718,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
     List<String> moreUrls = [];
     print(id.urlPdf);
     moreUrls.add(id.urlPdf!);
-// return;
-    // pdfModal.forEach((e) => moreUrls.add(e.urlPdf));
-    //
-    // widget.subject.urlPdf;
 
-    /// Extra URLs for components with inconsistent naming, e.g qp_02
-    // if (selectedComponent < 10) {
-    //   moreUrls = [
-    //     generateMainUrl(widget.subject),
-    //     generateMirror1Url(),
-    //     generateMirror2Url()
-    //   ]
-    //     ..retainWhere((element) => element != null)
-    //     ..map(
-    //       (s) => s.replaceFirst(
-    //         'qp_$componentStr',
-    //         "qp_$selectedComponent",
-    //       ),
-    //     ).toList();
-    // }
     print('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk');
     print(moreUrls);
     print('lllllllllllllllllllllllllllllllllllllll');
@@ -755,6 +734,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
           ], //..retainWhere((url) => url != null),
           fileName,
           boardId,
+          false,
         ),
       ),
     );
@@ -777,6 +757,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
           ],
           fileName,
           boardId,
+          true,
         ),
       ),
     );

@@ -1,5 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api
 
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -51,6 +52,7 @@ class _SubjectsStaggeredListViewStateS
   @override
   void dispose() {
     subjects == [];
+    noData = false;
     super.dispose();
   }
 
@@ -73,41 +75,49 @@ class _SubjectsStaggeredListViewStateS
                   color: Theme.of(context).textTheme.titleMedium!.color),
             ),
           ),
-          isloading == true
-              ? loadingPage()
-              : (data.isEmpty)
-                  ? Expanded(
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          child: Text(
-                            'Nothing Found',
-                            style: Theme.of(context).textTheme.headline3,
-                            textAlign: TextAlign.center,
+          noData == true
+              ? Center(
+                  child: Text(
+                    'No Data Found',
+                    style: Theme.of(context).textTheme.headline4,
+                  ),
+                )
+              : isloading == true
+                  ? loadingPage()
+                  : (data.isEmpty)
+                      ? Expanded(
+                          child: Center(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12.0),
+                              child: Text(
+                                'Nothing Found',
+                                style: Theme.of(context).textTheme.headline3,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        )
+                      : Expanded(
+                          child: StaggeredGridView(
+                            shrinkWrap: true,
+                            // physics: NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.all(15),
+                            children: data
+                                .map((MainFolder subject) =>
+                                    buildSubjectTile(subject))
+                                .toList(),
+                            gridDelegate:
+                                SliverStaggeredGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 4,
+                              staggeredTileBuilder: (int i) =>
+                                  StaggeredTile.count(2, i.isEven ? 2 : 3),
+                              mainAxisSpacing: 15.0,
+                              crossAxisSpacing: 15.0,
+                              staggeredTileCount: data.length,
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                  : Expanded(
-                      child: StaggeredGridView(
-                        shrinkWrap: true,
-                        // physics: NeverScrollableScrollPhysics(),
-                        padding: EdgeInsets.all(15),
-                        children: data
-                            .map((MainFolder subject) =>
-                                buildSubjectTile(subject))
-                            .toList(),
-                        gridDelegate:
-                            SliverStaggeredGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 4,
-                          staggeredTileBuilder: (int i) =>
-                              StaggeredTile.count(2, i.isEven ? 2 : 3),
-                          mainAxisSpacing: 15.0,
-                          crossAxisSpacing: 15.0,
-                          staggeredTileCount: data.length,
-                        ),
-                      ),
-                    ),
         ],
       ),
     );
@@ -120,9 +130,9 @@ class _SubjectsStaggeredListViewStateS
   }
 
   bool isloading = true;
-
+  bool noData = false;
   void initSubjects() async {
-    log('***subject init***');
+    log('***subject init*** ${widget.mainFolder} & ${widget.inner_file} ');
     // SharedPreferences prefs = await SharedPreferences.getInstance();
     // List<String> getlist = prefs.getStringList('selectedSubject') ?? [];
     // print(getlist);
@@ -133,7 +143,19 @@ class _SubjectsStaggeredListViewStateS
       'token': token,
       'fileid': widget.inner_file,
     });
-    List<MainFolder> dataL = mainFolderFromJson(res.body);
+    List<MainFolder> dataL = [];
+    if (res.body.isNotEmpty) {
+      log(res.body.length.toString());
+      if (res.body.length <= 64) {
+        // no data found
+        setState(() {
+          noData = true;
+        });
+      } else {
+        dataL = mainFolderFromJson(res.body);
+      }
+    }
+
     // debugPrint(res.body);
     // UserData userData = Hive.box<UserData>('userData').get(0);
     List<MainFolder> selectedM = [];

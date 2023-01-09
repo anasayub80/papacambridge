@@ -54,6 +54,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
             ],
             fileName,
             boardId,
+            false,
           ),
         ),
       );

@@ -40,6 +40,7 @@ void main() async {
   });
 }
 
+// if you facing build issue while genrating apk used this command
 // flutter build apk --no-tree-shake-icons
 // https://myaccount.papacambridge.com/api.php?main_folder=32494
 // PAST PAPERS
