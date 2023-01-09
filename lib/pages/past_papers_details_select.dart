@@ -17,6 +17,8 @@ import 'package:studento/pages/past_paper_view.dart';
 import 'package:studento/model/MainFolderInit.dart';
 import 'package:http/http.dart' as http;
 
+import 'inner_files_screen.dart';
+
 enum Season { spring, summer, winter }
 
 final dataKey = GlobalKey();
@@ -162,6 +164,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
     }
   }
 
+  var type = 'QP';
   bool loading = true;
   int? startDate;
   int? endDate;
@@ -231,8 +234,11 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
       print(res1.body);
       List<PdfModal> pdfModalL = pdfModalFromJson(res1.body);
       setState(() {
+        // check if data null or not []
         resCheck = res1.body;
+        // check if data null or not []
         pdfModal = pdfModalL;
+
         _isLoading = false;
       });
     }
@@ -240,6 +246,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
         duration: Duration(seconds: 1));
   }
 
+  // check if data null or not []
   var resCheck;
   @override
   Widget build(BuildContext context) {
@@ -284,6 +291,75 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
                         key: dataKey,
                         child: Column(
                           children: [
+                            Row(
+                              children: [
+                                ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: type == 'QP'
+                                          ? Colors.pink
+                                          : Colors.grey,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        type = 'QP';
+                                      });
+                                    },
+                                    child: Center(
+                                      child: Text(
+                                        '  QP  ',
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .textTheme
+                                                .bodyText1
+                                                ?.color),
+                                      ),
+                                    )),
+                                ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: type == 'MS'
+                                          ? Colors.pink
+                                          : Colors.grey,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        type = 'MS';
+                                      });
+                                    },
+                                    child: Center(
+                                      child: Text(
+                                        '  MS  ',
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .textTheme
+                                                .bodyText1
+                                                ?.color),
+                                      ),
+                                    )),
+                                ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: type == 'Others'
+                                          ? Colors.pink
+                                          : Colors.grey,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        type = 'Others';
+                                      });
+                                    },
+                                    child: Center(
+                                      child: Text(
+                                        'Others',
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .textTheme
+                                                .bodyText1
+                                                ?.color),
+                                      ),
+                                    )),
+                              ],
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            ),
                             Padding(
                               padding: EdgeInsets.only(
                                   top: 15.0, bottom: 30.0, left: 30, right: 30),
@@ -320,16 +396,58 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
                                                 .map((e) {
                                                   int index =
                                                       pdfModal.indexOf(e);
-                                                  log('my component index is $e');
-                                                  if (e.paper == 'QP') {
-                                                    log("Comg Widget Called!");
+                                                  log('my component index is ${e.paper}');
+                                                  // type contain filter QP MS Or Others
+                                                  if (type == e.paper) {
+                                                    log("Comg Widget Called! is ${e.paper}");
                                                     return Container(
                                                       child: ComponentWidget(
-                                                          index,
-                                                          pdf: e),
+                                                        index,
+                                                        pdf: e,
+                                                        type,
+                                                      ),
+                                                    );
+                                                  } else if (type == 'Others' &&
+                                                      e.paper != 'QP' &&
+                                                      e.paper != 'MS') {
+                                                    log("Comg Widget Called! is ${e.paper}");
+                                                    return ListTile(
+                                                      onTap: () {
+                                                        openPaper2(
+                                                          e.urlPdf!,
+                                                          e.name!,
+                                                        );
+                                                      },
+                                                      leading: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(8.0),
+                                                        child: Image.asset(e
+                                                                .urlPdf
+                                                                .toString()
+                                                                .contains(
+                                                                    '.pdf')
+                                                            ? 'assets/icons/pdf.png'
+                                                            : e.urlPdf
+                                                                    .toString()
+                                                                    .contains(
+                                                                        '.doc')
+                                                                ? 'assets/icons/doc.png'
+                                                                : 'assets/icons/folder.png'),
+                                                      ),
+                                                      title: Text(
+                                                        e.name ??
+                                                            e.name ??
+                                                            'fileName',
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontSize: 16,
+                                                        ),
+                                                      ),
                                                     );
                                                   } else {
-                                                    log("No Past paper Called!");
+                                                    log("No Past paper Component Called!");
                                                     return Container(
                                                       width: 0,
                                                       height: 0,
@@ -339,25 +457,6 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
                                                 .toList()
                                                 .cast<Widget>()),
                                       ),
-                            // GridView.builder(
-                            //     itemCount: filtered.length,
-                            //     physics: NeverScrollableScrollPhysics(),
-                            //     padding: EdgeInsets.symmetric(vertical: 30.0),
-                            //     gridDelegate:
-                            //         SliverGridDelegateWithFixedCrossAxisCount(
-                            //       childAspectRatio: 2.5,
-                            //       crossAxisCount: 3,
-                            //       mainAxisSpacing: 10.0,
-                            //     ),
-                            //     shrinkWrap: true,
-                            //     itemBuilder: (_, i) {
-                            //       String weather=selectedSeason==Season.summer?'Summer':'Winter';
-                            //       if(filtered[i].weather==weather)return ComponentWidget(i);
-                            // //  return ComponentWidget(i);
-                            // return Container();
-
-                            //     },
-                            //   ),
                             if (selectedPdf != null)
                               InkWell(
                                   onTap: () {
@@ -494,7 +593,8 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
 
   String get fileName {
     var code = widget.subject.folderCode;
-    String fileName = "${code}_$seasonChar${twoDigitYear}_qp_$componentStr.pdf";
+    String fileName =
+        "${code}_$seasonChar${twoDigitYear}$type$componentStr.pdf";
     return fileName;
   }
 
@@ -660,6 +760,28 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
     );
   }
 
+  void openPaper2(String url, fileName) async {
+    // List<String> moreUrls = [];
+
+    print("url file $url");
+    // moreUrls.add(url);
+    print('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk');
+    // print(moreUrls);
+    print('lllllllllllllllllllllllllllllllllllllll');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PastPaperView(
+          [
+            url,
+          ],
+          fileName,
+          boardId,
+        ),
+      ),
+    );
+  }
+
   Widget stepperControls(BuildContext context, {onStepContinue}) {
     return Container(
       alignment: Alignment.bottomRight,
@@ -699,12 +821,13 @@ Widget buildNextButton(VoidCallback onPressed, IconData icon, String label) {
 
 class ComponentWidget extends StatelessWidget {
   final PdfModal? pdf;
-
-  const ComponentWidget(this.component, {this.pdf});
+  final type;
+  const ComponentWidget(this.component, this.type, {this.pdf});
   final int component;
 
   @override
   Widget build(BuildContext context) {
+    Widget? mywidget = SizedBox.shrink();
     bool isComponentSelected =
         (PaperDetailsSelectionPage.of(context)!.selectedComponent == component);
 
@@ -716,14 +839,16 @@ class ComponentWidget extends StatelessWidget {
     );
 
     final textStyle = TextStyle(
-      fontSize: 20.0,
+      // fontSize: 20.0,
+      fontSize: 12.0,
       fontWeight: FontWeight.w600,
       color: (isComponentSelected)
           ? Colors.blue
           : Theme.of(context).textTheme.bodyText1!.color,
     );
-
-    return SizedBox(
+    // if (type == 'QP') {
+    //   if (pdf!.name!.contains('_qp_')) {
+    mywidget = SizedBox(
       height: 40.0,
       width: 100.0,
       child: InkWell(
@@ -749,5 +874,8 @@ class ComponentWidget extends StatelessWidget {
         ),
       ),
     );
+    //   }
+    // }
+    return mywidget;
   }
 }

@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'dart:async';
+import 'dart:developer';
 import 'package:studento/UI/error_report_dialog.dart';
 import 'package:studento/UI/show_message_dialog.dart';
 import 'package:studento/utils/pdf_helper.dart';
@@ -198,6 +199,7 @@ class _PastPaperViewState extends State<PastPaperView> {
 
       if (!isQP) {
         url = url.replaceFirst("_qp_", "_ms_");
+        log('my invalid url checker $url');
       }
       Response response = await dio.head(url).catchError((Object error) {});
 
