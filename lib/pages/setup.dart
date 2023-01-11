@@ -9,6 +9,7 @@ import 'package:studento/model/user_data.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:studento/pages/home_page.dart';
 import 'package:studento/pages/splash_page.dart';
 import '../UI/setup_page.dart';
 import '../UI/subjects_list_select.dart';
@@ -191,7 +192,8 @@ class _SetupState extends State<Setup> {
           } else if (snapshot.hasData) {
             return ListView.builder(
                 padding: EdgeInsets.only(bottom: 50),
-                itemCount: level.length,
+                // itemCount: level.length,
+                itemCount: snapshot.data.length,
                 itemBuilder: (_, int index) {
                   return CheckboxListTile(
                       activeColor: Colors.blue,
@@ -212,8 +214,7 @@ class _SetupState extends State<Setup> {
                               name: level[index],
                               onFloatingButtonPressed2: () {
                                 List subjects = globals.selectedG;
-                                var isChosenListValid =
-                                    subjects.isNotEmpty && subjects.length >= 3;
+                                bool isChosenListValid = subjects.isNotEmpty;
                                 if (isChosenListValid) {
                                   BotToast.showLoading();
                                   log("Bot Call");
@@ -223,7 +224,7 @@ class _SetupState extends State<Setup> {
                                     context,
                                     title: "Insufficient subjects",
                                     msg:
-                                        "You need to select 3 or more subjects",
+                                        "You need to select at least 1 or more subjects",
                                   );
                                 }
                               },
@@ -264,7 +265,6 @@ class _SetupState extends State<Setup> {
           selected: false,
           onChanged: (board) async {
             log("selected board is $board & $id");
-
             setState(() {
               selectedboard = board;
               selectedboardid = id;
@@ -286,7 +286,7 @@ class _SetupState extends State<Setup> {
           );
         } else if (snapshot.hasData) {
           return ListView.builder(
-            itemCount: 5,
+            itemCount: snapshot.data.length,
             itemBuilder: (context, index) {
               return buildLevelRadioListTile(
                   snapshot.data[index]['name'], snapshot.data[index]['id']);
@@ -373,7 +373,7 @@ class _SetupState extends State<Setup> {
   // }
   void validateAndCheckPermissions() {
     List subjects = globals.selectedG;
-    var isChosenListValid = subjects.isNotEmpty && subjects.length >= 3;
+    var isChosenListValid = subjects.isNotEmpty;
 
     if (isChosenListValid) {
       if (widget.isEditingSideMenu) {
@@ -396,7 +396,7 @@ class _SetupState extends State<Setup> {
       showMessageDialog(
         context,
         title: "Insufficient subjects",
-        msg: "You need to select 3 or more subjects",
+        msg: "You need to select at least 1 or more subjects",
       );
     }
   }
@@ -441,14 +441,14 @@ class _SetupState extends State<Setup> {
   }
 
   void validateAndPushBoardPage() async {
-    if (selectedboard.isNotEmpty) {
+    if (selectedboard != null) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('board', selectedboardid!);
       pushBoardPage();
     } else {
       Flushbar(
         messageText: Text(
-          "Please Board !",
+          "Please Select Board !",
           style: Theme.of(context)
               .textTheme
               .subtitle1!
@@ -472,13 +472,21 @@ class _SetupState extends State<Setup> {
     selectedboard = null;
     selectedItem = [];
     selectedlevelid = [];
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('setup', true);
     // ignore: use_build_context_synchronously
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      'home_page',
-      ModalRoute.withName('home_page'),
-    );
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    // ignore: use_build_context_synchronously
+    Navigator.pushReplacement(context, MaterialPageRoute(
+      builder: (context) {
+        return HomePage();
+      },
+    ));
+    // Navigator.of(context).pushNamedAndRemoveUntil(
+    //   'home_page',
+    //   ModalRoute.withName('home_page'),
+    // );
   }
 
   /// Pushes the [SetupPage] which is found at [pageIndex] in the [List]

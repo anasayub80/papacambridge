@@ -12,6 +12,7 @@ class RateDialog extends StatelessWidget {
 
     return AlertDialog(
       contentPadding: EdgeInsets.all(0.0),
+      backgroundColor: Theme.of(context).cardColor,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,7 +29,7 @@ class RateDialog extends StatelessWidget {
             child: Text(
               'Rate the app?',
               style: TextStyle(
-                color: Colors.black,
+                color: Theme.of(context).textTheme.bodyText1!.color,
                 fontSize: 24.0,
                 fontWeight: FontWeight.w700,
               ),
@@ -37,7 +38,11 @@ class RateDialog extends StatelessWidget {
           Container(
             margin: EdgeInsets.only(left: 16.0, right: 16.0),
             child: Text(
-                'You are one of the first people to download Papa Cambridge, and your feedback is very important.\n\nWould you mind giving it a rating on the Play Store?'),
+              'You are one of the first people to download Papa Cambridge, and your feedback is very important.\n\nWould you mind giving it a rating on the Play Store?',
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyText1!.color,
+              ),
+            ),
           ),
           fiveStars(),
         ],
@@ -75,11 +80,26 @@ class RateDialog extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Icon(Icons.star_border),
-            Icon(Icons.star_border),
-            Icon(Icons.star_border),
-            Icon(Icons.star_border),
-            Icon(Icons.star_border),
+            Icon(
+              Icons.star_border,
+              color: Theme.of(buildContext).iconTheme.color,
+            ),
+            Icon(
+              Icons.star_border,
+              color: Theme.of(buildContext).iconTheme.color,
+            ),
+            Icon(
+              Icons.star_border,
+              color: Theme.of(buildContext).iconTheme.color,
+            ),
+            Icon(
+              Icons.star_border,
+              color: Theme.of(buildContext).iconTheme.color,
+            ),
+            Icon(
+              Icons.star_border,
+              color: Theme.of(buildContext).iconTheme.color,
+            ),
           ],
         ),
       );
@@ -89,6 +109,7 @@ class RateDialog extends StatelessWidget {
       context: buildContext,
       builder: (_) => AlertDialog(
         titlePadding: EdgeInsets.only(bottom: 15.0),
+        backgroundColor: Theme.of(buildContext).cardColor,
         title: Container(
           padding: EdgeInsets.symmetric(vertical: 30),
           color: Color(0xFFfc6dab),
@@ -99,10 +120,20 @@ class RateDialog extends StatelessWidget {
             size: 48.0,
           ),
         ),
-        content: Text("Thank you, you are the absolute best."),
+        content: Text(
+          "Thank you, you are the absolute best.",
+          style: TextStyle(
+            color: Theme.of(buildContext).textTheme.bodyText1!.color,
+          ),
+        ),
         actions: <Widget>[
           TextButton(
-            child: Text("YOU BET I AM!"),
+            child: Text(
+              "YOU BET I AM!",
+              style: TextStyle(
+                color: Theme.of(buildContext).textTheme.bodyText1!.color,
+              ),
+            ),
             onPressed: () {
               Navigator.of(buildContext).pop();
             },

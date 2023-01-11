@@ -4,7 +4,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../pages/setup.dart';
 import '../utils/newHelper.dart';
+import '../utils/theme_provider.dart';
 import 'changeThemeButton.dart';
+import 'package:provider/provider.dart';
 
 String? encodeQueryParameters(Map<String, String> params) {
   return params.entries
@@ -16,6 +18,31 @@ String? encodeQueryParameters(Map<String, String> params) {
 class studentoDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeSettings>(context, listen: false);
+    final creditsFooter = Align(
+      alignment: Alignment.bottomCenter,
+      child: ListTile(
+        onTap: () {
+          const url = 'https://papacambridge.com/home/index.html';
+          NewHelper().launchInBrowser(Uri.parse(url));
+        },
+        title: Image.asset(
+          themeProvider.currentTheme == ThemeMode.light
+              ? 'assets/icons/logo.png'
+              : 'assets/icons/Darklogo.png',
+          height: 25,
+          width: 75,
+          fit: BoxFit.contain,
+        ),
+        // Text(
+        //   "Created with 💖 ",
+        //   textAlign: TextAlign.center,
+        //   style: TextStyle(
+        //     fontSize: 12,
+        //   ),
+        // ),
+      ),
+    );
     // var currentTime = TimeOfDay.now();
     return Drawer(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -31,13 +58,13 @@ class studentoDrawer extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: Icon(Icons.menu_book)),
               title: Text(
-                "BOARDS",
+                "EXAMS",
                 style: TextStyle(
                   fontSize: 12,
                 ),
               ),
               subtitle: Text(
-                'Change your board',
+                'Change your board/subjects',
                 style: TextStyle(
                   fontSize: 12,
                 ),
@@ -164,22 +191,6 @@ class studentoDrawer extends StatelessWidget {
         subject: "Check out this amazing app",
       );
     },
-  );
-  final creditsFooter = Align(
-    alignment: Alignment.bottomCenter,
-    child: ListTile(
-      onTap: () {
-        const url = 'https://papacambridge.com/home/index.html';
-        NewHelper().launchInBrowser(Uri.parse(url));
-      },
-      title: Text(
-        "Created with 💖 ",
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 12,
-        ),
-      ),
-    ),
   );
 }
 

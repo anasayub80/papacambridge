@@ -50,7 +50,7 @@ class _mainFilesListState extends State<mainFilesList> {
   }
 
   void initSubjects() async {
-    log('***subject init***');
+    log('***subject init mainFile***');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // List<String> basicData = prefs.getStringList('favItem$boardId')!;
     // Map<String, dynamic> jsonDatais = jsonDecode(basicData);
@@ -63,32 +63,44 @@ class _mainFilesListState extends State<mainFilesList> {
       'token': token,
       'domain': widget.domainId,
     });
-    print(favItem.toString());
-    List<MainFolder> dataL = mainFolderFromJson(res.body);
-    List<MainFolder> selectedM = [];
-    debugPrint('mainFile list ${res.body}');
+    log(res.body);
+    if (res.statusCode == 200) {
+      if (res.body.isNotEmpty) {
+        if (res.body.length <= 64) {
+          print('Something Wrong');
+        } else {
+          print(favItem.toString());
+          List<MainFolder> dataL = mainFolderFromJson(res.body);
+          List<MainFolder> selectedM = [];
+          debugPrint('mainFile list ${res.body}');
 
-    for (var subject in dataL) {
-      if (favItem.contains(subject.id.toString())) {
-        // if that specific item already in fav item
-        // selectedM.removeWhere((item) => item.id == subject.id);
+          for (var subject in dataL) {
+            if (favItem.contains(subject.id.toString())) {
+              // if that specific item already in fav item
+              // selectedM.removeWhere((item) => item.id == subject.id);
+            } else {
+              selectedM.add(subject);
+            }
+          }
+          setState(() {
+            allItem = selectedM;
+          });
+        }
       } else {
-        selectedM.add(subject);
+        print('Something Wrong');
       }
     }
-    setState(() {
-      allItem = selectedM;
-    });
+
     _streamController.add('event');
   }
 
   addtoFav(index, String id, String name) async {
     log('to save $id & $name');
     BotToast.showLoading();
-    showDialog(
-      context: context,
-      builder: (context) => CustomAlertDialog(),
-    );
+    // showDialog(
+    //   context: context,
+    //   builder: (context) => CustomAlertDialog(),
+    // );
     SharedPreferences prefs = await SharedPreferences.getInstance();
     favItem.add(id);
     favItemName.add(name);
@@ -149,28 +161,29 @@ class _mainFilesListState extends State<mainFilesList> {
                         itemBuilder: (context, i) {
                           return ListTile(
                             onTap: () {
-                              if (widget.title != 'Syllabus') {
-                                log('not syllabus');
-                                Navigator.push(context, MaterialPageRoute(
-                                  builder: (context) {
-                                    return innerfileScreen(
-                                      inner_file: favItem[i],
-                                      title: widget.title,
-                                    );
-                                  },
-                                ));
-                              } else {
-                                log('syllabus');
-                                Navigator.push(context, MaterialPageRoute(
-                                  builder: (context) {
-                                    return SubjectsStaggeredListViewS(
-                                      // launchSyllabusView(snapshot.data[i]['name']),
-                                      favItemName[i],
-                                      favItem[i],
-                                    );
-                                  },
-                                ));
-                              }
+                              // if (widget.title != 'Syllabus') {
+                              log('not syllabus');
+                              Navigator.push(context, MaterialPageRoute(
+                                builder: (context) {
+                                  return innerfileScreen(
+                                    inner_file: favItem[i],
+                                    title: widget.title,
+                                  );
+                                },
+                              ));
+                              // }
+                              // else {
+                              //   log('syllabus');
+                              //   Navigator.push(context, MaterialPageRoute(
+                              //     builder: (context) {
+                              //       return SubjectsStaggeredListViewS(
+                              //         // launchSyllabusView(snapshot.data[i]['name']),
+                              //         favItemName[i],
+                              //         favItem[i],
+                              //       );
+                              //     },
+                              //   ));
+                              // }
                             },
                             leading: Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -189,7 +202,6 @@ class _mainFilesListState extends State<mainFilesList> {
                                 color: Colors.red,
                               ),
                             ),
-                            // subtitle: Text(allItem[i].id),
                             title: Text(
                               favItemName[i],
                               maxLines: 2,
@@ -209,28 +221,27 @@ class _mainFilesListState extends State<mainFilesList> {
                   itemBuilder: (context, index) {
                     return ListTile(
                       onTap: () {
-                        if (widget.title != 'Syllabus') {
-                          log('not syllabus');
-                          Navigator.push(context, MaterialPageRoute(
-                            builder: (context) {
-                              return innerfileScreen(
-                                inner_file: allItem[index].id,
-                                title: widget.title,
-                              );
-                            },
-                          ));
-                        } else {
-                          log('syllabus');
-                          Navigator.push(context, MaterialPageRoute(
-                            builder: (context) {
-                              return SubjectsStaggeredListViewS(
-                                // launchSyllabusView(snapshot.data[index]['name']),
-                                allItem[index].name!,
-                                allItem[index].id.replaceFirst(" ", " \n"),
-                              );
-                            },
-                          ));
-                        }
+                        // if (widget.title != 'Syllabus') {
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return innerfileScreen(
+                              inner_file: allItem[index].id,
+                              title: widget.title,
+                            );
+                          },
+                        ));
+                        //   } else {
+                        //     log('syllabus');
+                        //     Navigator.push(context, MaterialPageRoute(
+                        //       builder: (context) {
+                        //         return SubjectsStaggeredListViewS(
+                        //           // launchSyllabusView(snapshot.data[index]['name']),
+                        //           allItem[index].name!,
+                        //           allItem[index].id.replaceFirst(" ", " \n"),
+                        //         );
+                        //       },
+                        //     ));
+                        //   }
                       },
                       leading: Padding(
                         padding: const EdgeInsets.all(8.0),

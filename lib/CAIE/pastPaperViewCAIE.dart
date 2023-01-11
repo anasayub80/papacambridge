@@ -13,18 +13,21 @@ import 'package:studento/UI/loading_indicator.dart';
 
 import '../UI/studento_app_bar.dart';
 
-class PastPaperView extends StatefulWidget {
+class PastPaperViewCAIE extends StatefulWidget {
   final List<String> urls;
 
-  const PastPaperView(this.urls, this.fileName, this.boarId, this.isOthers);
+  const PastPaperViewCAIE(this.urls, this.fileName, this.boarId, this.isOthers,
+      this.type, this.ispastPaper);
   final String fileName;
   final bool isOthers;
+  final bool ispastPaper;
+  final bool type;
   final String boarId;
   @override
-  _PastPaperViewState createState() => _PastPaperViewState();
+  _PastPaperViewCAIEState createState() => _PastPaperViewCAIEState();
 }
 
-class _PastPaperViewState extends State<PastPaperView> {
+class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
   /// Whether all data has been loaded.
   bool isLoaded = false;
 
@@ -80,6 +83,7 @@ class _PastPaperViewState extends State<PastPaperView> {
 
   @override
   Widget build(BuildContext context) {
+    isQP = widget.type;
     if (isLoaded) {
       //&& _isPro != null
       return Scaffold(
@@ -87,30 +91,36 @@ class _PastPaperViewState extends State<PastPaperView> {
         appBar: StudentoAppBar(
           context: context,
           centerTitle: false,
-          title: (isQP) ? widget.fileName : "Marking Scheme",
+          title: (widget.isOthers)
+              ? widget.fileName
+              : (isQP)
+                  ? widget.fileName
+                  : "Marking Scheme",
           actions: <Widget>[
-            // widget.boarId == '1'
-            //     ? widget.isOthers == true
-            //         ? SizedBox.shrink()
-            //         : Padding(
-            //             padding: const EdgeInsets.all(8.0),
-            //             child: ElevatedButton.icon(
-            //               style: ElevatedButton.styleFrom(
-            //                 backgroundColor: Colors.blue,
-            //                 shape: StadiumBorder(),
-            //               ),
-            //               icon: Icon(
-            //                 Icons.swap_horiz,
-            //                 color: Colors.white,
-            //               ),
-            //               label: Text(
-            //                 (isQP) ? "Open MS" : "Open QP",
-            //                 style: TextStyle(color: Colors.white),
-            //               ),
-            //               onPressed: () => switchToPaperOrMS(context),
-            //             ),
-            //           )
-            //     : SizedBox.shrink(),
+            widget.boarId == '1'
+                ? widget.ispastPaper == true
+                    ? widget.isOthers == true
+                        ? SizedBox.shrink()
+                        : Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                shape: StadiumBorder(),
+                              ),
+                              icon: Icon(
+                                Icons.swap_horiz,
+                                color: Colors.white,
+                              ),
+                              label: Text(
+                                (isQP) ? "Open MS" : "Open QP",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              onPressed: () => switchToPaperOrMS(context),
+                            ),
+                          )
+                    : SizedBox.shrink()
+                : SizedBox.shrink(),
             IconButton(
               icon: Icon(Icons.share),
               onPressed: () async {
@@ -259,9 +269,9 @@ class _PastPaperViewState extends State<PastPaperView> {
   /// the past paper/marking scheme view.
   void switchToPaperOrMS(BuildContext context) {
     if (isQP) {
-      _fileName = _fileName.replaceFirst("qp_", "ms_");
+      _fileName = _fileName.replaceFirst("MS", "QP");
     } else {
-      _fileName = _fileName.replaceFirst("ms_", "qp_");
+      _fileName = _fileName.replaceFirst("QP", "MS");
     }
 
     setState(() {

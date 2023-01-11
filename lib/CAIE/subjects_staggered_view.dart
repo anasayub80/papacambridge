@@ -141,6 +141,7 @@ class _SubjectsStaggeredListViewState extends State<SubjectsStaggeredListView> {
     //   'token': token,
     //   'fileid': widget.levelid,
     // });
+
     log(res.body);
     List<MainFolder> dataL = mainFolderFromJson(res.body);
     // UserData userData = Hive.box<UserData>('userData').get(0);
@@ -166,7 +167,7 @@ class _SubjectsStaggeredListViewState extends State<SubjectsStaggeredListView> {
     TextStyle subjectNameStyle = TextStyle(
       fontWeight: FontWeight.w600,
       color: Colors.white,
-      fontSize: 20.0,
+      fontSize: 16.0,
     );
 
     Widget subjectNameText = Text(
@@ -178,7 +179,7 @@ class _SubjectsStaggeredListViewState extends State<SubjectsStaggeredListView> {
 
     Widget subjectCodeText = Text(
       " \n(${subject.folderCode})",
-      style: TextStyle(fontSize: 18.0, color: Colors.white),
+      style: TextStyle(fontSize: 14.0, color: Colors.white),
     );
 
     return Material(
@@ -191,10 +192,16 @@ class _SubjectsStaggeredListViewState extends State<SubjectsStaggeredListView> {
         child: InkWell(
           onTap: () => widget.onGridTileTap(subject),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              subjectNameText,
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: subjectNameText,
+              ),
               subjectCodeText,
+              SizedBox(
+                height: 10,
+              )
             ],
           ),
         ),

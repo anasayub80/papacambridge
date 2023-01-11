@@ -9,7 +9,7 @@ import '../UI/loading_page.dart';
 import '../UI/mainFilesList.dart';
 import 'past_papers_details_select.dart';
 import 'package:studento/UI/studento_app_bar.dart';
-import 'package:studento/UI/subjects_staggered_view.dart';
+import 'package:studento/CAIE/subjects_staggered_view.dart';
 
 // ignore: must_be_immutable
 class PastPapersPage extends StatefulWidget {
@@ -47,7 +47,8 @@ class _PastPapersPageCAIEState extends State<PastPapersPageCAIE> {
   @override
   void initState() {
     super.initState();
-    getData();
+    // getData();
+    getMyData();
   }
 
   List? level;
@@ -57,10 +58,24 @@ class _PastPapersPageCAIEState extends State<PastPapersPageCAIE> {
     level = prefs.getStringList('level');
     levelid = prefs.getStringList('levelid');
     print(level.toString());
+    print(levelid.toString());
     return level;
   }
 
   var res;
+  getMyData() async {
+    await initLevel();
+    if (level!.length >= 2) {
+      return getData();
+    } else {
+      log('done');
+      setState(() {
+        res = levelid![0];
+      });
+      _streamController.add(res);
+    }
+  }
+
   getData() async {
     Future.delayed(
       Duration.zero,
@@ -72,66 +87,19 @@ class _PastPapersPageCAIEState extends State<PastPapersPageCAIE> {
             return AlertDialog(
               title: Text('Select Level'),
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              content: FutureBuilder<dynamic>(
-                future: initLevel(),
-                builder: (context, snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                      return Center(child: CircularProgressIndicator());
-
-                    default:
-                      if (snapshot.hasError) {
-                        return Text('Error');
-                      } else if (snapshot.data != null) {
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: level!.length,
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              onTap: () {
-                                Navigator.pop(context, index);
-                              },
-                              title: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(level![index]),
-                              ),
-                            );
-
-                            // Padding(
-                            //   padding: const EdgeInsets.all(8.0),
-                            //   child: GestureDetector(
-                            //     onTap: () {
-                            //       Navigator.pop(context, level![index]);
-                            //     },
-                            //     child: Container(
-                            //       child: Column(
-                            //         mainAxisAlignment: MainAxisAlignment.center,
-                            //         crossAxisAlignment: CrossAxisAlignment.center,
-                            //         mainAxisSize: MainAxisSize.max,
-                            //         children: [
-                            //           Image.asset(
-                            //             'assets/icons/folder.png',
-                            //             height: 45,
-                            //             width: 45,
-                            //           ),
-                            //           Padding(
-                            //             padding: const EdgeInsets.all(8.0),
-                            //             child: Text(level![index]),
-                            //           )
-                            //         ],
-                            //       ),
-                            //       decoration: BoxDecoration(
-                            //           borderRadius: BorderRadius.circular(16),
-                            //           color: Theme.of(context).cardColor),
-                            //     ),
-                            //   ),
-                            // );
-                          },
-                        );
-                      } else {
-                        return loadingPage();
-                      }
-                  }
+              content: ListView.builder(
+                shrinkWrap: true,
+                itemCount: level!.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    onTap: () {
+                      Navigator.pop(context, index);
+                    },
+                    title: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(level![index]),
+                    ),
+                  );
                 },
               ),
             );
@@ -171,7 +139,7 @@ class _PastPapersPageCAIEState extends State<PastPapersPageCAIE> {
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
-              return Center(child: CircularProgressIndicator());
+              return loadingPage();
             default:
               if (snapshot.hasError) {
                 return Text('Error');

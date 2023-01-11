@@ -262,6 +262,7 @@ class _HomePageButtonState extends State<HomePageButton> {
             elevation: 20,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20.0),
+              side: BorderSide.none,
             ),
           ),
           height: 200,

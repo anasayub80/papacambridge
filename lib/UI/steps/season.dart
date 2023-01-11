@@ -134,10 +134,17 @@ class _SeasonTileState extends State<SeasonTile> {
         //         : "Winter",
         style: TextStyle(
           color: (isSeasonSelected)
-              ? Colors.blue
+              ? Theme.of(context)
+                          .textTheme
+                          .bodyText1!
+                          .color!
+                          .computeLuminance() <
+                      0.5
+                  ? Colors.white
+                  : Colors.black
               : Theme.of(context).textTheme.bodyText1!.color,
           fontSize: 14,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w600,
         ),
       ),
       subtitle: Text(
@@ -149,8 +156,16 @@ class _SeasonTileState extends State<SeasonTile> {
         //         : "October/November",
         style: TextStyle(
           color: (isSeasonSelected)
-              ? Colors.blue
+              ? Theme.of(context)
+                          .textTheme
+                          .bodyText1!
+                          .color!
+                          .computeLuminance() <
+                      0.5
+                  ? Colors.white
+                  : Colors.black
               : Theme.of(context).textTheme.bodyText1!.color,
+          fontSize: 12,
         ),
       ),
     );
