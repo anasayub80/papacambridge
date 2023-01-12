@@ -310,7 +310,7 @@ class TextFieldTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var hintStyle = TextStyle(
-      color: Colors.black54,
+      color: Theme.of(context).textTheme.bodyText1!.color,
       fontWeight: FontWeight.w500,
     );
 

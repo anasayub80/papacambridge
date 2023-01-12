@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../UI/loading_page.dart';
 import '../UI/mainFilesList.dart';
-import 'past_papers_details_select.dart';
+import '../CAIE/past_papers_details_select.dart';
 import 'package:studento/UI/studento_app_bar.dart';
 import 'package:studento/CAIE/subjects_staggered_view.dart';
 

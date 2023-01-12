@@ -18,8 +18,8 @@ import 'package:studento/pages/past_paper_view.dart';
 import 'package:studento/model/MainFolderInit.dart';
 import 'package:http/http.dart' as http;
 
-import 'inner_files_screen.dart';
-import 'other_fileView.dart';
+import '../pages/inner_files_screen.dart';
+import '../pages/other_fileView.dart';
 
 enum Season { spring, summer, winter }
 
@@ -490,7 +490,9 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
                                   height: 50,
                                   width: 100,
                                   child: RawMaterialButton(
-                                    onPressed: () => openPaper(selectedPdf!),
+                                    onPressed: () => openPaper(
+                                        selectedPdf!.urlPdf!,
+                                        selectedPdf!.name),
                                     shape: StadiumBorder(),
                                     elevation: 6.0,
                                     fillColor: Colors.blue,
@@ -730,10 +732,10 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
   }
 
   /// Open the Paper in the PastPaperView.
-  void openPaper(PdfModal id) async {
+  void openPaper(String url, fileName) async {
     List<String> moreUrls = [];
-    print(id.urlPdf);
-    moreUrls.add(id.urlPdf!);
+    // print(id.urlPdf);
+    // moreUrls.add(id.urlPdf!);
 
     print('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk');
     print(moreUrls);
@@ -743,10 +745,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
       MaterialPageRoute(
         builder: (_) => PastPaperViewCAIE(
           [
-            // generateMainUrl(widget.subject),
-            // generateMirror1Url(),
-            // generateMirror2Url(),
-            ...moreUrls,
+            url,
           ], //..retainWhere((url) => url != null),
           fileName,
           boardId,

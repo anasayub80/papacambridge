@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:studento/pages/past_papers_details_select.dart';
+import 'package:studento/CAIE/past_papers_details_select.dart';
 import 'package:studento/utils/theme_provider.dart';
 
 class SeasonStep extends StatefulWidget {

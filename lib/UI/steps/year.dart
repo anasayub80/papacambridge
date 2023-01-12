@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';
-import 'package:studento/pages/past_papers_details_select.dart';
+import 'package:studento/CAIE/past_papers_details_select.dart';
 import 'package:studento/model/MainFolder.dart';
 
 class YearStep extends StatefulWidget {

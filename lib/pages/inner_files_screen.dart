@@ -57,7 +57,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
   void initData() async {
     log('***subject init innerfile***');
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
+    log('Inner File favItem${widget.inner_file} & favItemName${widget.inner_file}');
     favItem = prefs.getStringList('favItem${widget.inner_file}') ?? [];
     favItemName = prefs.getStringList('favItemName${widget.inner_file}') ?? [];
 
@@ -66,6 +66,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
       'token': token,
       'fileid': widget.inner_file,
     });
+    log(innerFileApi + widget.inner_file);
     log(res.body);
     if (res.statusCode == 200) {
       if (res.body.isNotEmpty) {
@@ -197,155 +198,149 @@ class _innerfileScreenState extends State<innerfileScreen> {
               children: [
                 favItem.isEmpty
                     ? SizedBox.shrink()
-                    : SizedBox(
-                        height: favItem.length * 60,
-                        child: ListView.builder(
-                          itemCount: favItem.length,
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, i) {
-                            return ListTile(
-                              onTap: () {
-                                // if (widget.title != 'Syllabus') {
-                                log('not syllabus');
-                                Navigator.push(context, MaterialPageRoute(
-                                  builder: (context) {
-                                    return innerfileScreen(
-                                      inner_file: favItem[i],
-                                      title: widget.title,
-                                    );
-                                  },
-                                ));
-                                // } else {
-                                //   log('syllabus');
-                                //   Navigator.push(context, MaterialPageRoute(
-                                //     builder: (context) {
-                                //       return SubjectsStaggeredListViewS(
-                                //         // launchSyllabusView(snapshot.data[i]['name']),
-                                //         favItemName[i],
-                                //         favItem[i],
-                                //       );
-                                //     },
-                                //   ));
-                                // }
-                              },
-                              leading: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Image.asset('assets/icons/folder.png'),
-                              ),
-                              trailing: IconButton(
-                                onPressed: (() {
-                                  removeFromFav(
-                                    i,
-                                    favItem[i],
-                                    favItemName[i],
+                    : ListView.builder(
+                        itemCount: favItem.length,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, i) {
+                          return ListTile(
+                            onTap: () {
+                              // if (widget.title != 'Syllabus') {
+                              log('not syllabus');
+                              Navigator.push(context, MaterialPageRoute(
+                                builder: (context) {
+                                  return innerfileScreen(
+                                    inner_file: favItem[i],
+                                    title: widget.title,
                                   );
-                                }),
-                                icon: Icon(
-                                  Icons.favorite,
-                                  color: Colors.red,
-                                ),
+                                },
+                              ));
+                              // } else {
+                              //   log('syllabus');
+                              //   Navigator.push(context, MaterialPageRoute(
+                              //     builder: (context) {
+                              //       return SubjectsStaggeredListViewS(
+                              //         // launchSyllabusView(snapshot.data[i]['name']),
+                              //         favItemName[i],
+                              //         favItem[i],
+                              //       );
+                              //     },
+                              //   ));
+                              // }
+                            },
+                            leading: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Image.asset('assets/icons/folder.png'),
+                            ),
+                            trailing: IconButton(
+                              onPressed: (() {
+                                removeFromFav(
+                                  i,
+                                  favItem[i],
+                                  favItemName[i],
+                                );
+                              }),
+                              icon: Icon(
+                                Icons.favorite,
+                                color: Colors.red,
                               ),
-                              // subtitle: Text(allItem[i].id),
-                              title: Text(
-                                favItemName[i],
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                            );
-                          },
+                            ),
+                            // subtitle: Text(allItem[i].id),
+                            title: Text(
+                              favItemName[i],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                          );
+                        },
+                      ),
+                ListView.builder(
+                  itemCount: allItem.length,
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      onTap: () {
+                        if (allItem[index].urlPdf == "") {
+                          debugPrint('newScreen');
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (context) {
+                              return innerfileScreen(
+                                inner_file: allItem[index].id,
+                                title: widget.title,
+                              );
+                            },
+                          ));
+                        } else {
+                          if (widget.title == "Syllabus") {
+                            // launchSyllabusView(subject)
+                            log('Syllabus Inner file');
+                          } else {
+                            allItem[index].urlPdf.toString().contains('.pdf')
+                                ? openPaper(
+                                    allItem[index].urlPdf!,
+                                    allItem[index]
+                                        .name!
+                                        .replaceFirst(" ", " \n"))
+                                : Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => OtherFilesViewPage(
+                                        [
+                                          allItem[index].urlPdf!,
+                                        ],
+                                        allItem[index]
+                                            .name!
+                                            .replaceFirst(" ", " \n"),
+                                        allItem[index]
+                                            .id
+                                            .toString()
+                                            .replaceFirst(" ", " \n"),
+                                      ),
+                                    ),
+                                  );
+                          }
+                        }
+                      },
+                      leading: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Image.asset(allItem[index]
+                                .urlPdf
+                                .toString()
+                                .contains('.pdf')
+                            ? 'assets/icons/pdf.png'
+                            : allItem[index].urlPdf.toString().contains('.doc')
+                                ? 'assets/icons/doc.png'
+                                : 'assets/icons/folder.png'),
+                      ),
+                      trailing: IconButton(
+                        onPressed: (() {
+                          addtoFav(
+                            index,
+                            allItem[index].id,
+                            allItem[index].name!,
+                          );
+                        }),
+                        icon: Icon(
+                          Icons.favorite_border,
+                          color: Theme.of(context).textTheme.bodyText1!.color,
                         ),
                       ),
-                SizedBox(
-                  height: allItem.length * 60,
-                  child: ListView.builder(
-                    itemCount: allItem.length,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        onTap: () {
-                          if (allItem[index].urlPdf == "") {
-                            debugPrint('newScreen');
-                            Navigator.push(context, MaterialPageRoute(
-                              builder: (context) {
-                                return innerfileScreen(
-                                  inner_file: allItem[index].id,
-                                  title: widget.title,
-                                );
-                              },
-                            ));
-                          } else {
-                            if (widget.title == "Syllabus") {
-                              // launchSyllabusView(subject)
-                              log('Syllabus Inner file');
-                            } else {
-                              allItem[index].urlPdf.toString().contains('.pdf')
-                                  ? openPaper(
-                                      allItem[index].urlPdf!,
-                                      allItem[index]
-                                          .name!
-                                          .replaceFirst(" ", " \n"))
-                                  : Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => OtherFilesViewPage(
-                                          [
-                                            allItem[index].urlPdf!,
-                                          ],
-                                          allItem[index]
-                                              .name!
-                                              .replaceFirst(" ", " \n"),
-                                          allItem[index]
-                                              .id
-                                              .toString()
-                                              .replaceFirst(" ", " \n"),
-                                        ),
-                                      ),
-                                    );
-                            }
-                          }
-                        },
-                        leading: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Image.asset(
-                              allItem[index].urlPdf.toString().contains('.pdf')
-                                  ? 'assets/icons/pdf.png'
-                                  : allItem[index]
-                                          .urlPdf
-                                          .toString()
-                                          .contains('.doc')
-                                      ? 'assets/icons/doc.png'
-                                      : 'assets/icons/folder.png'),
+                      // subtitle: Text(allItem[index]['id']),
+                      title: Text(
+                        allItem[index].name ??
+                            allItem[index].name ??
+                            'fileName',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
                         ),
-                        trailing: IconButton(
-                          onPressed: (() {
-                            addtoFav(
-                              index,
-                              allItem[index].id,
-                              allItem[index].name!,
-                            );
-                          }),
-                          icon: Icon(
-                            Icons.favorite_border,
-                            color: Theme.of(context).textTheme.bodyText1!.color,
-                          ),
-                        ),
-                        // subtitle: Text(allItem[index]['id']),
-                        title: Text(
-                          allItem[index].name ??
-                              allItem[index].name ??
-                              'fileName',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ],
             );
