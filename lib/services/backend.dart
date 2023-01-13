@@ -6,13 +6,15 @@ import 'package:http/http.dart' as http;
 
 const token = 'C8xWxGvIue37SwP2MEU7W5oKE32fm7Z3JxHfeK897a8eE0SdLl';
 const boardApi =
-    'https://papacambridge.redrhinoz.com/api.php?page=select_board';
-const domainApi = 'https://papacambridge.redrhinoz.com/api.php?page=domains';
+    'https://pastpapers.papacambridge.com/api/api.php?page=select_board';
+const domainApi =
+    'https://pastpapers.papacambridge.com/api/api.php?page=domains';
 const innerFileApi =
-    'https://papacambridge.redrhinoz.com/api.php?page=inner_file';
+    'https://pastpapers.papacambridge.com/api/api.php?page=inner_file';
 const mainFileApi =
-    'https://papacambridge.redrhinoz.com/api.php?page=main_file';
-const levelApi = 'https://papacambridge.redrhinoz.com/api.php?page=inner_file';
+    'https://pastpapers.papacambridge.com/api/api.php?page=main_file';
+const levelApi =
+    'https://pastpapers.papacambridge.com/api/api.php?page=inner_file';
 // const subjectApi =
 //     'https://papacambridge.redrhinoz.com/api.php?page=inner_file';
 

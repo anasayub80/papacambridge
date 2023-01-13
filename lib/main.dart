@@ -18,6 +18,7 @@ import 'package:studento/model/todo/todo_list_model.dart';
 import 'package:studento/pages/splash_page.dart';
 import 'package:studento/provider/loadigProvider.dart';
 import 'package:studento/routes.dart';
+import 'package:studento/utils/ads_helper.dart';
 import 'package:studento/utils/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';

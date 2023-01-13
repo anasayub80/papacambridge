@@ -14,7 +14,6 @@ import 'package:studento/pages/todo_list.dart';
 import 'package:studento/utils/theme_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../CAIE/syllabusPage.dart';
 import '../UI/customDelgate.dart';
 import '../services/backend.dart';
 import 'ebook_page.dart';

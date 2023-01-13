@@ -2,6 +2,8 @@
 
 import 'dart:async';
 import 'dart:developer';
+import 'dart:math';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:studento/UI/error_report_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +15,7 @@ import 'package:studento/UI/show_message_dialog.dart';
 import 'package:studento/utils/pdf_helper.dart';
 import '../UI/mainFilesList.dart';
 import '../services/backend.dart';
+import '../utils/ads_helper.dart';
 
 // List? level;
 
@@ -78,15 +81,25 @@ class _SyllabusPdfViewState extends State<SyllabusPdfView> {
   bool? _isPro;
 
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
+  Random random = Random();
   @override
   void initState() {
     super.initState();
     // PdfHelper.checkIfPro().then((isPro) {
     //   setState(() => _isPro = isPro);
     //   if (!_isPro!) {
-    //     // _interstitialAd?.dispose();
-    //     // _interstitialAd = createInterstitialAd()..load();
+    int randomNumber = random.nextInt(5);
+    switch (randomNumber) {
+      case 2:
+        _interstitialAd?.dispose();
+        createInterstitialAd();
+        break;
+      case 4:
+        _interstitialAd?.dispose();
+        createInterstitialAd();
+        break;
+      default:
+    }
     //   }
     // });
     loadStuff();
@@ -100,13 +113,12 @@ class _SyllabusPdfViewState extends State<SyllabusPdfView> {
     }
 
     var path = await PdfHelper.getFilePath("${pdfName}_syllabus.pdf");
-    log('my path is $path');
+
     setState(() => filePath = path);
 
     isFileAlreadyDownloaded =
         await PdfHelper.checkIfDownloaded("${pdfName}_syllabus.pdf");
     if (isFileAlreadyDownloaded) {
-      log('File found ');
       // The setState is wrapped in a [Future.delayed] so as to give enough
       // time for the pdf viewer to close. If this isn't done, the pdf viewer
       // wouldn't close before the widget is rebuilt, and would get stuck
@@ -122,7 +134,6 @@ class _SyllabusPdfViewState extends State<SyllabusPdfView> {
         },
       );
     } else {
-      log('File not found Download First');
       var isConnected = await PdfHelper.checkIfConnected();
       if (isConnected) {
         await downloadSyllabus();
@@ -207,11 +218,13 @@ class _SyllabusPdfViewState extends State<SyllabusPdfView> {
 
   @override
   void dispose() {
-    // _interstitialAd?.dispose();
+    _interstitialAd?.dispose();
     if (isFileAlreadyDownloaded && !shouldDownload)
       PdfHelper.deleteFile(filePath!);
     super.dispose();
   }
+
+  InterstitialAd? _interstitialAd;
 
   String? pdfurl;
   String? pdfName;
@@ -224,15 +237,15 @@ class _SyllabusPdfViewState extends State<SyllabusPdfView> {
 
     // String syllabusUrlPrefix = "http://www.cambridgeinternational.org/Images";
     // String uniqueSubjectUrlPath;
-    log(widget.subject.id);
+    print(widget.subject.id);
     var res = await backEnd().fetchInnerFiles(widget.subject.id);
-    log('Syllabus Url res = $res');
+    print('Syllabus Url res = $res');
     try {
       // uniqueSubjectUrlPath = urlList!["${widget.subject.folderCode}"]['url'];
       setState(() {
         pdfurl = res[0]['url_pdf'];
         pdfName = res[0]['name'];
-        log("$pdfurl & $pdfName");
+        print("$pdfurl & $pdfName");
         isUrlListLoaded = true;
       });
       return true;
@@ -242,9 +255,9 @@ class _SyllabusPdfViewState extends State<SyllabusPdfView> {
   }
 
   Future<bool> downloadSyllabus() async {
-    log('download syllabus called!~! $pdfurl');
+    print('download syllabus called!~! $pdfurl');
     Dio dio = Dio(PdfHelper.pdfDownloadOpt);
-    // log("my pdfurl ${widget.subject.link!}");
+    // print("my pdfurl ${widget.subject.link!}");
     setState(() {
       downloading = true;
       progress = "2%";
@@ -263,7 +276,7 @@ class _SyllabusPdfViewState extends State<SyllabusPdfView> {
           filePath,
           onReceiveProgress: (received, total) {
             var percentage = ((received / total) * 100);
-            log('increase progress ${percentage.toString()}');
+            print('increase progress ${percentage.toString()}');
             setState(() {
               downloading = true;
               if (percentage >= 0) {
@@ -278,7 +291,7 @@ class _SyllabusPdfViewState extends State<SyllabusPdfView> {
         );
         if (mounted) {
           setState(() {
-            log('already downloded!!');
+            print('already downloded!!');
             isFileAlreadyDownloaded = true;
             downloading = false;
             isLoaded = true;
@@ -286,11 +299,11 @@ class _SyllabusPdfViewState extends State<SyllabusPdfView> {
         }
         return true;
       } else {
-        log('status code error');
+        print('status code error');
         handleNotFoundError();
       }
     } catch (e) {
-      log('try error ${e.toString()}');
+      print('try error ${e.toString()}');
       handleNotFoundError();
     }
 
@@ -320,21 +333,27 @@ class _SyllabusPdfViewState extends State<SyllabusPdfView> {
     PdfHelper.deleteFile(filePath!);
   }
 
-  // InterstitialAd createInterstitialAd() => InterstitialAd(
-  //       adUnitId: ads.interstitialAdUnitId,
-  //       targetingInfo: ads.targetingInfo,
-  //       listener: (event) {
-  //         if (event == MobileAdEvent.loaded) {
-  //           _scaffoldKey.currentState.showSnackBar(SnackBar(
-  //             content: Text(
-  //               "Showing ad...",
-  //               textAlign: TextAlign.center,
-  //             ),
-  //             behavior: SnackBarBehavior.floating,
-  //             backgroundColor: Colors.grey.shade800,
-  //           ));
-  //           _interstitialAd.show();
-  //         }
-  //       },
-  //     );
+  void createInterstitialAd() {
+    print('init created for Syllabus');
+    InterstitialAd.load(
+        adUnitId: interstitialAdUnitId,
+        request: request,
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (InterstitialAd ad) {
+            print('$ad loaded');
+            _interstitialAd = ad;
+            // _numInterstitialLoadAttempts = 0;
+            _interstitialAd!.setImmersiveMode(true);
+            _interstitialAd!.show();
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            print('InterstitialAd failed to load: $error.');
+            // _numInterstitialLoadAttempts += 1;
+            _interstitialAd = null;
+            if (numInterstitialLoadAttempts < 3) {
+              createInterstitialAd();
+            }
+          },
+        ));
+  }
 }

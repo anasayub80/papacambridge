@@ -2,6 +2,8 @@
 
 import 'dart:async';
 import 'dart:developer';
+import 'dart:math';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:studento/UI/error_report_dialog.dart';
 import 'package:studento/UI/show_message_dialog.dart';
 import 'package:studento/utils/pdf_helper.dart';
@@ -12,6 +14,7 @@ import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:studento/UI/loading_indicator.dart';
 
 import '../UI/studento_app_bar.dart';
+import '../utils/ads_helper.dart';
 
 class PastPaperView extends StatefulWidget {
   final List<String> urls;
@@ -49,7 +52,7 @@ class _PastPaperViewState extends State<PastPaperView> {
   /// Whether the file we're loading is a question paper
   /// or a marking scheme. Set to true at the start as first the QP is opened.
   /// This value will be toggled when the switch button is pressed.
-  bool isQP = true;
+  // bool isQP = true;
 
   // InterstitialAd _interstitialAd;
 
@@ -60,17 +63,30 @@ class _PastPaperViewState extends State<PastPaperView> {
   GlobalKey<ScaffoldMessengerState> _scaffoldKey =
       GlobalKey<ScaffoldMessengerState>();
   // late bool _isPro;
-
+  Random random = Random();
   @override
   void initState() {
     print("past paper view fileName ${widget.fileName}");
     super.initState();
     print(widget.fileName);
     _fileName = widget.fileName;
-
+    int randomNumber = random.nextInt(5);
+    switch (randomNumber) {
+      case 2:
+        _interstitialAd?.dispose();
+        createInterstitialAd();
+        break;
+      case 4:
+        _interstitialAd?.dispose();
+        createInterstitialAd();
+        break;
+      default:
+    }
     initPapers();
     // loadDocs();
   }
+
+  InterstitialAd? _interstitialAd;
 
   // hello.PDFDocument document;
   // loadDocs() async {
@@ -87,7 +103,8 @@ class _PastPaperViewState extends State<PastPaperView> {
         appBar: StudentoAppBar(
           context: context,
           centerTitle: false,
-          title: (isQP) ? widget.fileName : "Marking Scheme",
+          title: widget.fileName,
+          // title: (isQP) ? widget.fileName : "Marking Scheme",
           actions: <Widget>[
             // widget.boarId == '1'
             //     ? widget.isOthers == true
@@ -156,7 +173,7 @@ class _PastPaperViewState extends State<PastPaperView> {
 
   @override
   void dispose() {
-    // _interstitialAd?.dispose();
+    _interstitialAd?.dispose();
     super.dispose();
   }
 
@@ -199,19 +216,23 @@ class _PastPaperViewState extends State<PastPaperView> {
     for (var url in widget.urls) {
       p++;
       setState(() => progress = "$p%");
-
-      if (!isQP) {
-        url = url.replaceFirst("_qp_", "_ms_");
-        log('my invalid url checker $url');
-      }
-      Response response = await dio.head(url).catchError((Object error) {});
-
-      if (response.statusCode == 200 &&
-          response.headers.value(Headers.contentTypeHeader) ==
-              "application/pdf") {
-        setState(() => (isQP) ? urlInUse = url : msUrlInUse = url);
+      // if (!isQP) {
+      // url = url.replaceFirst("_qp_", "_ms_");
+      // log('my invalid url checker $url');
+      // }
+      try {
+        await dio.head(url);
         return true;
+      } catch (e) {
+        debugPrint('Invalid url ${e.toString()}');
       }
+
+      // if (response.statusCode == 200 &&
+      //     response.headers.value(Headers.contentTypeHeader) ==
+      //         "application/pdf") {
+      //   setState(() => (isQP) ? urlInUse = url : msUrlInUse = url);
+      //   return true;
+      // }
     }
 
     return false;
@@ -220,7 +241,8 @@ class _PastPaperViewState extends State<PastPaperView> {
   Future<void> downloadFile(String filePath) async {
     setState(() => downloading = true);
     Dio dio = Dio(PdfHelper.pdfDownloadOpt);
-    if (isQP && urlInUse == null || !isQP && msUrlInUse == null) {
+    if (urlInUse == null || msUrlInUse == null) {
+      // if (isQP && urlInUse == null || !isQP && msUrlInUse == null) {
       bool fileAvailable = await filterInvalidUrls();
       if (!fileAvailable) {
         await handleNotFoundError();
@@ -229,7 +251,8 @@ class _PastPaperViewState extends State<PastPaperView> {
     }
 
     await dio.download(
-      (isQP) ? urlInUse! : msUrlInUse!,
+      // (isQP) ? urlInUse! : msUrlInUse!,
+      widget.urls[0],
       filePath,
       onReceiveProgress: (received, total) {
         var percentage = ((received / total) * 100);
@@ -257,21 +280,21 @@ class _PastPaperViewState extends State<PastPaperView> {
 
   /// Depending on what's currently shown, switch to
   /// the past paper/marking scheme view.
-  void switchToPaperOrMS(BuildContext context) {
-    if (isQP) {
-      _fileName = _fileName.replaceFirst("qp_", "ms_");
-    } else {
-      _fileName = _fileName.replaceFirst("ms_", "qp_");
-    }
+  // void switchToPaperOrMS(BuildContext context) {
+  //   if (isQP) {
+  //     _fileName = _fileName.replaceFirst("qp_", "ms_");
+  //   } else {
+  //     _fileName = _fileName.replaceFirst("ms_", "qp_");
+  //   }
 
-    setState(() {
-      isQP = !isQP;
-      isLoaded = false;
-      isFileAlreadyDownloaded = false;
-      isRendered = false;
-      initPapers();
-    });
-  }
+  //   setState(() {
+  //     isQP = !isQP;
+  //     isLoaded = false;
+  //     isFileAlreadyDownloaded = false;
+  //     isRendered = false;
+  //     initPapers();
+  //   });
+  // }
 
   void handlePdfLoadError(String errorMsg) async {
     await showMessageDialog(
@@ -300,21 +323,26 @@ You can file an issue if you really need it, and we'll try our best to get it to
     );
   }
 
-  // InterstitialAd createInterstitialAd() => InterstitialAd(
-  //       adUnitId: ads.interstitialAdUnitId,
-  //       targetingInfo: ads.targetingInfo,
-  //       listener: (event) {
-  //         if (event == MobileAdEvent.loaded) {
-  //           _scaffoldKey.currentState.showSnackBar(SnackBar(
-  //             content: Text(
-  //               "Showing ad...",
-  //               textAlign: TextAlign.center,
-  //             ),
-  //             behavior: SnackBarBehavior.floating,
-  //             backgroundColor: Colors.grey.shade800,
-  //           ));
-  //           _interstitialAd.show();
-  //         }
-  //       },
-  //     );
+  void createInterstitialAd() {
+    InterstitialAd.load(
+        adUnitId: interstitialAdUnitId,
+        request: request,
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (InterstitialAd ad) {
+            print('$ad loaded');
+            _interstitialAd = ad;
+            // _numInterstitialLoadAttempts = 0;
+            _interstitialAd!.setImmersiveMode(true);
+            _interstitialAd!.show();
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            print('InterstitialAd failed to load: $error.');
+            // _numInterstitialLoadAttempts += 1;
+            _interstitialAd = null;
+            if (numInterstitialLoadAttempts < 3) {
+              createInterstitialAd();
+            }
+          },
+        ));
+  }
 }

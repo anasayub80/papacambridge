@@ -5,12 +5,14 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'package:studento/UI/random_gradient.dart';
 import 'package:studento/UI/loading_page.dart';
 import 'package:studento/model/MainFolder.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:studento/utils/ads_helper.dart';
 
 // past papers
 
@@ -217,20 +219,4 @@ class _SubjectsStaggeredListViewState extends State<SubjectsStaggeredListView> {
   String prettifySubjectName(String subjectName) {
     return subjectName.replaceFirst(" ", " \n");
   }
-
-  // BannerAd createBannerAd() => BannerAd(
-  //       adUnitId: ads.bannerAdUnitId,
-  //       targetingInfo: ads.targetingInfo,
-  //       size: AdSize.smartBanner,
-  //       listener: (MobileAdEvent event) {
-  //         if (event == MobileAdEvent.loaded) {
-  //           // dispose after you received the loaded event seems okay.
-  //           if (mounted) {
-  //             _bannerAd..show();
-  //           } else {
-  //             _bannerAd = null;
-  //           }
-  //         }
-  //       },
-  //     );
 }

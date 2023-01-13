@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'dart:developer';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:studento/CAIE/pastPaperViewCAIE.dart';
 import 'package:studento/UI/studento_app_bar.dart';
 import 'package:studento/model/MainFolder.dart';
@@ -14,12 +15,11 @@ import 'package:studento/model/Filtered.dart';
 import 'package:studento/UI/steps/year.dart';
 import 'package:studento/UI/steps/season.dart';
 import 'package:studento/pages/home_page.dart';
-import 'package:studento/pages/past_paper_view.dart';
 import 'package:studento/model/MainFolderInit.dart';
 import 'package:http/http.dart' as http;
 
-import '../pages/inner_files_screen.dart';
 import '../pages/other_fileView.dart';
+import '../utils/bannerAdmob.dart';
 
 enum Season { spring, summer, winter }
 
@@ -483,6 +483,8 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
                                                 .toList()
                                                 .cast<Widget>()),
                                       ),
+
+                            BannerAdmob(size: AdSize.banner),
                             if (selectedPdf != null)
                               Padding(
                                 padding: const EdgeInsets.only(top: 16.0),
@@ -599,7 +601,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
       // else if (_selectedComponent == null) changeStep(_componentStepNo);
 
       if (_selectedSeason == null) {
-        _scaffoldKey.currentState!.showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Looks like you forgot to select an option!"),
             backgroundColor: Colors.red[900],
@@ -658,8 +660,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
 
   String get fileName {
     var code = widget.subject.folderCode;
-    String fileName =
-        "${code}_$seasonChar${twoDigitYear}$type$componentStr.pdf";
+    String fileName = "${code}_$seasonChar$twoDigitYear$type$componentStr.pdf";
     return fileName;
   }
 

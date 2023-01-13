@@ -2,8 +2,11 @@
 
 import 'dart:async';
 import 'dart:developer';
+import 'dart:math';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:studento/UI/error_report_dialog.dart';
 import 'package:studento/UI/show_message_dialog.dart';
+import 'package:studento/utils/ads_helper.dart';
 import 'package:studento/utils/pdf_helper.dart';
 import 'package:flutter/material.dart';
 
@@ -63,15 +66,30 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
   GlobalKey<ScaffoldMessengerState> _scaffoldKey =
       GlobalKey<ScaffoldMessengerState>();
   // late bool _isPro;
-
+  InterstitialAd? _interstitialAd;
+  Random random = Random();
   @override
   void initState() {
-    print("past paper view fileName ${widget.fileName}");
+    print("past paper view fileName ${widget.fileName}  ${widget.urls}");
     super.initState();
     print(widget.fileName);
     _fileName = widget.fileName;
-
+    isQP = widget.type;
     initPapers();
+
+    int randomNumber = random.nextInt(5);
+    switch (randomNumber) {
+      case 2:
+        _interstitialAd?.dispose();
+        createInterstitialAd();
+        break;
+      case 4:
+        _interstitialAd?.dispose();
+        createInterstitialAd();
+        break;
+      default:
+    }
+
     // loadDocs();
   }
 
@@ -83,7 +101,6 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
 
   @override
   Widget build(BuildContext context) {
-    isQP = widget.type;
     if (isLoaded) {
       //&& _isPro != null
       return Scaffold(
@@ -166,7 +183,7 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
 
   @override
   void dispose() {
-    // _interstitialAd?.dispose();
+    _interstitialAd?.dispose();
     super.dispose();
   }
 
@@ -211,8 +228,7 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
       setState(() => progress = "$p%");
 
       if (!isQP) {
-        url = url.replaceFirst("_qp_", "_ms_");
-        log('my invalid url checker $url');
+        url = url.replaceFirst("qp", "ms");
       }
       Response response = await dio.head(url).catchError((Object error) {});
 
@@ -269,11 +285,10 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
   /// the past paper/marking scheme view.
   void switchToPaperOrMS(BuildContext context) {
     if (isQP) {
-      _fileName = _fileName.replaceFirst("MS", "QP");
+      _fileName = _fileName.replaceFirst("qp_", "ms_");
     } else {
-      _fileName = _fileName.replaceFirst("QP", "MS");
+      _fileName = _fileName.replaceFirst("ms_", "qp_");
     }
-
     setState(() {
       isQP = !isQP;
       isLoaded = false;
@@ -310,21 +325,26 @@ You can file an issue if you really need it, and we'll try our best to get it to
     );
   }
 
-  // InterstitialAd createInterstitialAd() => InterstitialAd(
-  //       adUnitId: ads.interstitialAdUnitId,
-  //       targetingInfo: ads.targetingInfo,
-  //       listener: (event) {
-  //         if (event == MobileAdEvent.loaded) {
-  //           _scaffoldKey.currentState.showSnackBar(SnackBar(
-  //             content: Text(
-  //               "Showing ad...",
-  //               textAlign: TextAlign.center,
-  //             ),
-  //             behavior: SnackBarBehavior.floating,
-  //             backgroundColor: Colors.grey.shade800,
-  //           ));
-  //           _interstitialAd.show();
-  //         }
-  //       },
-  //     );
+  void createInterstitialAd() {
+    InterstitialAd.load(
+        adUnitId: interstitialAdUnitId,
+        request: request,
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (InterstitialAd ad) {
+            print('$ad loaded');
+            _interstitialAd = ad;
+            // _numInterstitialLoadAttempts = 0;
+            _interstitialAd!.setImmersiveMode(true);
+            _interstitialAd!.show();
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            print('InterstitialAd failed to load: $error.');
+            // _numInterstitialLoadAttempts += 1;
+            _interstitialAd = null;
+            if (numInterstitialLoadAttempts < 3) {
+              createInterstitialAd();
+            }
+          },
+        ));
+  }
 }

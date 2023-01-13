@@ -20,7 +20,7 @@ Widget buildTopBackground(
       ],
     );
 Widget buildPageCaption(caption) => Padding(
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -107,9 +107,9 @@ class _SetupPageState extends State<SetupPage> {
           buildTopBackground(widget.leadIcon, context, topBackgroundDecoration),
           buildPageCaption(widget.caption),
           Expanded(
-            flex: 2,
-            child: Padding(
-              padding: EdgeInsets.all(8.0),
+            // flex: 2,
+            child: Container(
+              // color: Colors.red,
               child: widget.body,
             ),
           ),

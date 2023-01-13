@@ -1,18 +1,18 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:studento/UI/subjects_staggered_viewS.dart';
 import 'package:studento/pages/home_page.dart';
 import 'package:studento/pages/inner_files_screen.dart';
 import 'package:studento/services/backend.dart';
-import 'package:studento/utils/like_icon.dart';
 
 import '../model/MainFolder.dart';
 import 'package:http/http.dart' as http;
+
+import '../utils/ads_helper.dart';
 
 class mainFilesList extends StatefulWidget {
   final domainId;
@@ -35,6 +35,34 @@ class _mainFilesListState extends State<mainFilesList> {
     // TODO: implement initState
     super.initState();
     initSubjects();
+    _interstitialAd?.dispose();
+
+    createInterstitialAd();
+  }
+
+  InterstitialAd? _interstitialAd;
+
+  void createInterstitialAd() {
+    InterstitialAd.load(
+        adUnitId: interstitialAdUnitId,
+        request: request,
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (InterstitialAd ad) {
+            print('$ad loaded');
+            _interstitialAd = ad;
+            // _numInterstitialLoadAttempts = 0;
+            _interstitialAd!.setImmersiveMode(true);
+            _interstitialAd!.show();
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            print('InterstitialAd failed to load: $error.');
+            // _numInterstitialLoadAttempts += 1;
+            _interstitialAd = null;
+            if (numInterstitialLoadAttempts < 3) {
+              createInterstitialAd();
+            }
+          },
+        ));
   }
 
   @override

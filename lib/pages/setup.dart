@@ -162,6 +162,7 @@ class _SetupState extends State<Setup> {
   Level? levelG;
   getLevel(boardId) async {
     var res = await backEnd().fetchMainFiles(boardId);
+    // ignore: unused_local_variable
     var resp = res.toString().replaceAll("\n", "");
     debugPrint("checking response ${res.toString()}");
     if (dataUpdated == false) {
@@ -287,9 +288,11 @@ class _SetupState extends State<Setup> {
         } else if (snapshot.hasData) {
           return ListView.builder(
             itemCount: snapshot.data.length,
+            padding: EdgeInsets.all(0),
             itemBuilder: (context, index) {
               return buildLevelRadioListTile(
                   snapshot.data[index]['name'], snapshot.data[index]['id']);
+              // return Text(snapshot.data[index]['name']);
             },
           );
         }

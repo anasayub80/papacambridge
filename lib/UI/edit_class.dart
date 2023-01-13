@@ -245,7 +245,7 @@ class _EditClassState extends State<EditClass> {
 
   bool validateTime() {
     if (endTime.isBefore(startTime)) {
-      _scaffoldKey.currentState!.showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("The class can't end before it starts!"),
         backgroundColor: Colors.red[400],
       ));

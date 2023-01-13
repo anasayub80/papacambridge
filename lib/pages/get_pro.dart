@@ -181,17 +181,17 @@ class PayWallPage extends StatelessWidget {
     } on PlatformException catch (e) {
       var errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode == PurchasesErrorCode.purchaseCancelledError) {
-        _showError("You cancelled the purchase.");
+        _showError("You cancelled the purchase.", context);
       } else if (errorCode == PurchasesErrorCode.purchaseNotAllowedError) {
-        _showError("You weren't allowed to purchase this item");
+        _showError("You weren't allowed to purchase this item", context);
       } else {
-        _showError("Please report error: $errorCode");
+        _showError("Please report error: $errorCode", context);
       }
     }
   }
 
-  _showError(msg) {
-    _scaffoldKey.currentState!.showSnackBar(
+  _showError(msg, BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(msg),
         behavior: SnackBarBehavior.floating,

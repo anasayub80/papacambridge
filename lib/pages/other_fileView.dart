@@ -2,6 +2,8 @@
 
 import 'dart:async';
 import 'dart:developer';
+import 'dart:math';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:studento/UI/error_report_dialog.dart';
 import 'package:studento/UI/show_message_dialog.dart';
 import 'package:studento/utils/pdf_helper.dart';
@@ -12,6 +14,7 @@ import 'package:dio/dio.dart';
 import 'package:studento/UI/loading_indicator.dart';
 
 import '../UI/studento_app_bar.dart';
+import '../utils/ads_helper.dart';
 
 class OtherFilesViewPage extends StatefulWidget {
   final List<String> urls;
@@ -59,7 +62,7 @@ class _OtherFilesViewPageState extends State<OtherFilesViewPage> {
   GlobalKey<ScaffoldMessengerState> _scaffoldKey =
       GlobalKey<ScaffoldMessengerState>();
   // late bool _isPro;
-
+  Random random = Random();
   @override
   void initState() {
     print("other file view ${widget.urls}");
@@ -69,8 +72,18 @@ class _OtherFilesViewPageState extends State<OtherFilesViewPage> {
     // PdfHelper.checkIfPro().then((isPro) {
     //   setState(() => _isPro = isPro);
     //   if (!_isPro) {
-    //     _interstitialAd?.dispose();
-    //     _interstitialAd = createInterstitialAd()..load();
+    int randomNumber = random.nextInt(5);
+    switch (randomNumber) {
+      case 2:
+        _interstitialAd?.dispose();
+        createInterstitialAd();
+        break;
+      case 4:
+        _interstitialAd?.dispose();
+        createInterstitialAd();
+        break;
+      default:
+    }
     //   }
     // });
     initPapers();
@@ -173,9 +186,11 @@ class _OtherFilesViewPageState extends State<OtherFilesViewPage> {
     );
   }
 
+  InterstitialAd? _interstitialAd;
+
   @override
   void dispose() {
-    // _interstitialAd?.dispose();
+    _interstitialAd?.dispose();
     super.dispose();
   }
 
@@ -272,7 +287,6 @@ class _OtherFilesViewPageState extends State<OtherFilesViewPage> {
           }
         });
         if (int.parse(percentage.toStringAsFixed(0)) >= 100) {
-          log('render false');
           setState(() => isRendered = true);
         }
       },
@@ -336,21 +350,26 @@ You can file an issue if you really need it, and we'll try our best to get it to
     );
   }
 
-  // InterstitialAd createInterstitialAd() => InterstitialAd(
-  //       adUnitId: ads.interstitialAdUnitId,
-  //       targetingInfo: ads.targetingInfo,
-  //       listener: (event) {
-  //         if (event == MobileAdEvent.loaded) {
-  //           _scaffoldKey.currentState.showSnackBar(SnackBar(
-  //             content: Text(
-  //               "Showing ad...",
-  //               textAlign: TextAlign.center,
-  //             ),
-  //             behavior: SnackBarBehavior.floating,
-  //             backgroundColor: Colors.grey.shade800,
-  //           ));
-  //           _interstitialAd.show();
-  //         }
-  //       },
-  //     );
+  void createInterstitialAd() {
+    InterstitialAd.load(
+        adUnitId: interstitialAdUnitId,
+        request: request,
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (InterstitialAd ad) {
+            print('$ad loaded');
+            _interstitialAd = ad;
+            // _numInterstitialLoadAttempts = 0;
+            _interstitialAd!.setImmersiveMode(true);
+            _interstitialAd!.show();
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            print('InterstitialAd failed to load: $error.');
+            // _numInterstitialLoadAttempts += 1;
+            _interstitialAd = null;
+            if (numInterstitialLoadAttempts < 3) {
+              createInterstitialAd();
+            }
+          },
+        ));
+  }
 }

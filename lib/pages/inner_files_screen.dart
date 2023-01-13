@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:bot_toast/bot_toast.dart';
@@ -8,10 +9,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:studento/pages/home_page.dart';
 import 'package:studento/pages/past_paper_view.dart';
 import 'package:studento/services/backend.dart';
-
+import 'package:studento/utils/ads_helper.dart';
+import 'package:studento/utils/bannerAdmob.dart';
 import '../UI/studento_app_bar.dart';
-import '../UI/subjects_staggered_viewS.dart';
 import '../model/MainFolder.dart';
+import '../utils/get_ad_widget.dart';
 import 'other_fileView.dart';
 
 class innerfileScreen extends StatefulWidget {
@@ -38,9 +40,13 @@ class _innerfileScreenState extends State<innerfileScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     initData();
+    // controller.load(keywords: ['valorant', 'games', 'fortnite']);
+    // controller.onEvent.listen((event) {
+    //   if (event.keys.first == NativeAdEvent.loaded) {}
+    //   setState(() {});
+    // });
   }
 
   @override
@@ -48,6 +54,9 @@ class _innerfileScreenState extends State<innerfileScreen> {
     favItem = [];
     favItemName = [];
     allItem = [];
+    // if (_ad != null) {
+    //   _ad!.dispose();
+    // }
     // ignore: todo
     // TODO: implement dispose
     super.dispose();
@@ -66,7 +75,8 @@ class _innerfileScreenState extends State<innerfileScreen> {
       'token': token,
       'fileid': widget.inner_file,
     });
-    log(innerFileApi + widget.inner_file);
+
+    print(innerFileApi + widget.inner_file);
     log(res.body);
     if (res.statusCode == 200) {
       if (res.body.isNotEmpty) {
@@ -165,14 +175,6 @@ class _innerfileScreenState extends State<innerfileScreen> {
       BotToast.closeAllLoading();
     }
 
-    // void launchSyllabusView(MainFolder subject) {
-    //   Navigator.push(
-    //       context,
-    //       MaterialPageRoute(
-    //         builder: (_) => SyllabusPdfView(subject, ''),
-    //       ));
-    // }
-
     return Scaffold(
       appBar: StudentoAppBar(
         title: widget.title,
@@ -255,14 +257,29 @@ class _innerfileScreenState extends State<innerfileScreen> {
                           );
                         },
                       ),
-                ListView.builder(
+                ListView.separated(
                   itemCount: allItem.length,
                   physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
+                  separatorBuilder: (context, index) {
+                    if (index % 10 == 5 && index != 0)
+                      return BannerAdmob(
+                        size: AdSize.largeBanner,
+                      );
+                    // Container(
+                    //     width: _ad!.size.width.toDouble(),
+                    //     height: 72.0,
+                    //     alignment: Alignment.center,
+                    //     child: AdWidget(ad: _ad!),
+                    //   )
+
+                    return const SizedBox();
+                  },
                   itemBuilder: (context, index) {
                     return ListTile(
                       onTap: () {
-                        if (allItem[index].urlPdf == "") {
+                        if (allItem[index].urlPdf == "" ||
+                            allItem[index].urlPdf == null) {
                           debugPrint('newScreen');
                           Navigator.push(context, MaterialPageRoute(
                             builder: (context) {
@@ -273,34 +290,26 @@ class _innerfileScreenState extends State<innerfileScreen> {
                             },
                           ));
                         } else {
-                          if (widget.title == "Syllabus") {
-                            // launchSyllabusView(subject)
-                            log('Syllabus Inner file');
-                          } else {
-                            allItem[index].urlPdf.toString().contains('.pdf')
-                                ? openPaper(
-                                    allItem[index].urlPdf!,
-                                    allItem[index]
-                                        .name!
-                                        .replaceFirst(" ", " \n"))
-                                : Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => OtherFilesViewPage(
-                                        [
-                                          allItem[index].urlPdf!,
-                                        ],
-                                        allItem[index]
-                                            .name!
-                                            .replaceFirst(" ", " \n"),
-                                        allItem[index]
-                                            .id
-                                            .toString()
-                                            .replaceFirst(" ", " \n"),
-                                      ),
+                          allItem[index].urlPdf.toString().contains('.pdf')
+                              ? openPaper(allItem[index].urlPdf!,
+                                  allItem[index].name!.replaceFirst(" ", " \n"))
+                              : Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => OtherFilesViewPage(
+                                      [
+                                        allItem[index].urlPdf ?? '',
+                                      ],
+                                      allItem[index]
+                                          .name!
+                                          .replaceFirst(" ", " \n"),
+                                      allItem[index]
+                                          .id
+                                          .toString()
+                                          .replaceFirst(" ", " \n"),
                                     ),
-                                  );
-                          }
+                                  ),
+                                );
                         }
                       },
                       leading: Padding(
@@ -314,25 +323,38 @@ class _innerfileScreenState extends State<innerfileScreen> {
                                 ? 'assets/icons/doc.png'
                                 : 'assets/icons/folder.png'),
                       ),
-                      trailing: IconButton(
-                        onPressed: (() {
-                          addtoFav(
-                            index,
-                            allItem[index].id,
-                            allItem[index].name!,
-                          );
-                        }),
-                        icon: Icon(
-                          Icons.favorite_border,
-                          color: Theme.of(context).textTheme.bodyText1!.color,
-                        ),
-                      ),
+                      trailing: allItem[index]
+                              .urlPdf
+                              .toString()
+                              .contains('.pdf')
+                          ? SizedBox.shrink()
+                          : allItem[index].urlPdf.toString().contains('.doc')
+                              ? SizedBox.shrink()
+                              : allItem[index]
+                                      .urlPdf
+                                      .toString()
+                                      .contains('.zip')
+                                  ? SizedBox.shrink()
+                                  : IconButton(
+                                      onPressed: (() {
+                                        addtoFav(
+                                          index,
+                                          allItem[index].id,
+                                          allItem[index].name!,
+                                        );
+                                      }),
+                                      icon: Icon(
+                                        Icons.favorite_border,
+                                        color: Theme.of(context)
+                                            .textTheme
+                                            .bodyText1!
+                                            .color,
+                                      ),
+                                    ),
                       // subtitle: Text(allItem[index]['id']),
                       title: Text(
-                        allItem[index].name ??
-                            allItem[index].name ??
-                            'fileName',
-                        maxLines: 2,
+                        allItem[index].name.toString().replaceFirst(" ", " \n"),
+                        maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
