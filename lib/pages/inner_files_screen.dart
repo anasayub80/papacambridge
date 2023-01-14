@@ -49,6 +49,10 @@ class _innerfileScreenState extends State<innerfileScreen> {
     // });
   }
 
+  String prettifySubjectName(String subjectName) {
+    return subjectName.replaceFirst("\n", "");
+  }
+
   @override
   void dispose() {
     favItem = [];
@@ -249,7 +253,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
                             ),
                             // subtitle: Text(allItem[i].id),
                             title: Text(
-                              favItemName[i],
+                              prettifySubjectName(favItemName[i]),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(fontWeight: FontWeight.w600),
@@ -300,9 +304,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
                                       [
                                         allItem[index].urlPdf ?? '',
                                       ],
-                                      allItem[index]
-                                          .name!
-                                          .replaceFirst(" ", " \n"),
+                                      prettifySubjectName(allItem[index].name!),
                                       allItem[index]
                                           .id
                                           .toString()
@@ -353,9 +355,9 @@ class _innerfileScreenState extends State<innerfileScreen> {
                                     ),
                       // subtitle: Text(allItem[index]['id']),
                       title: Text(
-                        allItem[index].name.toString().replaceFirst(" ", " \n"),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
+                        prettifySubjectName(allItem[index].name!),
+                        // maxLines: 2,
+
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,

@@ -142,6 +142,10 @@ class _mainFilesListState extends State<mainFilesList> {
     BotToast.closeAllLoading();
   }
 
+  String prettifySubjectName(String subjectName) {
+    return subjectName.replaceFirst("\n", "");
+  }
+
   removeFromFav(index, id, name) async {
     log('to remove $id & $name');
     BotToast.showLoading();
@@ -231,8 +235,8 @@ class _mainFilesListState extends State<mainFilesList> {
                             ),
                           ),
                           title: Text(
-                            favItemName[i],
-                            maxLines: 2,
+                            prettifySubjectName(favItemName[i]),
+                            // maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(fontWeight: FontWeight.w600),
                           ),
@@ -274,9 +278,10 @@ class _mainFilesListState extends State<mainFilesList> {
                       ),
                     ),
                     title: Text(
-                      allItem[index].name ?? 'NONE',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                      // allItem[index].name!,
+                      prettifySubjectName(allItem[index].name!),
+                      // maxLines: 2,
+                      // overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                     // subtitle: Text(allItem[index].id),
