@@ -4,7 +4,7 @@
     <!-- Permissions options for the `storage` group -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <!-- <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" /> -->
     <!-- iap -->
     <!-- <uses-permission android:name="com.android.vending.BILLING" /> -->
 
@@ -19,7 +19,7 @@
     </intent>
 </queries>
    <application
-        android:label="Papa Cambridge"
+        android:label="PapaCambridge"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -38,7 +38,7 @@ class RateDialog extends StatelessWidget {
           Container(
             margin: EdgeInsets.only(left: 16.0, right: 16.0),
             child: Text(
-              'You are one of the first people to download Papa Cambridge, and your feedback is very important.\n\nWould you mind giving it a rating on the Play Store?',
+              'You are one of the first people to download PapaCambridge, and your feedback is very important.\n\nWould you mind giving it a rating on the Play Store?',
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyText1!.color,
               ),

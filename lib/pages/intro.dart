@@ -46,7 +46,7 @@ class IntroPageState extends State<IntroPage> {
     IntroPageModel(
       title: "Schedule",
       subtitle:
-          "Be productive and keep track of classes by using Papa Cambridge schedule feature",
+          "Be productive and keep track of classes by using PapaCambridge schedule feature",
       mainIcon: Icons.table_chart,
     ),
   ];

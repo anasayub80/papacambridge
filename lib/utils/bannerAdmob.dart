@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:studento/utils/ads_helper.dart';
 
+// ignore: must_be_immutable
 class BannerAdmob extends StatefulWidget {
   AdSize size;
   BannerAdmob({required this.size});

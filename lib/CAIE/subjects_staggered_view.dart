@@ -5,14 +5,12 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'package:studento/UI/random_gradient.dart';
 import 'package:studento/UI/loading_page.dart';
 import 'package:studento/model/MainFolder.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:studento/utils/ads_helper.dart';
 
 // past papers
 

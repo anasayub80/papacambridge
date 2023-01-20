@@ -79,9 +79,9 @@ class SettingsPage extends StatelessWidget {
             title: "Third-party software",
             onTap: () => showLicensePage(
               context: context,
-              applicationName: "Papa Cambridge",
+              applicationName: "PapaCambridge",
               applicationLegalese:
-                  "Papa Cambridge is made possible only through the power of open-source software.",
+                  "PapaCambridge is made possible only through the power of open-source software.",
             ),
           ),
         ],

@@ -1,19 +1,19 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'dart:async';
-import 'dart:developer';
 import 'dart:math';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:studento/UI/error_report_dialog.dart';
 import 'package:studento/UI/show_message_dialog.dart';
+import 'package:studento/UI/studento_app_bar.dart';
 import 'package:studento/utils/pdf_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 
 import 'package:dio/dio.dart';
 import 'package:studento/UI/loading_indicator.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-import '../UI/studento_app_bar.dart';
 import '../utils/ads_helper.dart';
 
 class OtherFilesViewPage extends StatefulWidget {
@@ -54,6 +54,14 @@ class _OtherFilesViewPageState extends State<OtherFilesViewPage> {
   bool isQP = true;
 
   // InterstitialAd _interstitialAd;
+  Future<void> _launchUrl(Uri url) async {
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw 'Could not launch $url';
+    }
+  }
 
   String? urlInUse;
   String? msUrlInUse;
@@ -68,7 +76,7 @@ class _OtherFilesViewPageState extends State<OtherFilesViewPage> {
     print("other file view ${widget.urls}");
     super.initState();
     print(widget.fileName);
-    _fileName = widget.fileName;
+    _fileName = prettifySubjectName(widget.fileName);
     // PdfHelper.checkIfPro().then((isPro) {
     //   setState(() => _isPro = isPro);
     //   if (!_isPro) {
@@ -90,6 +98,10 @@ class _OtherFilesViewPageState extends State<OtherFilesViewPage> {
     // loadDocs();
   }
 
+  String prettifySubjectName(String subjectName) {
+    return subjectName.replaceFirst("\r\n", "");
+  }
+
   // hello.PDFDocument document;
   // loadDocs() async {
   //   document = await hello.PDFDocument.fromURL(
@@ -104,45 +116,39 @@ class _OtherFilesViewPageState extends State<OtherFilesViewPage> {
         key: _scaffoldKey,
         appBar: StudentoAppBar(
           context: context,
+          isFile: true,
           centerTitle: false,
           title: (isQP) ? widget.fileName : "Marking Scheme",
           actions: <Widget>[
-            // Padding(
-            //   padding: const EdgeInsets.all(8.0),
-            //   child: ElevatedButton.icon(
-            //     style: ElevatedButton.styleFrom(
-            //       backgroundColor: Colors.blue,
-            //       shape: StadiumBorder(),
-            //     ),
-            //     icon: Icon(
-            //       Icons.swap_horiz,
-            //       color: Colors.white,
-            //     ),
-            //     label: Text(
-            //       (isQP) ? "Open MS" : "Open QP",
-            //       style: TextStyle(color: Colors.white),
-            //     ),
-            //     onPressed: () => switchToPaperOrMS(context),
-            //   ),
-            // ),
             IconButton(
               icon: Icon(Icons.share),
               onPressed: () async {
-                // if (_isPro)
                 PdfHelper.shareFile(filePath!, "paper");
-                // else {
-                //   var isNowPro =
-                //       await Navigator.pushNamed(context, 'get_pro_page') ??
-                //           false;
-                //   if (isNowPro as bool) {
-                //     setState(() => _isPro = isNowPro);
-                //     PdfHelper.shareFile(filePath!, "paper");
-                //   }
-                // }
               },
             ),
           ],
         ),
+        // appBar: AppBar(
+        //   title: Text(
+        //     (isQP) ? _fileName : "Marking Scheme",
+        //     style: TextStyle(
+        //       fontWeight: FontWeight.w400,
+        //       // fontSize: 20.0,
+        //       color: Theme.of(context).textTheme.bodyText1!.color,
+        //     ),
+        //     // textScaleFactor: 1.2,
+        //   ),
+        //   centerTitle: false,
+        //   actions: <Widget>[
+        //     IconButton(
+        //       icon: Icon(Icons.share),
+        //       onPressed: () async {
+        //         // if (_isPro)
+        //         PdfHelper.shareFile(filePath!, "paper");
+        //       },
+        //     ),
+        //   ],
+        // ),
         body: Stack(
           children: <Widget>[
             // hello.PDFViewer(
@@ -153,8 +159,57 @@ class _OtherFilesViewPageState extends State<OtherFilesViewPage> {
 
             Center(
               child: TextButton(
-                onPressed: () {
-                  OpenFilex.open(filePath);
+                onPressed: () async {
+                  var res = await OpenFilex.open(filePath);
+                  print("print something ${res.message}");
+                  if (res.message != 'done') {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
+                          title: Text(
+                            'No App Found',
+                            textAlign: TextAlign.center,
+                          ),
+                          content: Text('No APP found to open this file'),
+                          actions: <Widget>[
+                            TextButton(
+                              child: Text("Close"),
+                              onPressed: () => Navigator.of(context)
+                                ..pop()
+                                ..pop(),
+                            ),
+                            TextButton(
+                              child: Text('Download'),
+                              onPressed: () async {
+                                if (widget.fileName.contains('zip')) {
+                                  _launchUrl(Uri.parse(
+                                      'https://play.google.com/store/apps/details?id=ru.zdevs.zarchiver'));
+                                } else if (widget.fileName.contains('mp4')) {
+                                  _launchUrl(Uri.parse(
+                                      'https://play.google.com/store/apps/details?id=com.mxtech.videoplayer.ad'));
+                                } else {
+                                  _launchUrl(Uri.parse(
+                                      'https://play.google.com/store/apps/details?id=cn.wps.moffice_eng'));
+                                }
+                              },
+                            )
+                          ],
+                        );
+                      },
+
+                      //  ErrorReportDialog(
+                      //   errorTitle: "404 Not Found! 😔",
+                      //   errorMsg:
+                      //       "This subject either doesn't have a syllabi or we don't have a copy of it. Please report an issue if you really need it, and we'll try our best to get it to you.",
+                      //   ctaButtonLabel: 'Request Syllabus',
+                      //   emailBody:
+                      //       "Hi, I'd like to access the syllabus for ${widget.subject.folderCode}",
+                      // ),
+                    );
+                  }
                 },
                 child: const Text('Tap to open file'),
               ),
@@ -226,6 +281,24 @@ class _OtherFilesViewPageState extends State<OtherFilesViewPage> {
     }
   }
 
+  Future<bool> filterInvalidUrls() async {
+    Dio dio = Dio(PdfHelper.pdfDownloadOpt);
+    int p = 0;
+
+    for (var url in widget.urls) {
+      p++;
+      setState(() => progress = "$p%");
+
+      try {
+        await dio.head(url);
+        return true;
+      } catch (e) {
+        debugPrint('Invalid url ${e.toString()}');
+      }
+    }
+
+    return false;
+  }
   // Future<bool> filterInvalidUrls() async {
   //   Dio dio = Dio(PdfHelper.pdfDownloadOpt);
   //   int p = 0;
@@ -253,6 +326,14 @@ class _OtherFilesViewPageState extends State<OtherFilesViewPage> {
   Future<void> downloadFile(String filePath) async {
     setState(() => downloading = true);
     Dio dio = Dio(PdfHelper.pdfDownloadOpt);
+    if (urlInUse == null || msUrlInUse == null) {
+      // if (isQP && urlInUse == null || !isQP && msUrlInUse == null) {
+      bool fileAvailable = await filterInvalidUrls();
+      if (!fileAvailable) {
+        await handleNotFoundError();
+        return;
+      }
+    }
     // if (isQP && urlInUse == null || !isQP && msUrlInUse == null) {
     //   bool fileAvailable = await filterInvalidUrls();
     //   if (!fileAvailable) {
@@ -334,7 +415,7 @@ class _OtherFilesViewPageState extends State<OtherFilesViewPage> {
 
   Future<void> handleNotFoundError() async {
     const String errorMsg =
-        """Looks like digital bookworms ate our copy of this PDF 😢.
+        """Looks like digital bookworms ate our copy of this File 😢.
 
 You can file an issue if you really need it, and we'll try our best to get it to you.""";
 
@@ -344,7 +425,7 @@ You can file an issue if you really need it, and we'll try our best to get it to
       builder: (_) => ErrorReportDialog(
         errorTitle: "Paper Not Found!",
         errorMsg: errorMsg,
-        ctaButtonLabel: "Request Paper",
+        ctaButtonLabel: "Request File",
         emailBody: emailBody,
       ),
     );

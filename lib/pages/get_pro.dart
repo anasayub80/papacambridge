@@ -280,7 +280,7 @@ class AlreadyPro extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Text(
-                "Thank you for supporting Papa Cambridge. Every penny goes towards serving you better.\n\nIf you ever need to talk with a human, I'm just one email away. \n\nEnjoy using Studento!",
+                "Thank you for supporting PapaCambridge. Every penny goes towards serving you better.\n\nIf you ever need to talk with a human, I'm just one email away. \n\nEnjoy using Studento!",
                 style: TextStyle(fontSize: 16),
               ),
             ),

@@ -60,9 +60,9 @@ class _EditClassState extends State<EditClass> {
     var _class = widget.existingClass;
     startTime = _class!.startTime!;
     endTime = _class.endTime!;
-    _subjectTextController.text = _class.subject!;
-    _teacherTextController.text = _class.teacher!;
-    _locationTextController.text = _class.location!;
+    _subjectTextController.text = _class.subject ?? '';
+    _teacherTextController.text = _class.teacher ?? '';
+    _locationTextController.text = _class.location ?? '';
   }
 
   @override
@@ -104,9 +104,18 @@ class _EditClassState extends State<EditClass> {
           shape: StadiumBorder(),
         ),
         onPressed: () {
-          bool isValid =
-              validateTime() && validateSubject(_subjectTextController.text);
-          if (isValid) returnClass();
+          bool isValid = validateTime() &&
+              validateSubject(_subjectTextController.text) &&
+              validateSubject(_teacherTextController.text) &&
+              validateSubject(_locationTextController.text);
+          if (isValid) {
+            returnClass();
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Please fill all the details!"),
+              backgroundColor: Colors.red[400],
+            ));
+          }
         },
       ),
     );
@@ -249,7 +258,6 @@ class _EditClassState extends State<EditClass> {
         content: Text("The class can't end before it starts!"),
         backgroundColor: Colors.red[400],
       ));
-
       return false;
     }
     return true;

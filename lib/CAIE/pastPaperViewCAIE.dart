@@ -1,7 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'dart:async';
-import 'dart:developer';
 import 'dart:math';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:studento/UI/error_report_dialog.dart';
@@ -113,6 +112,7 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
               : (isQP)
                   ? widget.fileName
                   : "Marking Scheme",
+          isFile: true,
           actions: <Widget>[
             widget.boarId == '1'
                 ? widget.ispastPaper == true

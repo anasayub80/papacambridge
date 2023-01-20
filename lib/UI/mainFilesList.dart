@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:developer';
+import 'dart:math';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +27,7 @@ class _mainFilesListState extends State<mainFilesList> {
   List<MainFolder> allItem = [];
   List<String> favItem = [];
   List<String> favItemName = [];
+  Random random = Random();
 
   // List<MainFolder> selectedM = [];
   @override
@@ -35,9 +36,18 @@ class _mainFilesListState extends State<mainFilesList> {
     // TODO: implement initState
     super.initState();
     initSubjects();
-    _interstitialAd?.dispose();
-
-    createInterstitialAd();
+    int randomNumber = random.nextInt(5);
+    switch (randomNumber) {
+      case 2:
+        _interstitialAd?.dispose();
+        createInterstitialAd();
+        break;
+      case 4:
+        _interstitialAd?.dispose();
+        createInterstitialAd();
+        break;
+      default:
+    }
   }
 
   InterstitialAd? _interstitialAd;
@@ -78,22 +88,29 @@ class _mainFilesListState extends State<mainFilesList> {
   }
 
   void initSubjects() async {
-    log('***subject init mainFile***');
+    _streamController.add('loading');
+    allItem.clear();
+    favItem.clear();
+    favItemName.clear();
+    debugPrint('***subject init mainFile***');
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // List<String> basicData = prefs.getStringList('favItem$boardId')!;
-    // Map<String, dynamic> jsonDatais = jsonDecode(basicData);
-    // List<MainFolder> basicInfoModel = mainFolderFromJson(jsonDatais);
-    log('Inner File favItem${widget.domainId} & favItemName${widget.domainId}');
 
-    favItem = prefs.getStringList('favItem${widget.domainId}') ?? [];
-    favItemName = prefs.getStringList('favItemName${widget.domainId}') ?? [];
+    debugPrint(
+        'Inner File favItem${widget.domainId}${widget.title.trim()} & favItemName${widget.domainId}');
+
+    favItem = prefs
+            .getStringList('favItem${widget.domainId}${widget.title.trim()}') ??
+        [];
+    favItemName = prefs.getStringList(
+            'favItemName${widget.domainId}${widget.title.trim()}') ??
+        [];
 
     // favItemName = prefs.getStringList('favItemName$boardId') ?? [];
     http.Response res = await http.post(Uri.parse(mainFileApi), body: {
       'token': token,
       'domain': widget.domainId,
     });
-    log(res.body);
+    debugPrint(res.body);
     if (res.statusCode == 200) {
       if (res.body.isNotEmpty) {
         if (res.body.length <= 64) {
@@ -125,17 +142,15 @@ class _mainFilesListState extends State<mainFilesList> {
   }
 
   addtoFav(index, String id, String name) async {
-    log('to save $id & $name');
+    debugPrint('to save $id & $name');
     BotToast.showLoading();
-    // showDialog(
-    //   context: context,
-    //   builder: (context) => CustomAlertDialog(),
-    // );
     SharedPreferences prefs = await SharedPreferences.getInstance();
     favItem.add(id);
     favItemName.add(name);
-    prefs.setStringList('favItem${widget.domainId}', favItem);
-    prefs.setStringList('favItemName${widget.domainId}', favItemName);
+    prefs.setStringList(
+        'favItem${widget.domainId}${widget.title.trim()}', favItem);
+    prefs.setStringList(
+        'favItemName${widget.domainId}${widget.title.trim()}', favItemName);
     setState(() {
       allItem.removeWhere((item) => item.id == allItem[index].id);
     });
@@ -143,30 +158,31 @@ class _mainFilesListState extends State<mainFilesList> {
   }
 
   String prettifySubjectName(String subjectName) {
-    return subjectName.replaceFirst("\n", "");
+    return subjectName.replaceFirst("\r\n", "");
   }
 
   removeFromFav(index, id, name) async {
-    log('to remove $id & $name');
+    debugPrint('to remove $id & $name');
     BotToast.showLoading();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     MainFolder folderModel = MainFolder(
       name: favItemName[index],
       id: favItem[index],
     );
+
     setState(() {
       allItem.add(folderModel);
       favItem.removeWhere((item) => item == favItem[index]);
       favItemName.removeWhere((item2) => item2 == favItemName[index]);
-      prefs.setStringList('favItem${widget.domainId}', favItem);
-      prefs.setStringList('favItemName${widget.domainId}', favItemName);
-      // favItem.remove(id);
-      // favItemName.remove(name);
+      prefs.setStringList(
+          'favItem${widget.domainId}${widget.title.trim()}', favItem);
+      prefs.setStringList(
+          'favItemName${widget.domainId}${widget.title.trim()}', favItemName);
     });
-
-    prefs.setStringList('favItem$boardId', favItem);
-    prefs.setStringList('favItemName$boardId', favItemName);
     BotToast.closeAllLoading();
+    initSubjects();
+    // prefs.setStringList('favItem$boardId', favItem);
+    // prefs.setStringList('favItemName$boardId', favItemName);
   }
 
   StreamController _streamController = StreamController();
@@ -177,9 +193,17 @@ class _mainFilesListState extends State<mainFilesList> {
       // future: backEnd().fetchMainFiles(domainId),
       stream: _streamController.stream,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            snapshot.data == 'loading') {
           return Center(
             child: CircularProgressIndicator(),
+          );
+        } else if (allItem.isEmpty && favItem.isEmpty) {
+          return Center(
+            child: Text(
+              'No Data Found',
+              style: Theme.of(context).textTheme.headline4,
+            ),
           );
         } else {
           return ListView(
@@ -194,7 +218,7 @@ class _mainFilesListState extends State<mainFilesList> {
                         return ListTile(
                           onTap: () {
                             // if (widget.title != 'Syllabus') {
-                            log('not syllabus');
+                            debugPrint('not syllabus');
                             Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return innerfileScreen(
@@ -203,19 +227,6 @@ class _mainFilesListState extends State<mainFilesList> {
                                 );
                               },
                             ));
-                            // }
-                            // else {
-                            //   log('syllabus');
-                            //   Navigator.push(context, MaterialPageRoute(
-                            //     builder: (context) {
-                            //       return SubjectsStaggeredListViewS(
-                            //         // launchSyllabusView(snapshot.data[i]['name']),
-                            //         favItemName[i],
-                            //         favItem[i],
-                            //       );
-                            //     },
-                            //   ));
-                            // }
                           },
                           leading: Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -236,8 +247,6 @@ class _mainFilesListState extends State<mainFilesList> {
                           ),
                           title: Text(
                             prettifySubjectName(favItemName[i]),
-                            // maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(fontWeight: FontWeight.w600),
                           ),
                         );
@@ -262,27 +271,37 @@ class _mainFilesListState extends State<mainFilesList> {
                     },
                     leading: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Image.asset('assets/icons/folder.png'),
-                    ),
-                    trailing: IconButton(
-                      onPressed: (() {
-                        addtoFav(
-                          index,
-                          allItem[index].id,
-                          allItem[index].name!,
-                        );
-                      }),
-                      icon: Icon(
-                        Icons.favorite_border,
-                        color: Theme.of(context).textTheme.bodyText1!.color,
+                      child: Image.asset(
+                        'assets/icons/folder.png',
                       ),
                     ),
-                    title: Text(
-                      // allItem[index].name!,
-                      prettifySubjectName(allItem[index].name!),
-                      // maxLines: 2,
-                      // overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                    trailing: Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: IconButton(
+                        onPressed: (() {
+                          addtoFav(
+                            index,
+                            allItem[index].id,
+                            allItem[index].name!,
+                          );
+                        }),
+                        icon: Icon(
+                          Icons.favorite_border,
+                          color: Theme.of(context).textTheme.bodyText1!.color,
+                        ),
+                      ),
+                    ),
+                    title: Container(
+                      // color: Colors.brown,
+                      width: double.infinity,
+                      padding: EdgeInsets.all(0),
+                      child: Text(
+                        // allItem[index].name!,
+                        prettifySubjectName(allItem[index].name!),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                     // subtitle: Text(allItem[index].id),
                   );

@@ -1,11 +1,11 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'dart:async';
-import 'dart:developer';
 import 'dart:math';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:studento/UI/error_report_dialog.dart';
 import 'package:studento/UI/show_message_dialog.dart';
+import 'package:studento/UI/studento_app_bar.dart';
 import 'package:studento/utils/pdf_helper.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +13,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:studento/UI/loading_indicator.dart';
 
-import '../UI/studento_app_bar.dart';
 import '../utils/ads_helper.dart';
 
 class PastPaperView extends StatefulWidget {
@@ -69,7 +68,8 @@ class _PastPaperViewState extends State<PastPaperView> {
     print("past paper view fileName ${widget.fileName}");
     super.initState();
     print(widget.fileName);
-    _fileName = widget.fileName;
+    _fileName = prettifySubjectName(widget.fileName);
+
     int randomNumber = random.nextInt(5);
     switch (randomNumber) {
       case 2:
@@ -84,6 +84,10 @@ class _PastPaperViewState extends State<PastPaperView> {
     }
     initPapers();
     // loadDocs();
+  }
+
+  String prettifySubjectName(String subjectName) {
+    return subjectName.replaceFirst("\r\n", "");
   }
 
   InterstitialAd? _interstitialAd;
@@ -103,31 +107,9 @@ class _PastPaperViewState extends State<PastPaperView> {
         appBar: StudentoAppBar(
           context: context,
           centerTitle: false,
+          isFile: true,
           title: widget.fileName,
-          // title: (isQP) ? widget.fileName : "Marking Scheme",
           actions: <Widget>[
-            // widget.boarId == '1'
-            //     ? widget.isOthers == true
-            //         ? SizedBox.shrink()
-            //         : Padding(
-            //             padding: const EdgeInsets.all(8.0),
-            //             child: ElevatedButton.icon(
-            //               style: ElevatedButton.styleFrom(
-            //                 backgroundColor: Colors.blue,
-            //                 shape: StadiumBorder(),
-            //               ),
-            //               icon: Icon(
-            //                 Icons.swap_horiz,
-            //                 color: Colors.white,
-            //               ),
-            //               label: Text(
-            //                 (isQP) ? "Open MS" : "Open QP",
-            //                 style: TextStyle(color: Colors.white),
-            //               ),
-            //               onPressed: () => switchToPaperOrMS(context),
-            //             ),
-            //           )
-            //     : SizedBox.shrink(),
             IconButton(
               icon: Icon(Icons.share),
               onPressed: () async {
@@ -137,18 +119,49 @@ class _PastPaperViewState extends State<PastPaperView> {
             ),
           ],
         ),
+        // appBar: AppBar(
+        //   title: Text(
+        //     _fileName,
+        //     style: TextStyle(
+        //       fontWeight: FontWeight.w400,
+        //       color: Theme.of(context).textTheme.bodyText1!.color,
+        //     ),
+        //     // textScaleFactor: 1.2,
+        //   ),
+        //   centerTitle: false,
+        //   actions: <Widget>[
+        //     IconButton(
+        //       icon: Icon(Icons.share),
+        //       onPressed: () async {
+        //         // if (_isPro)
+        //         PdfHelper.shareFile(filePath!, "paper");
+        //       },
+        //     ),
+        //   ],
+        // ),
+        // StudentoAppBar(
+        //   context: context,
+        //   centerTitle: false,
+        //   title: _fileName,
+        //   // title: (isQP) ? widget.fileName : "Marking Scheme",
+        //   actions: <Widget>[
+        //     IconButton(
+        //       icon: Icon(Icons.share),
+        //       onPressed: () async {
+        //         // PdfHelper.shareFile(filePath!, "paper");
+        //         PdfHelper.shareFile(filePath!, "paper");
+        //       },
+        //     ),
+        //   ],
+
         body: Stack(
           children: <Widget>[
-            // hello.PDFViewer(
-            //   document: document,
-            //   zoomSteps: 1,
-            // ),
-            // if (isRendered)
             PDFView(
               filePath: filePath,
               pageFling: false,
               pageSnap: false,
               onRender: (x) {
+                debugPrint('rendering');
                 setState(() => isRendered = true);
               },
               onError: (error) {

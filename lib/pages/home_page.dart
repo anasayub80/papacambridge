@@ -83,7 +83,7 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
       appBar: AppBar(
         title:
             // Text(
-            //   'Papa Cambridge',
+            //   'PapaCambridge',
             //   style: TextStyle(
             //     color: Theme.of(context).textTheme.bodyText1!.color,
             //   ),

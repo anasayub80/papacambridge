@@ -16,7 +16,7 @@ class ErrorReportDialog extends StatelessWidget {
   }) : super(key: key);
 
   String _mailToLink() => Uri.encodeFull(
-      "mailto:contact@maskys.com?subject=Feedback for Papa Cambridge: $errorTitle&body=$emailBody. Error message: $errorMsg");
+      "mailto:contact@maskys.com?subject=Feedback for PapaCambridge: $errorTitle&body=$emailBody. Error message: $errorMsg");
 
   @override
   Widget build(BuildContext context) {

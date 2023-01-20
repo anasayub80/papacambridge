@@ -9,11 +9,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:studento/pages/home_page.dart';
 import 'package:studento/pages/past_paper_view.dart';
 import 'package:studento/services/backend.dart';
-import 'package:studento/utils/ads_helper.dart';
 import 'package:studento/utils/bannerAdmob.dart';
 import '../UI/studento_app_bar.dart';
 import '../model/MainFolder.dart';
-import '../utils/get_ad_widget.dart';
 import 'other_fileView.dart';
 
 class innerfileScreen extends StatefulWidget {
@@ -50,7 +48,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
   }
 
   String prettifySubjectName(String subjectName) {
-    return subjectName.replaceFirst("\n", "");
+    return subjectName.replaceFirst("\r\n", "");
   }
 
   @override
@@ -68,11 +66,19 @@ class _innerfileScreenState extends State<innerfileScreen> {
 
   List<MainFolder>? dataL;
   void initData() async {
+    _streamController.add('loading');
+    allItem.clear();
+    favItem.clear();
+    favItemName.clear();
     log('***subject init innerfile***');
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    log('Inner File favItem${widget.inner_file} & favItemName${widget.inner_file}');
-    favItem = prefs.getStringList('favItem${widget.inner_file}') ?? [];
-    favItemName = prefs.getStringList('favItemName${widget.inner_file}') ?? [];
+    log('Inner File favItem${widget.inner_file}${widget.title.trim()} & favItemName${widget.inner_file}');
+    favItem = prefs.getStringList(
+            'favItem${widget.inner_file}${widget.title.trim()}') ??
+        [];
+    favItemName = prefs.getStringList(
+            'favItemName${widget.inner_file}${widget.title.trim()}') ??
+        [];
 
     // var res = await backEnd().fetchInnerFiles(widget.inner_file);
     http.Response res = await http.post(Uri.parse(innerFileApi), body: {
@@ -148,8 +154,10 @@ class _innerfileScreenState extends State<innerfileScreen> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       favItem.add(id);
       favItemName.add(name);
-      prefs.setStringList('favItem${widget.inner_file}', favItem);
-      prefs.setStringList('favItemName${widget.inner_file}', favItemName);
+      prefs.setStringList(
+          'favItem${widget.inner_file}${widget.title.trim()}', favItem);
+      prefs.setStringList(
+          'favItemName${widget.inner_file}${widget.title.trim()}', favItemName);
       setState(() {
         allItem.removeWhere((item) => item.id == allItem[index].id);
       });
@@ -168,15 +176,18 @@ class _innerfileScreenState extends State<innerfileScreen> {
         allItem.add(folderModel);
         favItem.removeWhere((item) => item == favItem[index]);
         favItemName.removeWhere((item2) => item2 == favItemName[index]);
-        prefs.setStringList('favItem${widget.inner_file}', favItem);
-        prefs.setStringList('favItemName${widget.inner_file}', favItemName);
+        prefs.setStringList(
+            'favItem${widget.inner_file}${widget.title.trim()}', favItem);
+        prefs.setStringList(
+            'favItemName${widget.inner_file}${widget.title.trim()}',
+            favItemName);
         // favItem.remove(id);
         // favItemName.remove(name);
       });
-
-      prefs.setStringList('favItem$boardId', favItem);
-      prefs.setStringList('favItemName$boardId', favItemName);
       BotToast.closeAllLoading();
+      initData();
+      // prefs.setStringList('favItem$boardId', favItem);
+      // prefs.setStringList('favItemName$boardId', favItemName);
     }
 
     return Scaffold(
@@ -188,7 +199,8 @@ class _innerfileScreenState extends State<innerfileScreen> {
         // future: backEnd().fetchInnerFiles(widget.inner_file),
         stream: _streamController.stream,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          if (snapshot.connectionState == ConnectionState.waiting ||
+              snapshot.data == 'loading') {
             return Center(
               child: CircularProgressIndicator(),
             );
@@ -211,7 +223,6 @@ class _innerfileScreenState extends State<innerfileScreen> {
                         itemBuilder: (context, i) {
                           return ListTile(
                             onTap: () {
-                              // if (widget.title != 'Syllabus') {
                               log('not syllabus');
                               Navigator.push(context, MaterialPageRoute(
                                 builder: (context) {
@@ -221,18 +232,6 @@ class _innerfileScreenState extends State<innerfileScreen> {
                                   );
                                 },
                               ));
-                              // } else {
-                              //   log('syllabus');
-                              //   Navigator.push(context, MaterialPageRoute(
-                              //     builder: (context) {
-                              //       return SubjectsStaggeredListViewS(
-                              //         // launchSyllabusView(snapshot.data[i]['name']),
-                              //         favItemName[i],
-                              //         favItem[i],
-                              //       );
-                              //     },
-                              //   ));
-                              // }
                             },
                             leading: Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -254,9 +253,10 @@ class _innerfileScreenState extends State<innerfileScreen> {
                             // subtitle: Text(allItem[i].id),
                             title: Text(
                               prettifySubjectName(favItemName[i]),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontWeight: FontWeight.w600),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
                             ),
                           );
                         },
@@ -270,12 +270,6 @@ class _innerfileScreenState extends State<innerfileScreen> {
                       return BannerAdmob(
                         size: AdSize.largeBanner,
                       );
-                    // Container(
-                    //     width: _ad!.size.width.toDouble(),
-                    //     height: 72.0,
-                    //     alignment: Alignment.center,
-                    //     child: AdWidget(ad: _ad!),
-                    //   )
 
                     return const SizedBox();
                   },
@@ -316,48 +310,31 @@ class _innerfileScreenState extends State<innerfileScreen> {
                       },
                       leading: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Image.asset(allItem[index]
-                                .urlPdf
-                                .toString()
-                                .contains('.pdf')
-                            ? 'assets/icons/pdf.png'
-                            : allItem[index].urlPdf.toString().contains('.doc')
-                                ? 'assets/icons/doc.png'
-                                : 'assets/icons/folder.png'),
+                        child: Image.asset(backEnd()
+                            .fileLogoAssets(allItem[index].urlPdf.toString())),
                       ),
-                      trailing: allItem[index]
-                              .urlPdf
-                              .toString()
-                              .contains('.pdf')
-                          ? SizedBox.shrink()
-                          : allItem[index].urlPdf.toString().contains('.doc')
-                              ? SizedBox.shrink()
-                              : allItem[index]
-                                      .urlPdf
-                                      .toString()
-                                      .contains('.zip')
-                                  ? SizedBox.shrink()
-                                  : IconButton(
-                                      onPressed: (() {
-                                        addtoFav(
-                                          index,
-                                          allItem[index].id,
-                                          allItem[index].name!,
-                                        );
-                                      }),
-                                      icon: Icon(
-                                        Icons.favorite_border,
-                                        color: Theme.of(context)
-                                            .textTheme
-                                            .bodyText1!
-                                            .color,
-                                      ),
-                                    ),
-                      // subtitle: Text(allItem[index]['id']),
+                      trailing: backEnd().heartFilter(
+                                  allItem[index].urlPdf.toString()) ==
+                              true
+                          ? IconButton(
+                              onPressed: (() {
+                                addtoFav(
+                                  index,
+                                  allItem[index].id,
+                                  allItem[index].name!,
+                                );
+                              }),
+                              icon: Icon(
+                                Icons.favorite_border,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyText1!
+                                    .color,
+                              ),
+                            )
+                          : SizedBox.shrink(),
                       title: Text(
                         prettifySubjectName(allItem[index].name!),
-                        // maxLines: 2,
-
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
@@ -376,6 +353,17 @@ class _innerfileScreenState extends State<innerfileScreen> {
           );
         },
       ),
+      bottomNavigationBar: allItem.length <= 5
+          ? Container(
+              width: 320,
+              height: 50,
+              child: BannerAdmob(
+                size: AdSize.banner,
+              ),
+            )
+          : SizedBox(
+              height: 0,
+            ),
     );
   }
 }

@@ -295,8 +295,8 @@ class ClassTile extends StatelessWidget {
           children: <Widget>[
             SizedBox(height: 5),
             locationAndTeacher(
-              location: classItem.location!,
-              teacher: classItem.teacher!,
+              location: classItem.location ?? '',
+              teacher: classItem.teacher ?? '',
               context: context,
             ),
             SizedBox(height: 7),

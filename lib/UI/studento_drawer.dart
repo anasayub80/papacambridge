@@ -187,7 +187,7 @@ class studentoDrawer extends StatelessWidget {
     ),
     onTap: () {
       Share.share(
-        "Hey! I think you'll find Papa Cambridge useful. It's a student assistant app for O/A Level students, with past papers, syllabus, schedule, and more. Link: https://play.google.com/store/apps/details?id=com.MaskyS.papaCambridge",
+        "Hey! I think you'll find PapaCambridge useful. It's a student assistant app for O/A Level students, with past papers, syllabus, schedule, and more. Link: https://play.google.com/store/apps/details?id=com.MaskyS.papaCambridge",
         subject: "Check out this amazing app",
       );
     },
