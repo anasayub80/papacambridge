@@ -97,6 +97,7 @@ class _PastPaperViewState extends State<PastPaperView> {
   //   document = await hello.PDFDocument.fromURL(
   //       "http://conorlastowka.com/book/CitationNeededBook-Sample.pdf");
   // }
+  int? currentPage = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -119,47 +120,18 @@ class _PastPaperViewState extends State<PastPaperView> {
             ),
           ],
         ),
-        // appBar: AppBar(
-        //   title: Text(
-        //     _fileName,
-        //     style: TextStyle(
-        //       fontWeight: FontWeight.w400,
-        //       color: Theme.of(context).textTheme.bodyText1!.color,
-        //     ),
-        //     // textScaleFactor: 1.2,
-        //   ),
-        //   centerTitle: false,
-        //   actions: <Widget>[
-        //     IconButton(
-        //       icon: Icon(Icons.share),
-        //       onPressed: () async {
-        //         // if (_isPro)
-        //         PdfHelper.shareFile(filePath!, "paper");
-        //       },
-        //     ),
-        //   ],
-        // ),
-        // StudentoAppBar(
-        //   context: context,
-        //   centerTitle: false,
-        //   title: _fileName,
-        //   // title: (isQP) ? widget.fileName : "Marking Scheme",
-        //   actions: <Widget>[
-        //     IconButton(
-        //       icon: Icon(Icons.share),
-        //       onPressed: () async {
-        //         // PdfHelper.shareFile(filePath!, "paper");
-        //         PdfHelper.shareFile(filePath!, "paper");
-        //       },
-        //     ),
-        //   ],
-
         body: Stack(
           children: <Widget>[
             PDFView(
               filePath: filePath,
               pageFling: false,
               pageSnap: false,
+              onPageChanged: (int? page, int? total) {
+                print('page change: $page/$total');
+                setState(() {
+                  currentPage = page;
+                });
+              },
               onRender: (x) {
                 debugPrint('rendering');
                 setState(() => isRendered = true);

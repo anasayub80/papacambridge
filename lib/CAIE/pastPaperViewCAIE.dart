@@ -97,6 +97,8 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
   //   document = await hello.PDFDocument.fromURL(
   //       "http://conorlastowka.com/book/CitationNeededBook-Sample.pdf");
   // }
+  int? QPcurrentPage = 0;
+  int? MScurrentPage = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -149,17 +151,25 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
         ),
         body: Stack(
           children: <Widget>[
-            // hello.PDFViewer(
-            //   document: document,
-            //   zoomSteps: 1,
-            // ),
-            // if (isRendered)
             PDFView(
               filePath: filePath,
               pageFling: false,
               pageSnap: false,
+              defaultPage: (isQP) ? QPcurrentPage! : MScurrentPage!,
               onRender: (x) {
                 setState(() => isRendered = true);
+              },
+              onPageChanged: (int? page, int? total) {
+                print('page change: $page/$total');
+                if (isQP) {
+                  setState(() {
+                    QPcurrentPage = page;
+                  });
+                } else {
+                  setState(() {
+                    MScurrentPage = page;
+                  });
+                }
               },
               onError: (error) {
                 handlePdfLoadError(error.toString());

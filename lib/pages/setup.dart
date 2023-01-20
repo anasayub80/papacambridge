@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:another_flushbar/flushbar.dart';
 import 'package:bot_toast/bot_toast.dart';
@@ -78,17 +80,28 @@ class _SetupState extends State<Setup> {
       //   body: SubjectsList(),
       //   onFloatingButtonPressed: validateAndCheckPermissions,
       // ),
-      SetupPage(
-        leadIcon: Icons.lock,
-        caption: "We need these permissions to be able to assist you:",
-        issubject: false,
-        body: _buildPermissionsBody(),
-        onFloatingButtonPressed: () async {
-          await requestPermissions();
+      if (!kIsWeb)
+        SetupPage(
+          leadIcon: Icons.lock,
+          caption: "We need these permissions to be able to assist you:",
+          issubject: false,
+          body: _buildPermissionsBody(),
+          onFloatingButtonPressed: () async {
+            await requestPermissions();
 
-          pushHomePage();
-        },
-      )
+            pushHomePage();
+          },
+        )
+      else
+        SetupPage(
+          leadIcon: Icons.lock,
+          caption: "We need these permissions to be able to assist you:",
+          issubject: false,
+          body: _buildWeb(),
+          onFloatingButtonPressed: () {
+            pushHomePage();
+          },
+        )
     ];
   }
 
@@ -301,16 +314,27 @@ class _SetupState extends State<Setup> {
         );
       },
     );
-
-    // ListView(children: <Widget>[
-    //   oLevelRadioListTile,
-    //   aLevelRadioListTile,
-    //   preLevelRadioListTile,
-    //   igcseLevelRadioListTile
-    // ]);
   }
 
   Widget _buildPermissionsBody() {
+    return Column(children: <Widget>[
+      ListTile(
+        isThreeLine: true,
+        leading: Icon(Icons.storage),
+        title: Text("Storage"),
+        subtitle: Column(children: <Widget>[
+          SizedBox(height: 5),
+          Text(
+            "For storing past papers, icons and more",
+            textScaleFactor: 0.9,
+            style: TextStyle(),
+          ),
+        ]),
+      ),
+    ]);
+  }
+
+  Widget _buildWeb() {
     return Column(children: <Widget>[
       ListTile(
         isThreeLine: true,
@@ -347,33 +371,6 @@ class _SetupState extends State<Setup> {
     }
   }
 
-  // void validateAndCheckPermissions() {
-  //   List subjects = globals.selectedG;
-  //   var isChosenListValid = subjects.isNotEmpty && subjects.length >= 3;
-
-  //   if (isChosenListValid) {
-  //     if (widget.isEditingSettings) {
-  //       returnToSettingsPage();
-  //     } else {
-  //       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-  //       deviceInfo.androidInfo.then((androidInfo) {
-  //         // ignore: no_leading_underscores_for_local_identifiers
-  //         bool _isAndroidVersion6OrHigher = androidInfo.version.sdkInt >= 23;
-
-  //         if (_isAndroidVersion6OrHigher) // must request permission for these.
-  //           pushPermissionsPage();
-  //         else
-  //           pushHomePage();
-  //       });
-  //     }
-  //   } else {
-  //     showMessageDialog(
-  //       context,
-  //       title: "Insufficient subjects",
-  //       msg: "You need to select 3 or more subjects",
-  //     );
-  //   }
-  // }
   void validateAndCheckPermissions() {
     List subjects = globals.selectedG;
     var isChosenListValid = subjects.isNotEmpty;

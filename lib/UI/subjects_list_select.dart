@@ -43,17 +43,10 @@ class _SubjectsListState extends State<SubjectsList> {
   }
 
   void getSubjects() async {
-    /// Actual type: [Map<String, dynamic>]
-    /// Because of json_decode, can't strong type this.
     List<MainFolder> subjectsList = [];
 
     print("Subject list from json file is: \n $subjectsList");
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    // List<String>? level = prefs.getStringList('level');
-    // String mainFolder = level!.contains('O Level')
-
-    // api only get 1 level subject
     String url1 =
         'https://papacambridge.com/api.php?main_folder=${widget.levelid}&papers=pastpapers';
     print(url1);
@@ -61,7 +54,7 @@ class _SubjectsListState extends State<SubjectsList> {
     print("subject list ${res.body}");
     List<MainFolder> dataL = mainFolderFromJson(res.body);
     setState(() {
-      subjects = dataL; //_subjectsList.map((s) => Subject.fromMap(s)).toList();
+      subjects = dataL;
       loading = false;
     });
   }

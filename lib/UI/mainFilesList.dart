@@ -5,7 +5,6 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:studento/pages/home_page.dart';
 import 'package:studento/pages/inner_files_screen.dart';
 import 'package:studento/services/backend.dart';
 
@@ -219,14 +218,18 @@ class _mainFilesListState extends State<mainFilesList> {
                           onTap: () {
                             // if (widget.title != 'Syllabus') {
                             debugPrint('not syllabus');
-                            Navigator.push(context, MaterialPageRoute(
-                              builder: (context) {
-                                return innerfileScreen(
-                                  inner_file: favItem[i],
-                                  title: widget.title,
-                                );
-                              },
-                            ));
+                            // Navigator.push(context, MaterialPageRoute(
+                            //   builder: (context) {
+                            //     return innerfileScreen(
+                            //       inner_file: favItem[i],
+                            //       title: widget.title,
+                            //     );
+                            //   },
+                            // ));
+                            Navigator.push(
+                                context,
+                                innerfileScreen.getRoute(
+                                    favItemName[i], favItem[i], widget.title));
                           },
                           leading: Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -260,14 +263,19 @@ class _mainFilesListState extends State<mainFilesList> {
                   return ListTile(
                     onTap: () {
                       // if (widget.title != 'Syllabus') {
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return innerfileScreen(
-                            inner_file: allItem[index].id,
-                            title: widget.title,
-                          );
-                        },
-                      ));
+                      Navigator.push(
+                          context,
+                          innerfileScreen.getRoute(allItem[index].name!,
+                              allItem[index].id, widget.title));
+
+                      // Navigator.push(context, MaterialPageRoute(
+                      //   builder: (context) {
+                      //     return innerfileScreen(
+                      //       inner_file: allItem[index].id,
+                      //       title: widget.title,
+                      //     );
+                      //   },
+                      // ));
                     },
                     leading: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -275,20 +283,17 @@ class _mainFilesListState extends State<mainFilesList> {
                         'assets/icons/folder.png',
                       ),
                     ),
-                    trailing: Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: IconButton(
-                        onPressed: (() {
-                          addtoFav(
-                            index,
-                            allItem[index].id,
-                            allItem[index].name!,
-                          );
-                        }),
-                        icon: Icon(
-                          Icons.favorite_border,
-                          color: Theme.of(context).textTheme.bodyText1!.color,
-                        ),
+                    trailing: IconButton(
+                      onPressed: (() {
+                        addtoFav(
+                          index,
+                          allItem[index].id,
+                          allItem[index].name!,
+                        );
+                      }),
+                      icon: Icon(
+                        Icons.favorite_border,
+                        color: Theme.of(context).textTheme.bodyText1!.color,
                       ),
                     ),
                     title: Container(

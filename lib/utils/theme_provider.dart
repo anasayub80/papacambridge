@@ -68,6 +68,7 @@ class MyTheme {
     appBarTheme: AppBarTheme(
       backgroundColor: darkColor,
     ),
+    unselectedWidgetColor: Colors.white,
     textTheme: TextTheme(
       bodyText1: TextStyle(
         color: Colors.white,
@@ -84,6 +85,7 @@ class MyTheme {
     appBarTheme: AppBarTheme(
       backgroundColor: Colors.white,
     ),
+    unselectedWidgetColor: darkColor,
     textTheme: TextTheme(
       bodyText1: TextStyle(
         color: Colors.black,

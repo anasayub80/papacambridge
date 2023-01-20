@@ -32,6 +32,7 @@ dependencies:
   advance_pdf_viewer: ^2.0.1
   after_layout: ^1.2.0
   another_flushbar: ^1.12.29
+  assorted_layout_widgets: ^7.0.0
   bot_toast: ^4.0.3
   build_runner: ^2.3.2
   connectivity_plus: ^3.0.2
@@ -44,6 +45,7 @@ dependencies:
   flutter_launcher_icons: ^0.11.0
   flutter_markdown: ^0.6.12
   flutter_pdfview: ^1.2.5
+  flutter_spotlight_plus: ^0.0.1
   flutter_staggered_grid_view: ^0.4.0
   functional_widget_annotation: ^0.10.0
   google_mobile_ads: ^2.3.0
@@ -55,6 +57,7 @@ dependencies:
   json_annotation: ^4.7.0
   json_serializable: ^6.5.3
   launch_review: ^3.0.1
+  liquid_swipe: ^3.0.0
   numberpicker: ^2.1.1
   open_filex: ^4.3.2
   package_info_plus: ^3.0.1
@@ -94,6 +97,7 @@ flutter:
   assets:
     - assets/json/
     - assets/icons/
+    - assets/illustrations/
     - assets/illustrations/no-classes.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

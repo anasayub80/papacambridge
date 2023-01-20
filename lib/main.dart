@@ -17,7 +17,9 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:studento/model/todo/todo_list_model.dart';
 import 'package:studento/pages/splash_page.dart';
 import 'package:studento/provider/loadigProvider.dart';
+import 'package:studento/provider/multiViewhelper.dart';
 import 'package:studento/routes.dart';
+import 'package:studento/services/navigate_observe.dart';
 import 'package:studento/utils/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -107,6 +109,7 @@ class _StudentoState extends State<Studento> {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeSettings(widget.isDark)),
         ChangeNotifierProvider(create: (_) => loadingProvider()),
+        ChangeNotifierProvider(create: (_) => multiViewProvider()),
       ],
       builder: (context, child) {
         final themeProvider = Provider.of<ThemeSettings>(context);
@@ -115,7 +118,8 @@ class _StudentoState extends State<Studento> {
           builder: BotToastInit(), //1. call BotToastInit
           navigatorObservers: [
             BotToastNavigatorObserver(),
-            NavigatorObserver()
+            NavigatorObserver(),
+            AppNavigatorObserver(),
           ],
           // navigatorObservers: <NavigatorObserver>[observer],
           themeMode: themeProvider.currentTheme,

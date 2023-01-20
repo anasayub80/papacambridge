@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -139,6 +138,15 @@ class backEnd {
   bool heartFilter(var url) {
     // this is created for stop heart show in file
     if (url == '') {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  bool pdfFilter(var url) {
+    // this is created for stop heart show in file
+    if (url.contains('.pdf')) {
       return true;
     } else {
       return false;

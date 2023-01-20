@@ -1,25 +1,39 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:flutter_spotlight_plus/flutter_spotlight_plus.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:studento/pages/home_page.dart';
 import 'package:studento/pages/past_paper_view.dart';
+import 'package:studento/provider/multiViewhelper.dart';
 import 'package:studento/services/backend.dart';
 import 'package:studento/utils/bannerAdmob.dart';
 import '../UI/studento_app_bar.dart';
 import '../model/MainFolder.dart';
+import '../services/bread_crumb_navigation.dart';
 import 'other_fileView.dart';
 
 class innerfileScreen extends StatefulWidget {
   final inner_file;
   final title;
-  const innerfileScreen(
-      {super.key, required this.inner_file, required this.title});
 
+  const innerfileScreen({
+    super.key,
+    required this.inner_file,
+    required this.title,
+  });
+  static MaterialPageRoute getRoute(String name, innerfile, title) =>
+      MaterialPageRoute(
+          settings: RouteSettings(name: name),
+          builder: (context) => innerfileScreen(
+                inner_file: innerfile,
+                title: title,
+              ));
   @override
   State<innerfileScreen> createState() => _innerfileScreenState();
 }
@@ -40,10 +54,8 @@ class _innerfileScreenState extends State<innerfileScreen> {
   void initState() {
     super.initState();
     initData();
-    // controller.load(keywords: ['valorant', 'games', 'fortnite']);
-    // controller.onEvent.listen((event) {
-    //   if (event.keys.first == NativeAdEvent.loaded) {}
-    //   setState(() {});
+    // Future.delayed(Duration(seconds: 3)).then((value) {
+    //   spotlight(0);
     // });
   }
 
@@ -56,11 +68,6 @@ class _innerfileScreenState extends State<innerfileScreen> {
     favItem = [];
     favItemName = [];
     allItem = [];
-    // if (_ad != null) {
-    //   _ad!.dispose();
-    // }
-    // ignore: todo
-    // TODO: implement dispose
     super.dispose();
   }
 
@@ -76,6 +83,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
     favItem = prefs.getStringList(
             'favItem${widget.inner_file}${widget.title.trim()}') ??
         [];
+    blockList = prefs.getStringList('blockList') ?? [];
     favItemName = prefs.getStringList(
             'favItemName${widget.inner_file}${widget.title.trim()}') ??
         [];
@@ -99,6 +107,9 @@ class _innerfileScreenState extends State<innerfileScreen> {
 
           for (var subject in dataL!) {
             if (favItem.contains(subject.id.toString())) {
+              print('Should not to show');
+            } else if (blockList.contains(subject.id.toString())) {
+              print('Should not to show bcz it is blocked ');
             } else {
               selectedM.add(subject);
             }
@@ -116,24 +127,28 @@ class _innerfileScreenState extends State<innerfileScreen> {
     _streamController.add('event');
   }
 
+  List<String> blockList = [];
   List foodItems = [];
   List<String> favItem = [];
   List<MainFolder> allItem = [];
   List<String> favItemName = [];
   var url;
   StreamController _streamController = StreamController();
+  addtoBlockList(id) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    blockList = prefs.getStringList('blockList') ?? [];
+    blockList.add(id);
+    prefs.setStringList('blockList', blockList);
+  }
 
+  List multiItem = [];
+  List selectedList = [];
   @override
   Widget build(BuildContext context) {
+    final multiProvider = Provider.of<multiViewProvider>(context, listen: true);
+
     /// Open the Paper in the PastPaperView.
     void openPaper(String url, fileName) async {
-      // List<String> moreUrls = [];
-
-      print("url file $url");
-      // moreUrls.add(url);
-      print('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk');
-      // print(moreUrls);
-      print('lllllllllllllllllllllllllllllllllllllll');
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -147,10 +162,6 @@ class _innerfileScreenState extends State<innerfileScreen> {
     addtoFav(index, String id, String name) async {
       log('to save $id & $name');
       BotToast.showLoading();
-      // showDialog(
-      //   context: context,
-      //   builder: (context) => CustomAlertDialog(),
-      // );
       SharedPreferences prefs = await SharedPreferences.getInstance();
       favItem.add(id);
       favItemName.add(name);
@@ -181,13 +192,9 @@ class _innerfileScreenState extends State<innerfileScreen> {
         prefs.setStringList(
             'favItemName${widget.inner_file}${widget.title.trim()}',
             favItemName);
-        // favItem.remove(id);
-        // favItemName.remove(name);
       });
       BotToast.closeAllLoading();
       initData();
-      // prefs.setStringList('favItem$boardId', favItem);
-      // prefs.setStringList('favItemName$boardId', favItemName);
     }
 
     return Scaffold(
@@ -196,7 +203,6 @@ class _innerfileScreenState extends State<innerfileScreen> {
         context: context,
       ),
       body: StreamBuilder<dynamic>(
-        // future: backEnd().fetchInnerFiles(widget.inner_file),
         stream: _streamController.stream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting ||
@@ -205,6 +211,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
               child: CircularProgressIndicator(),
             );
           } else if (allItem.isEmpty && favItem.isEmpty) {
+            addtoBlockList(widget.inner_file);
             return Center(
               child: Text(
                 'No Data Found',
@@ -212,8 +219,70 @@ class _innerfileScreenState extends State<innerfileScreen> {
               ),
             );
           } else if (snapshot.hasData) {
+            if (multiItem.isEmpty)
+              selectedList = List.generate(allItem.length, (index) => false);
+
             return ListView(
               children: [
+                SizedBox(
+                  height: 10,
+                ),
+                // ignore: iterable_contains_unrelated_type
+                SizedBox(
+                  child: Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          multiProvider.setMultiViewFalse();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: multiProvider.multiView == true
+                              ? Colors.transparent
+                              : Colors.purple,
+                          side: BorderSide(
+                              color: multiProvider.multiView == false
+                                  ? Colors.transparent
+                                  : Theme.of(context).unselectedWidgetColor),
+                        ),
+                        child: Text(
+                          'Single View',
+                          style: TextStyle(
+                              color:
+                                  Theme.of(context).textTheme.bodyText1!.color),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          multiProvider.setMultiViewTrue();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: multiProvider.multiView == false
+                              ? Colors.transparent
+                              : Colors.purple,
+                          side: BorderSide(
+                              color: multiProvider.multiView == true
+                                  ? Colors.transparent
+                                  : Theme.of(context).unselectedWidgetColor),
+                        ),
+                        child: Text(
+                          'Multi View',
+                          style: TextStyle(
+                              color:
+                                  Theme.of(context).textTheme.bodyText1!.color),
+                        ),
+                      ),
+                    ],
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  ),
+                  height: 48,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                BreadCrumbNavigator(),
+                SizedBox(
+                  height: 10,
+                ),
                 favItem.isEmpty
                     ? SizedBox.shrink()
                     : ListView.builder(
@@ -275,37 +344,57 @@ class _innerfileScreenState extends State<innerfileScreen> {
                   },
                   itemBuilder: (context, index) {
                     return ListTile(
+                      // onTap: () =>,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                      ),
+                      selectedTileColor: Colors.green,
+                      selected: selectedList[index],
+                      selectedColor: Colors.white,
                       onTap: () {
                         if (allItem[index].urlPdf == "" ||
                             allItem[index].urlPdf == null) {
                           debugPrint('newScreen');
-                          Navigator.push(context, MaterialPageRoute(
-                            builder: (context) {
-                              return innerfileScreen(
-                                inner_file: allItem[index].id,
-                                title: widget.title,
-                              );
-                            },
-                          ));
+                          Navigator.push(
+                              context,
+                              innerfileScreen.getRoute(allItem[index].name!,
+                                  allItem[index].id, widget.title));
                         } else {
-                          allItem[index].urlPdf.toString().contains('.pdf')
-                              ? openPaper(allItem[index].urlPdf!,
-                                  allItem[index].name!.replaceFirst(" ", " \n"))
-                              : Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => OtherFilesViewPage(
-                                      [
-                                        allItem[index].urlPdf ?? '',
-                                      ],
-                                      prettifySubjectName(allItem[index].name!),
-                                      allItem[index]
-                                          .id
-                                          .toString()
-                                          .replaceFirst(" ", " \n"),
-                                    ),
-                                  ),
-                                );
+                          if (backEnd().pdfFilter(allItem[index].urlPdf)) {
+                            if (multiProvider.multiView == true) {
+                              if (selectedList[index] == true) {
+                                multiItem.remove(allItem[index].id);
+                                selectedList[index] = false;
+                                setState(() {});
+                              } else {
+                                multiItem.add(allItem[index].id);
+                                selectedList[index] = true;
+                                setState(() {});
+                              }
+                            } else {
+                              openPaper(
+                                  allItem[index].urlPdf!,
+                                  allItem[index]
+                                      .name!
+                                      .replaceFirst(" ", " \n"));
+                            }
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => OtherFilesViewPage(
+                                  [
+                                    allItem[index].urlPdf ?? '',
+                                  ],
+                                  prettifySubjectName(allItem[index].name!),
+                                  allItem[index]
+                                      .id
+                                      .toString()
+                                      .replaceFirst(" ", " \n"),
+                                ),
+                              ),
+                            );
+                          }
                         }
                       },
                       leading: Padding(
@@ -313,6 +402,10 @@ class _innerfileScreenState extends State<innerfileScreen> {
                         child: Image.asset(backEnd()
                             .fileLogoAssets(allItem[index].urlPdf.toString())),
                       ),
+                      onLongPress: () {
+                        print(
+                            "${selectedList[index].toString()} & ${multiItem.length}");
+                      },
                       trailing: backEnd().heartFilter(
                                   allItem[index].urlPdf.toString()) ==
                               true
