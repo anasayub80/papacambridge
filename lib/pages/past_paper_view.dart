@@ -1,8 +1,11 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
+import 'package:bot_toast/bot_toast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:studento/UI/error_report_dialog.dart';
 import 'package:studento/UI/show_message_dialog.dart';
 import 'package:studento/UI/studento_app_bar.dart';
@@ -12,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:studento/UI/loading_indicator.dart';
+import 'package:fullscreen/fullscreen.dart';
 
 import '../utils/ads_helper.dart';
 
@@ -69,7 +73,6 @@ class _PastPaperViewState extends State<PastPaperView> {
     super.initState();
     print(widget.fileName);
     _fileName = prettifySubjectName(widget.fileName);
-
     int randomNumber = random.nextInt(5);
     switch (randomNumber) {
       case 2:
@@ -83,6 +86,12 @@ class _PastPaperViewState extends State<PastPaperView> {
       default:
     }
     initPapers();
+    if (Platform.isAndroid) {
+      platform = TargetPlatform.android;
+    } else {
+      platform = TargetPlatform.iOS;
+    }
+    checkFileDownloaded();
     // loadDocs();
   }
 
@@ -91,12 +100,7 @@ class _PastPaperViewState extends State<PastPaperView> {
   }
 
   InterstitialAd? _interstitialAd;
-
-  // hello.PDFDocument document;
-  // loadDocs() async {
-  //   document = await hello.PDFDocument.fromURL(
-  //       "http://conorlastowka.com/book/CitationNeededBook-Sample.pdf");
-  // }
+  bool isFullScreen = false;
   int? currentPage = 0;
 
   @override
@@ -116,6 +120,24 @@ class _PastPaperViewState extends State<PastPaperView> {
               onPressed: () async {
                 // PdfHelper.shareFile(filePath!, "paper");
                 PdfHelper.shareFile(filePath!, "paper");
+              },
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.download,
+                color: isDownloaded ? Colors.green : Colors.black,
+              ),
+              onPressed: () async {
+                if (isDownloaded) {
+                  BotToast.showText(
+                      text: 'Already Downloaded!', contentColor: Colors.green);
+                } else {
+                  await _prepareSaveDir();
+                  var path = await PdfHelper.getexternalFilePath(_fileName);
+                  await downloadFile(path);
+                  BotToast.showText(
+                      text: 'Downloaded', contentColor: Colors.green);
+                }
               },
             ),
           ],
@@ -147,6 +169,22 @@ class _PastPaperViewState extends State<PastPaperView> {
               LoadingIndicator(progress, loadingText: "Loading: "),
           ],
         ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            if (isFullScreen) {
+              await FullScreen.enterFullScreen(FullScreenMode.EMERSIVE_STICKY);
+              setState(() {
+                isFullScreen = false;
+              });
+            } else {
+              await FullScreen.exitFullScreen();
+              setState(() {
+                isFullScreen = false;
+              });
+            }
+          },
+          child: Icon(isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen),
+        ),
       );
     }
 
@@ -171,10 +209,6 @@ class _PastPaperViewState extends State<PastPaperView> {
     print(_path);
     isFileAlreadyDownloaded = await PdfHelper.checkIfDownloaded(_fileName);
     if (isFileAlreadyDownloaded) {
-      // The setState is wrapped in a [Future.delayed] so as to give enough
-      // time for the pdf viewer to close. If this isn't done, the pdf viewer
-      // wouldn't close before the widget is rebuilt, and would get stuck
-      // on an infinite loading loop.
       Future.delayed(
         Duration(milliseconds: 500),
         () {
@@ -191,6 +225,49 @@ class _PastPaperViewState extends State<PastPaperView> {
         // ignore: use_build_context_synchronously
         PdfHelper.handleNoConnection(context);
       }
+    }
+  }
+
+  bool isDownloaded = false;
+  void checkFileDownloaded() async {
+    // ignore: no_leading_underscores_for_local_identifiers
+    var _path = await PdfHelper.getexternalFilePath(_fileName);
+    isFileAlreadyDownloaded =
+        await PdfHelper.checkIfDownloadedButton(_fileName);
+    if (isFileAlreadyDownloaded) {
+      Future.delayed(
+        Duration(milliseconds: 500),
+        () {
+          if (mounted) {
+            setState(() => isDownloaded = true);
+          }
+        },
+      );
+    } else {
+      print('not exist $_path');
+    }
+  }
+
+  late String _localPath;
+  late TargetPlatform? platform;
+
+  /// Check if papers are already downloaded, and download if not.
+  Future<void> _prepareSaveDir() async {
+    _localPath = (await _findLocalPath())!;
+    print(_localPath);
+    final savedDir = Directory(_localPath);
+    bool hasExisted = await savedDir.exists();
+    if (!hasExisted) {
+      savedDir.create();
+    }
+  }
+
+  Future<String?> _findLocalPath() async {
+    if (platform == TargetPlatform.android) {
+      return "/storage/emulated/0/Download";
+    } else {
+      var directory = await getApplicationDocumentsDirectory();
+      return '${directory.path}${Platform.pathSeparator}Download';
     }
   }
 
@@ -236,7 +313,6 @@ class _PastPaperViewState extends State<PastPaperView> {
     }
 
     await dio.download(
-      // (isQP) ? urlInUse! : msUrlInUse!,
       widget.urls[0],
       filePath,
       onReceiveProgress: (received, total) {
@@ -260,6 +336,7 @@ class _PastPaperViewState extends State<PastPaperView> {
         downloading = false;
         isLoaded = true;
       });
+      checkFileDownloaded();
     }
   }
 

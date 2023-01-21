@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'package:studento/UI/studento_app_bar.dart';
 
+import 'searchPage.dart';
+
 // ignore: must_be_immutable
 class EBooksPage extends StatefulWidget {
   String domainId;
@@ -19,6 +21,20 @@ class _EBooksPageState extends State<EBooksPage> {
         appBar: StudentoAppBar(
           title: "E-Books",
           context: context,
+          actions: [
+            IconButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return SearchPage(
+                        domainId: widget.domainId,
+                        domainName: "E-Books",
+                      );
+                    },
+                  ));
+                },
+                icon: Icon(Icons.search))
+          ],
         ),
         body: mainFilesList(
           domainId: widget.domainId,

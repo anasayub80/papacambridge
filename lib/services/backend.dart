@@ -13,6 +13,8 @@ const innerFileApi =
     'https://pastpapers.papacambridge.com/api/api.php?page=inner_file';
 const mainFileApi =
     'https://pastpapers.papacambridge.com/api/api.php?page=main_file';
+const searchSubjectApi =
+    'https://pastpapers.papacambridge.com/api/api.php?page=search';
 const levelApi =
     'https://pastpapers.papacambridge.com/api/api.php?page=inner_file';
 // const subjectApi =
@@ -60,10 +62,14 @@ class backEnd {
     });
     if (res.statusCode == 200) {
       if (res.body.isNotEmpty) {
-        var response = jsonDecode(res.body.toString());
-        debugPrint("domain Response $response");
-
-        return response;
+        if (res.body.length <= 64) {
+          // no data found
+          return null;
+        } else {
+          var response = jsonDecode(res.body.toString());
+          debugPrint("innerFile Response $response");
+          return response;
+        }
       } else {
         print('Something Wrong');
       }
@@ -80,7 +86,6 @@ class backEnd {
       if (res.body.isNotEmpty) {
         var response = jsonDecode(res.body.toString());
         debugPrint("domain Response $response");
-
         return response;
       } else {
         print('Something Wrong');

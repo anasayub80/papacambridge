@@ -14,6 +14,7 @@ import 'package:scoped_model/scoped_model.dart';
 // import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:studento/model/todo/todo_list_model.dart';
 import 'package:studento/pages/splash_page.dart';
 import 'package:studento/provider/loadigProvider.dart';
@@ -126,7 +127,12 @@ class _StudentoState extends State<Studento> {
           theme: MyTheme().lightTheme,
           darkTheme: MyTheme().darkTheme,
           color: Colors.red,
-          home: SplashPage(),
+          home: ShowCaseWidget(
+              builder: Builder(builder: (context) => SplashPage())
+              // Builder(builder: (context) {
+              //   return SplashPage();
+              // }),
+              ),
           // home: TestPage(),
           routes: routes,
           debugShowCheckedModeBanner: false,

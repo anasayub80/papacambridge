@@ -43,17 +43,6 @@ class ThemeSettings with ChangeNotifier {
     print(isOn ? 'Dark' : 'light');
     notifyListeners();
   }
-  // void toggleTheme() async {
-  //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-  //   if (_currentTheme == ThemeMode.light) {
-  //     _currentTheme = ThemeMode.dark;
-  //     sharedPreferences.setBool('is_dark', true);
-  //   } else {
-  //     _currentTheme = ThemeMode.light;
-  //     sharedPreferences.setBool('is_dark', false);
-  //   }
-  //   notifyListeners();
-  // }
 }
 
 class MyTheme {
@@ -93,12 +82,5 @@ class MyTheme {
     ),
     primaryColor: Colors.white,
     colorScheme: ColorScheme.light(),
-    // primarySwatch: Colors.blue,
-    // primaryColor: Colors.blue,
-    // primaryIconTheme: IconThemeData(color: Colors.black87),
-    // brightness: Brightness.light,
-    // iconTheme: IconThemeData(
-    //   color: Colors.black87,
-    // ),
   );
 }

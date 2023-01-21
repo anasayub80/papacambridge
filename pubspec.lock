@@ -335,13 +335,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.5"
-  flutter_spotlight_plus:
-    dependency: "direct main"
-    description:
-      name: flutter_spotlight_plus
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.1"
   flutter_staggered_grid_view:
     dependency: "direct main"
     description:
@@ -373,6 +366,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.1.0"
+  fullscreen:
+    dependency: "direct main"
+    description:
+      name: fullscreen
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.3"
   functional_widget_annotation:
     dependency: "direct main"
     description:
@@ -884,6 +884,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
+  showcaseview:
+    dependency: "direct main"
+    description:
+      name: showcaseview
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0+1"
   sky_engine:
     dependency: transitive
     description: flutter

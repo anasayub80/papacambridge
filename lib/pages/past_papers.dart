@@ -5,6 +5,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:studento/model/MainFolder.dart';
 import 'package:flutter/material.dart';
+import 'package:studento/pages/searchPage.dart';
 
 import '../UI/loading_page.dart';
 import '../UI/mainFilesList.dart';
@@ -30,6 +31,20 @@ class _PastPapersPageState extends State<PastPapersPage> {
         appBar: StudentoAppBar(
           title: "Past Papers",
           context: context,
+          actions: [
+            IconButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return SearchPage(
+                        domainId: widget.domainId,
+                        domainName: "Past Papers",
+                      );
+                    },
+                  ));
+                },
+                icon: Icon(Icons.search))
+          ],
         ),
         body: mainFilesList(
           domainId: widget.domainId,

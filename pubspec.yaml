@@ -45,8 +45,8 @@ dependencies:
   flutter_launcher_icons: ^0.11.0
   flutter_markdown: ^0.6.12
   flutter_pdfview: ^1.2.5
-  flutter_spotlight_plus: ^0.0.1
   flutter_staggered_grid_view: ^0.4.0
+  fullscreen: ^1.0.3
   functional_widget_annotation: ^0.10.0
   google_mobile_ads: ^2.3.0
   hive: ^2.2.3
@@ -70,6 +70,7 @@ dependencies:
   share_extend: ^2.0.0
   share_plus: ^6.3.0
   shared_preferences: ^2.0.15
+  showcaseview: ^2.0.0+1
   sqflite: ^2.1.0+1
   url_launcher: ^6.1.7
 

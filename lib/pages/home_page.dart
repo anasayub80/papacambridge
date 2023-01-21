@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:after_layout/after_layout.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import 'package:studento/UI/rate_dialog.dart';
 import 'package:studento/UI/studento_drawer.dart';
@@ -36,11 +37,18 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
   }
 
   StreamController _domainStream = StreamController();
+  GlobalKey _one = GlobalKey();
+  GlobalKey _two = GlobalKey();
+  GlobalKey _three = GlobalKey();
+  startShowCase() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      ShowCaseWidget.of(context).startShowCase([_one]);
+    });
+  }
 
   @override
   void initState() {
-    // ignore: todo
-    // TODO: implement initState
+    startShowCase();
     super.initState();
     getDomains();
   }
@@ -73,22 +81,17 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
 
 // Use for stop snapshot list from updating
   bool updated = false;
+  final GlobalKey<ScaffoldState> _key = GlobalKey(); // Create a key
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeSettings>(context, listen: false);
 
     return Scaffold(
+      key: _key, // Assign the key to Scaffold.
       drawer: studentoDrawer(),
       appBar: AppBar(
-        title:
-            // Text(
-            //   'PapaCambridge',
-            //   style: TextStyle(
-            //     color: Theme.of(context).textTheme.bodyText1!.color,
-            //   ),
-            // ),
-            Padding(
+        title: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Image.asset(
             themeProvider.currentTheme == ThemeMode.light
@@ -99,20 +102,33 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
             fit: BoxFit.contain,
           ),
         ),
+        leading: CustomShowcaseWidget(
+          globalKey: _one,
+          description: 'Open Menu',
+          child: IconButton(
+              onPressed: () {
+                _key.currentState!.openDrawer();
+              },
+              icon: Icon(
+                Icons.menu,
+              )),
+        ),
         iconTheme: Theme.of(context).iconTheme,
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-        // titleStyle: TextStyle(
-        //   fontSize: 25,
-        //   fontWeight: FontWeight.w400,
-        //   color: Theme.of(context).textTheme.bodyText1!.color,
-        // ),
       ),
       backgroundColor: Theme.of(context).cardColor,
       body: StreamBuilder<dynamic>(
         // future: backEnd().fetchDomains(boardId),
         stream: _domainStream.stream,
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
+          if (snapshot.data == null) {
+            return Center(
+              child: Text(
+                'No Data Found',
+                style: Theme.of(context).textTheme.headline4,
+              ),
+            );
+          } else if (snapshot.hasData) {
             List snap = snapshot.data;
             if (!updated) {
               // Merging Static data with api requested data
@@ -365,4 +381,36 @@ class _HomePageButtonState extends State<HomePageButton> {
         break;
     }
   }
+}
+
+class CustomShowcaseWidget extends StatelessWidget {
+  final Widget child;
+  final String description;
+  final GlobalKey globalKey;
+
+  const CustomShowcaseWidget({
+    required this.description,
+    required this.child,
+    required this.globalKey,
+  });
+
+  @override
+  Widget build(BuildContext context) => Showcase(
+        key: globalKey,
+        // showcaseBackgroundColor: Colors.pink.shade400,
+        // contentPadding: EdgeInsets.all(12),
+        showArrow: false,
+        // disableAnimation: true,
+        // title: 'Hello',
+        // titleTextStyle: TextStyle(color: Colors.white, fontSize: 32),
+        description: description,
+        descTextStyle: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+        // overlayColor: Colors.white,
+        // overlayOpacity: 0.7,
+        child: child,
+      );
 }

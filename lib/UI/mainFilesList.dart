@@ -216,16 +216,7 @@ class _mainFilesListState extends State<mainFilesList> {
                       itemBuilder: (context, i) {
                         return ListTile(
                           onTap: () {
-                            // if (widget.title != 'Syllabus') {
                             debugPrint('not syllabus');
-                            // Navigator.push(context, MaterialPageRoute(
-                            //   builder: (context) {
-                            //     return innerfileScreen(
-                            //       inner_file: favItem[i],
-                            //       title: widget.title,
-                            //     );
-                            //   },
-                            // ));
                             Navigator.push(
                                 context,
                                 innerfileScreen.getRoute(

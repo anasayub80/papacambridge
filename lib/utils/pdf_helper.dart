@@ -17,6 +17,12 @@ abstract class PdfHelper {
     return await file.exists();
   }
 
+  static Future<bool> checkIfDownloadedButton(String fileName) async {
+    var filePath = await getexternalFilePath(fileName);
+    var file = File(filePath);
+    return await file.exists();
+  }
+
   static Future<Future<FileSystemEntity>> deleteFile(String filePath) async {
     return File(filePath).delete();
   }
@@ -31,6 +37,16 @@ abstract class PdfHelper {
   static Future<String> getFilePath(String fileName) async {
     var dir = await getApplicationDocumentsDirectory();
     return "${dir.path}/$fileName";
+  }
+
+  static Future<String> getexternalFilePath(String fileName) async {
+    if (Platform.isAndroid) {
+      return "/storage/emulated/0/Download/$fileName";
+    } else {
+      var directory = await getApplicationDocumentsDirectory();
+      return '${directory.path}${Platform.pathSeparator}Download$fileName';
+    }
+    // return '${dir.path}${Platform.pathSeparator}Download/$fileName';
   }
 
   static void shareFile(String filePath, String pdfType) {

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'package:flutter_spotlight_plus/flutter_spotlight_plus.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -9,6 +8,7 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:studento/pages/home_page.dart';
+import 'package:studento/pages/multiPaperView.dart';
 import 'package:studento/pages/past_paper_view.dart';
 import 'package:studento/provider/multiViewhelper.dart';
 import 'package:studento/services/backend.dart';
@@ -103,7 +103,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
         } else {
           dataL = mainFolderFromJson(res.body);
           List<MainFolder> selectedM = [];
-          debugPrint('mainFile list ${res.body}');
+          debugPrint('innerFile list ${res.body}');
 
           for (var subject in dataL!) {
             if (favItem.contains(subject.id.toString())) {
@@ -141,7 +141,8 @@ class _innerfileScreenState extends State<innerfileScreen> {
     prefs.setStringList('blockList', blockList);
   }
 
-  List multiItem = [];
+  List multiItemurl = [];
+  List multiItemname = [];
   List selectedList = [];
   @override
   Widget build(BuildContext context) {
@@ -155,6 +156,21 @@ class _innerfileScreenState extends State<innerfileScreen> {
           builder: (_) => PastPaperView([
             url,
           ], fileName, boardId, false),
+        ),
+      );
+    }
+
+    void openMultiPaperView() async {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => MultiPaperView(
+              url1: multiItemurl[0],
+              url2: multiItemurl[1],
+              fileName1: multiItemname[0],
+              fileName2: multiItemname[1],
+              boarId: boardId,
+              isOthers: false),
         ),
       );
     }
@@ -219,8 +235,9 @@ class _innerfileScreenState extends State<innerfileScreen> {
               ),
             );
           } else if (snapshot.hasData) {
-            if (multiItem.isEmpty)
-              selectedList = List.generate(allItem.length, (index) => false);
+            if (multiItemurl.isEmpty)
+              selectedList = List.generate(
+                  favItem.length + allItem.length, (index) => false);
 
             return ListView(
               children: [
@@ -228,17 +245,26 @@ class _innerfileScreenState extends State<innerfileScreen> {
                   height: 10,
                 ),
                 // ignore: iterable_contains_unrelated_type
+                BreadCrumbNavigator(),
+                SizedBox(
+                  height: 10,
+                ),
                 SizedBox(
                   child: Row(
                     children: [
                       ElevatedButton(
                         onPressed: () {
                           multiProvider.setMultiViewFalse();
+                          selectedList = List.generate(
+                              favItem.length + allItem.length,
+                              (index) => false);
+                          multiItemname.clear();
+                          multiItemurl.clear();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: multiProvider.multiView == true
                               ? Colors.transparent
-                              : Colors.purple,
+                              : Color(0xff6C63FF),
                           side: BorderSide(
                               color: multiProvider.multiView == false
                                   ? Colors.transparent
@@ -247,8 +273,9 @@ class _innerfileScreenState extends State<innerfileScreen> {
                         child: Text(
                           'Single View',
                           style: TextStyle(
-                              color:
-                                  Theme.of(context).textTheme.bodyText1!.color),
+                              color: multiProvider.multiView == true
+                                  ? Colors.black
+                                  : Colors.white),
                         ),
                       ),
                       ElevatedButton(
@@ -258,7 +285,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: multiProvider.multiView == false
                               ? Colors.transparent
-                              : Colors.purple,
+                              : Color(0xff6C63FF),
                           side: BorderSide(
                               color: multiProvider.multiView == true
                                   ? Colors.transparent
@@ -267,8 +294,9 @@ class _innerfileScreenState extends State<innerfileScreen> {
                         child: Text(
                           'Multi View',
                           style: TextStyle(
-                              color:
-                                  Theme.of(context).textTheme.bodyText1!.color),
+                              color: multiProvider.multiView == false
+                                  ? Colors.black
+                                  : Colors.white),
                         ),
                       ),
                     ],
@@ -276,10 +304,6 @@ class _innerfileScreenState extends State<innerfileScreen> {
                   ),
                   height: 48,
                 ),
-                SizedBox(
-                  height: 10,
-                ),
-                BreadCrumbNavigator(),
                 SizedBox(
                   height: 10,
                 ),
@@ -343,97 +367,16 @@ class _innerfileScreenState extends State<innerfileScreen> {
                     return const SizedBox();
                   },
                   itemBuilder: (context, index) {
-                    return ListTile(
-                      // onTap: () =>,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                      ),
-                      selectedTileColor: Colors.green,
-                      selected: selectedList[index],
-                      selectedColor: Colors.white,
-                      onTap: () {
-                        if (allItem[index].urlPdf == "" ||
-                            allItem[index].urlPdf == null) {
-                          debugPrint('newScreen');
-                          Navigator.push(
-                              context,
-                              innerfileScreen.getRoute(allItem[index].name!,
-                                  allItem[index].id, widget.title));
-                        } else {
-                          if (backEnd().pdfFilter(allItem[index].urlPdf)) {
-                            if (multiProvider.multiView == true) {
-                              if (selectedList[index] == true) {
-                                multiItem.remove(allItem[index].id);
-                                selectedList[index] = false;
-                                setState(() {});
-                              } else {
-                                multiItem.add(allItem[index].id);
-                                selectedList[index] = true;
-                                setState(() {});
-                              }
-                            } else {
-                              openPaper(
-                                  allItem[index].urlPdf!,
-                                  allItem[index]
-                                      .name!
-                                      .replaceFirst(" ", " \n"));
-                            }
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => OtherFilesViewPage(
-                                  [
-                                    allItem[index].urlPdf ?? '',
-                                  ],
-                                  prettifySubjectName(allItem[index].name!),
-                                  allItem[index]
-                                      .id
-                                      .toString()
-                                      .replaceFirst(" ", " \n"),
-                                ),
-                              ),
-                            );
-                          }
-                        }
-                      },
-                      leading: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Image.asset(backEnd()
-                            .fileLogoAssets(allItem[index].urlPdf.toString())),
-                      ),
-                      onLongPress: () {
-                        print(
-                            "${selectedList[index].toString()} & ${multiItem.length}");
-                      },
-                      trailing: backEnd().heartFilter(
-                                  allItem[index].urlPdf.toString()) ==
-                              true
-                          ? IconButton(
-                              onPressed: (() {
-                                addtoFav(
-                                  index,
-                                  allItem[index].id,
-                                  allItem[index].name!,
-                                );
-                              }),
-                              icon: Icon(
-                                Icons.favorite_border,
-                                color: Theme.of(context)
-                                    .textTheme
-                                    .bodyText1!
-                                    .color,
-                              ),
-                            )
-                          : SizedBox.shrink(),
-                      title: Text(
-                        prettifySubjectName(allItem[index].name!),
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                        ),
-                      ),
-                    );
+                    return filesListTile(
+                        index,
+                        context,
+                        allItem[index].urlPdf!,
+                        allItem[index].id,
+                        allItem[index].name!,
+                        multiProvider,
+                        openMultiPaperView,
+                        openPaper,
+                        addtoFav);
                   },
                 ),
               ],
@@ -457,6 +400,110 @@ class _innerfileScreenState extends State<innerfileScreen> {
           : SizedBox(
               height: 0,
             ),
+    );
+  }
+
+  ListTile filesListTile(
+      int index,
+      BuildContext context,
+      String urlPdf,
+      String id,
+      String name,
+      multiViewProvider multiProvider,
+      void Function() openMultiPaperView,
+      void Function(String url, dynamic fileName) openPaper,
+      Future<void> Function(dynamic index, String id, String name) addtoFav) {
+    return ListTile(
+      // onTap: () =>,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(20.0)),
+      ),
+      // selectedTileColor: Colors.green,
+      selected: selectedList[index],
+      // selectedColor: Colors.white,
+      onTap: () {
+        if (allItem[index].urlPdf == "" || allItem[index].urlPdf == null) {
+          debugPrint('newScreen');
+          Navigator.push(
+              context,
+              innerfileScreen.getRoute(
+                  allItem[index].name!, allItem[index].id, widget.title));
+        } else {
+          if (backEnd().pdfFilter(allItem[index].urlPdf)) {
+            if (multiProvider.multiView == true) {
+              if (selectedList[index] == true) {
+                multiItemurl.remove(allItem[index].urlPdf);
+                multiItemname.remove(allItem[index].name);
+                selectedList[index] = false;
+                setState(() {});
+              } else {
+                multiItemurl.add(
+                  allItem[index].urlPdf,
+                );
+                multiItemname.add(
+                  allItem[index].name,
+                );
+                selectedList[index] = true;
+                setState(() {});
+                if (multiItemurl.length >= 2) {
+                  openMultiPaperView();
+                }
+              }
+            } else {
+              openPaper(allItem[index].urlPdf!,
+                  allItem[index].name!.replaceFirst(" ", " \n"));
+            }
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => OtherFilesViewPage(
+                  [
+                    allItem[index].urlPdf ?? '',
+                  ],
+                  prettifySubjectName(allItem[index].name!),
+                  allItem[index].id.toString().replaceFirst(" ", " \n"),
+                ),
+              ),
+            );
+          }
+        }
+      },
+      leading: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Image.asset(
+            backEnd().fileLogoAssets(allItem[index].urlPdf.toString())),
+      ),
+      onLongPress: () {
+        print("${allItem[index].urlPdf}");
+      },
+      trailing: backEnd().heartFilter(allItem[index].urlPdf.toString()) == true
+          ? IconButton(
+              onPressed: (() {
+                addtoFav(
+                  index,
+                  allItem[index].id,
+                  allItem[index].name!,
+                );
+              }),
+              icon: Icon(
+                Icons.favorite_border,
+                color: Theme.of(context).textTheme.bodyText1!.color,
+              ),
+            )
+          : selectedList[index] == true
+              ? Icon(
+                  Icons.check,
+                  color: Colors.green,
+                )
+              : SizedBox.shrink(),
+      title: Text(
+        prettifySubjectName(allItem[index].name!),
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+        ),
+      ),
     );
   }
 }
