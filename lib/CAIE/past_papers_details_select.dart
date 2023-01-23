@@ -17,6 +17,7 @@ import 'package:studento/UI/steps/season.dart';
 import 'package:studento/pages/home_page.dart';
 import 'package:studento/model/MainFolderInit.dart';
 import 'package:http/http.dart' as http;
+import 'package:studento/services/backend.dart';
 
 import '../pages/other_fileView.dart';
 import '../utils/bannerAdmob.dart';
@@ -177,7 +178,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
   int? endDate;
   getPapersData() async {
     String url =
-        'https://papacambridge.com/api.php?main_folder=${widget.subject.parent}&papers=pastpapers&id=${widget.subject.id}';
+        '$caeiAPI?main_folder=${widget.subject.parent}&papers=pastpapers&id=${widget.subject.id}';
     log('Url $url');
     http.Response res = await http.get(Uri.parse(url));
     List<MainFolderInit> data = mainFolderInitFromJson(res.body);

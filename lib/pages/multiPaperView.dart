@@ -4,14 +4,12 @@ import 'dart:math';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:studento/UI/error_report_dialog.dart';
 import 'package:studento/UI/show_message_dialog.dart';
-import 'package:studento/UI/studento_app_bar.dart';
 import 'package:studento/utils/pdf_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:studento/UI/loading_indicator.dart';
 import '../utils/ads_helper.dart';
-import 'package:flutter/gestures.dart';
 
 // ignore: must_be_immutable
 class MultiPaperView extends StatefulWidget {
@@ -123,6 +121,7 @@ class _MultiPaperViewState extends State<MultiPaperView> {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
     Size size = MediaQuery.of(context).size;
     if (isLoaded) {
       //&& _isPro != null
@@ -234,9 +233,9 @@ class _MultiPaperViewState extends State<MultiPaperView> {
   void initPapers() async {
     // ignore: no_leading_underscores_for_local_identifiers
     var _path1 = await PdfHelper.getFilePath(_fileName1);
-    var _path2 = await PdfHelper.getFilePath(_fileName2);
+    var path2 = await PdfHelper.getFilePath(_fileName2);
     setState(() => filePath1 = _path1);
-    setState(() => filePath2 = _path2);
+    setState(() => filePath2 = path2);
     print('ppppppppppppppppppppppppppppp');
     print(_path1);
     isFileAlreadyDownloaded1 = await PdfHelper.checkIfDownloaded(_fileName1);

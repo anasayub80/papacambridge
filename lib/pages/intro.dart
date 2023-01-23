@@ -397,7 +397,7 @@ class _IntroPageState extends State<IntroPage> {
         body: LiquidSwipe(
       pages: pages,
       liquidController: liquidController,
-      enableLoop: true,
+      // enableLoop: true,
       waveType: WaveType.liquidReveal,
       positionSlideIcon: 0.8,
       ignoreUserGestureWhileAnimating: false,

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:bot_toast/bot_toast.dart';
@@ -12,6 +13,8 @@ import '../model/MainFolder.dart';
 import 'package:http/http.dart' as http;
 
 import '../utils/ads_helper.dart';
+import '../utils/funHelper.dart';
+import '../utils/pdf_helper.dart';
 
 class mainFilesList extends StatefulWidget {
   final domainId;
@@ -34,7 +37,7 @@ class _mainFilesListState extends State<mainFilesList> {
     // ignore: todo
     // TODO: implement initState
     super.initState();
-    initSubjects();
+    getStoredData();
     int randomNumber = random.nextInt(5);
     switch (randomNumber) {
       case 2:
@@ -80,10 +83,98 @@ class _mainFilesListState extends State<mainFilesList> {
     allItem = [];
     favItem = [];
     favItemName = [];
-
-    // ignore: todo
-    // TODO: implement dispose
     super.dispose();
+  }
+
+  getStoredData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    var isConnected = await PdfHelper.checkIfConnected();
+    if (isConnected) {
+      var res = await funHelper().checkifDataExist(
+          'mainFileData${widget.domainId}${widget.title.trim()}');
+      if (res != null) {
+        http.Response myres = await http.post(Uri.parse(mainFileApi), body: {
+          'token': token,
+          'domain': widget.domainId,
+        });
+        if (myres.body.length <= res.length) {
+          print('equal');
+          clearifyData(res, true);
+        } else {
+          print('not equal update');
+          prefs.remove('mainFileData${widget.domainId}${widget.title.trim()}');
+        }
+      } else {
+        initSubjects();
+      }
+    } else {
+      var res = await funHelper().checkifDataExist(
+          'mainFileData${widget.domainId}${widget.title.trim()}');
+      if (res != null) {
+        clearifyData(res, true);
+      } else {
+        _streamController.add('NetworkError');
+      }
+    }
+  }
+
+  clearifyData(dynamic res, bool isLocal) async {
+    allItem.clear();
+    favItem.clear();
+    favItemName.clear();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    favItem = prefs
+            .getStringList('favItem${widget.domainId}${widget.title.trim()}') ??
+        [];
+    favItemName = prefs.getStringList(
+            'favItemName${widget.domainId}${widget.title.trim()}') ??
+        [];
+    if (!isLocal) {
+      // get Data From Api
+      if (res.statusCode == 200) {
+        if (res.body.isNotEmpty) {
+          if (res.body.length <= 64) {
+            print('Something Wrong');
+          } else {
+            var response = jsonEncode(res.body);
+            await prefs.setString(
+                'mainFileData${widget.domainId}${widget.title.trim()}',
+                response);
+
+            List<MainFolder> dataL = mainFolderFromJson(res.body.toString());
+            List<MainFolder> selectedM = [];
+            for (var subject in dataL) {
+              if (favItem.contains(subject.id.toString())) {
+                // if that specific item already in fav item
+              } else {
+                selectedM.add(subject);
+              }
+            }
+            setState(() {
+              allItem = selectedM;
+            });
+          }
+        } else {
+          print('Something Wrong');
+        }
+      }
+    } else {
+      // get local data
+      List<MainFolder> dataL = mainFolderFromJson(res.toString());
+      List<MainFolder> selectedM = [];
+      for (var subject in dataL) {
+        if (favItem.contains(subject.id.toString())) {
+        } else {
+          selectedM.add(subject);
+        }
+      }
+      setState(() {
+        allItem = selectedM;
+      });
+    }
+
+    _streamController.add('event');
   }
 
   void initSubjects() async {
@@ -91,53 +182,12 @@ class _mainFilesListState extends State<mainFilesList> {
     allItem.clear();
     favItem.clear();
     favItemName.clear();
-    debugPrint('***subject init mainFile***');
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    debugPrint(
-        'Inner File favItem${widget.domainId}${widget.title.trim()} & favItemName${widget.domainId}');
-
-    favItem = prefs
-            .getStringList('favItem${widget.domainId}${widget.title.trim()}') ??
-        [];
-    favItemName = prefs.getStringList(
-            'favItemName${widget.domainId}${widget.title.trim()}') ??
-        [];
-
-    // favItemName = prefs.getStringList('favItemName$boardId') ?? [];
     http.Response res = await http.post(Uri.parse(mainFileApi), body: {
       'token': token,
       'domain': widget.domainId,
     });
     debugPrint(res.body);
-    if (res.statusCode == 200) {
-      if (res.body.isNotEmpty) {
-        if (res.body.length <= 64) {
-          print('Something Wrong');
-        } else {
-          print(favItem.toString());
-          List<MainFolder> dataL = mainFolderFromJson(res.body);
-          List<MainFolder> selectedM = [];
-          debugPrint('mainFile list ${res.body}');
-
-          for (var subject in dataL) {
-            if (favItem.contains(subject.id.toString())) {
-              // if that specific item already in fav item
-              // selectedM.removeWhere((item) => item.id == subject.id);
-            } else {
-              selectedM.add(subject);
-            }
-          }
-          setState(() {
-            allItem = selectedM;
-          });
-        }
-      } else {
-        print('Something Wrong');
-      }
-    }
-
-    _streamController.add('event');
+    clearifyData(res, false);
   }
 
   addtoFav(index, String id, String name) async {
@@ -168,7 +218,6 @@ class _mainFilesListState extends State<mainFilesList> {
       name: favItemName[index],
       id: favItem[index],
     );
-
     setState(() {
       allItem.add(folderModel);
       favItem.removeWhere((item) => item == favItem[index]);
@@ -179,9 +228,7 @@ class _mainFilesListState extends State<mainFilesList> {
           'favItemName${widget.domainId}${widget.title.trim()}', favItemName);
     });
     BotToast.closeAllLoading();
-    initSubjects();
-    // prefs.setStringList('favItem$boardId', favItem);
-    // prefs.setStringList('favItemName$boardId', favItemName);
+    getStoredData();
   }
 
   StreamController _streamController = StreamController();
@@ -197,6 +244,8 @@ class _mainFilesListState extends State<mainFilesList> {
           return Center(
             child: CircularProgressIndicator(),
           );
+        } else if (snapshot.data == 'NetworkError') {
+          return Center(child: Text('No Internet Connection'));
         } else if (allItem.isEmpty && favItem.isEmpty) {
           return Center(
             child: Text(

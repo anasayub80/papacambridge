@@ -7,6 +7,7 @@ import 'package:studento/model/user_data.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:studento/services/backend.dart';
 import 'loading_page.dart';
 import 'package:studento/Globals.dart' as globals;
 import 'setup_page.dart';
@@ -47,8 +48,7 @@ class _SubjectsListState extends State<SubjectsList> {
 
     print("Subject list from json file is: \n $subjectsList");
 
-    String url1 =
-        'https://papacambridge.com/api.php?main_folder=${widget.levelid}&papers=pastpapers';
+    String url1 = '$caeiAPI?main_folder=${widget.levelid}&papers=pastpapers';
     print(url1);
     http.Response res = await http.get(Uri.parse(url1));
     print("subject list ${res.body}");

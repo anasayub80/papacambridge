@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:after_layout/after_layout.dart';
@@ -12,11 +13,13 @@ import 'package:studento/pages/otherres_page.dart';
 import 'package:studento/pages/schedule.dart';
 import 'package:studento/pages/timetable_page.dart';
 import 'package:studento/pages/todo_list.dart';
+import 'package:studento/utils/funHelper.dart';
 import 'package:studento/utils/theme_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../UI/customDelgate.dart';
 import '../services/backend.dart';
+import '../utils/pdf_helper.dart';
 import 'ebook_page.dart';
 import 'past_papers.dart';
 import 'syllabus.dart';
@@ -24,6 +27,7 @@ import 'syllabus.dart';
 var boardId;
 
 class HomePage extends StatefulWidget {
+  static const ishomelaunch = "ishomelaunch";
   @override
   // ignore: library_private_types_in_public_api
   _HomePageState createState() => _HomePageState();
@@ -36,39 +40,73 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
     if (isLuckyDay) showRatingDialog();
   }
 
-  StreamController _domainStream = StreamController();
   GlobalKey _one = GlobalKey();
   GlobalKey _two = GlobalKey();
-  GlobalKey _three = GlobalKey();
-  startShowCase() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      ShowCaseWidget.of(context).startShowCase([_one]);
-    });
-  }
+
+  StreamController _domainStream = StreamController();
 
   @override
   void initState() {
-    startShowCase();
+    Future.delayed(
+      Duration.zero,
+      () {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _isFirstLaunch().then((result) {
+            if (!result) ShowCaseWidget.of(context).startShowCase([_one, _two]);
+          }),
+        );
+      },
+    );
     super.initState();
     getDomains();
+  }
+
+  Future<bool> _isFirstLaunch() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    bool isFirstLaunch =
+        sharedPreferences.getBool(HomePage.ishomelaunch) ?? true;
+
+    if (isFirstLaunch) sharedPreferences.setBool(HomePage.ishomelaunch, false);
+    return isFirstLaunch;
   }
 
   getDomains() async {
     final prefs = await SharedPreferences.getInstance();
     boardId = prefs.getString('board')!;
-    var res = await backEnd().fetchDomains(boardId);
-    debugPrint(res.toString());
-    _domainStream.add(res);
+    var isConnected = await PdfHelper.checkIfConnected();
+    if (isConnected) {
+      var res = await funHelper().checkifDataExist('DomainsData');
+      if (res != null) {
+        var myres = await backEnd().fetchDomains(boardId);
+        if (myres.length <= res.length) {
+          print('equal');
+          _domainStream.add(res);
+        } else {
+          print('not equal update');
+          prefs.remove('DomainsData');
+        }
+      } else {
+        var res = await backEnd().fetchDomains(boardId);
+        var response = jsonEncode(res);
+        await prefs.setString('DomainsData', response);
+        debugPrint(res.toString());
+        _domainStream.add(res);
+      }
+    } else {
+      var res = await funHelper().checkifDataExist('DomainsData');
+      if (res != null) {
+        _domainStream.add(res);
+      } else {
+        _domainStream.add('NetworkError');
+      }
+    }
   }
 
-  // ignore: todo
-  // TODO Store in Shared prefs if user has rated the app.
   bool decideWhetherToShowRatingDialog() {
     var randomObj = Random();
     int luckyNum = 10;
     int randomNum = randomObj.nextInt(12);
     if (randomNum == luckyNum) return true;
-
     return false;
   }
 
@@ -88,85 +126,103 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
     final themeProvider = Provider.of<ThemeSettings>(context, listen: false);
 
     return Scaffold(
-      key: _key, // Assign the key to Scaffold.
-      drawer: studentoDrawer(),
-      appBar: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Image.asset(
-            themeProvider.currentTheme == ThemeMode.light
-                ? 'assets/icons/logo.png'
-                : 'assets/icons/Darklogo.png',
-            height: 50,
-            width: 200,
-            fit: BoxFit.contain,
+        key: _key, // Assign the key to Scaffold.
+        drawer: studentoDrawer(),
+        appBar: AppBar(
+          title: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Showcase(
+              key: _one,
+              description: 'this is a side menu',
+              title: 'Side Menu',
+              titleTextStyle: TextStyle(color: Colors.green, fontSize: 16),
+              child: Image.asset(
+                themeProvider.currentTheme == ThemeMode.light
+                    ? 'assets/icons/logo.png'
+                    : 'assets/icons/Darklogo.png',
+                height: 50,
+                width: 200,
+                fit: BoxFit.contain,
+              ),
+            ),
           ),
+          leading: Showcase(
+            key: _two,
+            description: 'this is a side menu',
+            title: 'Side Menu',
+            titleTextStyle: TextStyle(color: Colors.white, fontSize: 32),
+            descTextStyle: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+            child: IconButton(
+                onPressed: () {
+                  _key.currentState!.openDrawer();
+                },
+                icon: Icon(
+                  Icons.menu,
+                )),
+          ),
+          iconTheme: Theme.of(context).iconTheme,
+          backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         ),
-        leading: CustomShowcaseWidget(
-          globalKey: _one,
-          description: 'Open Menu',
-          child: IconButton(
-              onPressed: () {
-                _key.currentState!.openDrawer();
-              },
-              icon: Icon(
-                Icons.menu,
-              )),
-        ),
-        iconTheme: Theme.of(context).iconTheme,
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-      ),
-      backgroundColor: Theme.of(context).cardColor,
-      body: StreamBuilder<dynamic>(
-        // future: backEnd().fetchDomains(boardId),
-        stream: _domainStream.stream,
-        builder: (context, snapshot) {
-          if (snapshot.data == null) {
-            return Center(
-              child: Text(
-                'No Data Found',
-                style: Theme.of(context).textTheme.headline4,
-              ),
-            );
-          } else if (snapshot.hasData) {
-            List snap = snapshot.data;
-            if (!updated) {
-              // Merging Static data with api requested data
-              snap.addAll([
-                {'id': 'static', 'domain': 'Schedule'},
-                {'id': 'static', 'domain': 'Todo List'},
-              ]);
-              updated = true;
-            }
-            return GridView.builder(
-              // physics: NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: snapshot.data.length,
-              gridDelegate:
-                  SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
-                crossAxisCount: 2,
-                crossAxisSpacing: 2.0,
-                mainAxisSpacing: 2.0,
-              ),
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: HomePageButton(
-                    label: snap[index]['domain'],
-                    iconFileName: returnfileName(snap[index]['domain']),
-                    routeToBePushedWhenTapped: 'ignorethisline',
-                    domainId: snap[index]['id'],
-                  ),
-                );
-              },
-            );
-          }
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      ),
-    );
+        backgroundColor: Theme.of(context).cardColor,
+        body: StreamBuilder<dynamic>(
+            // future: backEnd().fetchDomains(boardId),
+            stream: _domainStream.stream,
+            builder: (context, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.waiting:
+                  return Center(child: CircularProgressIndicator());
+                default:
+                  if (snapshot.data == 'NetworkError') {
+                    return Text('No Internet Connection');
+                  } else if (snapshot.data == null) {
+                    return Center(
+                      child: Text(
+                        'No Data Found',
+                        style: Theme.of(context).textTheme.headline4,
+                      ),
+                    );
+                  } else if (snapshot.hasData) {
+                    List snap = snapshot.data;
+                    if (!updated) {
+                      // Merging Static data with api requested data
+                      snap.addAll([
+                        {'id': 'static', 'domain': 'Schedule'},
+                        {'id': 'static', 'domain': 'Todo List'},
+                      ]);
+                      updated = true;
+                    }
+                    return GridView.builder(
+                      // physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: snapshot.data.length,
+                      gridDelegate:
+                          SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 2.0,
+                        mainAxisSpacing: 2.0,
+                      ),
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: HomePageButton(
+                            label: snap[index]['domain'],
+                            iconFileName: returnfileName(snap[index]['domain']),
+                            routeToBePushedWhenTapped: 'ignorethisline',
+                            domainId: snap[index]['id'],
+                          ),
+                        );
+                      },
+                    );
+                  }
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+              }
+            }));
   }
 
   String returnfileName(name) {
@@ -381,36 +437,4 @@ class _HomePageButtonState extends State<HomePageButton> {
         break;
     }
   }
-}
-
-class CustomShowcaseWidget extends StatelessWidget {
-  final Widget child;
-  final String description;
-  final GlobalKey globalKey;
-
-  const CustomShowcaseWidget({
-    required this.description,
-    required this.child,
-    required this.globalKey,
-  });
-
-  @override
-  Widget build(BuildContext context) => Showcase(
-        key: globalKey,
-        // showcaseBackgroundColor: Colors.pink.shade400,
-        // contentPadding: EdgeInsets.all(12),
-        showArrow: false,
-        // disableAnimation: true,
-        // title: 'Hello',
-        // titleTextStyle: TextStyle(color: Colors.white, fontSize: 32),
-        description: description,
-        descTextStyle: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
-        ),
-        // overlayColor: Colors.white,
-        // overlayOpacity: 0.7,
-        child: child,
-      );
 }

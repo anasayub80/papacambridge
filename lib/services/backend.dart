@@ -17,6 +17,7 @@ const searchSubjectApi =
     'https://pastpapers.papacambridge.com/api/api.php?page=search';
 const levelApi =
     'https://pastpapers.papacambridge.com/api/api.php?page=inner_file';
+const caeiAPI = 'https://api.papacambridge.com/api-caie.php';
 // const subjectApi =
 //     'https://papacambridge.redrhinoz.com/api.php?page=inner_file';
 
@@ -113,48 +114,6 @@ class backEnd {
       } else {
         print('Something Wrong');
       }
-    }
-  }
-
-  String fileLogoAssets(String url) {
-    if (url == '') {
-      return 'assets/icons/folder.png';
-    } else if (url.contains('.pdf')) {
-      return 'assets/icons/pdf.png';
-    } else if (url.contains('.doc')) {
-      return 'assets/icons/doc.png';
-    } else if (url.contains('.ppt')) {
-      return 'assets/icons/ppt.png';
-    } else if (url.contains('.mp3')) {
-      return 'assets/icons/mp3.png';
-    } else if (url.contains('.mp4')) {
-      return 'assets/icons/mp4.png';
-    } else if (url.contains('.zip')) {
-      return 'assets/icons/zip.png';
-    } else if (url.contains('.txt')) {
-      return 'assets/icons/txt-file.png';
-    } else if (url.contains('.xlsx')) {
-      return 'assets/icons/xlsx.png';
-    } else {
-      return 'assets/icons/file.png';
-    }
-  }
-
-  bool heartFilter(var url) {
-    // this is created for stop heart show in file
-    if (url == '') {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  bool pdfFilter(var url) {
-    // this is created for stop heart show in file
-    if (url.contains('.pdf')) {
-      return true;
-    } else {
-      return false;
     }
   }
 }

@@ -56,44 +56,6 @@ class Studento extends StatefulWidget {
 }
 
 class _StudentoState extends State<Studento> {
-  // bool isSetupComplete;
-  // firebase removed
-  // static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  // final FirebaseAnalyticsObserver observer =
-  //     FirebaseAnalyticsObserver(analytics: analytics);
-  // firebase removed
-
-  // bool timeUp = false;
-  // void checkifSetupComplete() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   int timesUpStamp = DateTime.now().millisecondsSinceEpoch;
-  //   if (timesUpStamp > 1617993701458) {
-  //     setState(() {
-  //       timeUp = true;
-  //       isSetupComplete = false;
-  //     });
-  //   } else if (prefs.containsKey('setup')) {
-  //     bool value = prefs.getBool('setup');
-  //     setState(() {
-  //       if (value) {
-  //         isSetupComplete = true;
-  //       } else {
-  //         isSetupComplete = false;
-  //       }
-  //     });
-  //   } else {
-  //     setState(() {
-  //       isSetupComplete = false;
-  //     });
-  //   }
-
-  //   // var box = Hive.box<UserData>('userData');
-  //   // UserData userData =
-  //   //     box.get(0, defaultValue: UserData(false, null, [], isPro: false));
-  //   // userData.isInBox ? userData.save() : box.put(0, userData);
-  //   // isSetupComplete = userData.isSetupComplete;
-  // }
-
   @override
   void initState() {
     // checkifSetupComplete();
@@ -128,11 +90,7 @@ class _StudentoState extends State<Studento> {
           darkTheme: MyTheme().darkTheme,
           color: Colors.red,
           home: ShowCaseWidget(
-              builder: Builder(builder: (context) => SplashPage())
-              // Builder(builder: (context) {
-              //   return SplashPage();
-              // }),
-              ),
+              builder: Builder(builder: (context) => SplashPage())),
           // home: TestPage(),
           routes: routes,
           debugShowCheckedModeBanner: false,
