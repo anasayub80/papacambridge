@@ -88,12 +88,7 @@ class _MultiPaperViewState extends State<MultiPaperView> {
     print("File name 2${widget.fileName2} & ${widget.url2}");
     _fileName1 = prettifySubjectName(widget.fileName1);
     _fileName2 = prettifySubjectName(widget.fileName2);
-    // Future.delayed(
-    //   Duration.zero,
-    //   () {
-    //     showMyDialog();
-    //   },
-    // );
+
     int randomNumber = random.nextInt(5);
     switch (randomNumber) {
       case 2:
@@ -231,13 +226,11 @@ class _MultiPaperViewState extends State<MultiPaperView> {
 
   /// Check if papers are already downloaded, and download if not.
   void initPapers() async {
-    // ignore: no_leading_underscores_for_local_identifiers
     var _path1 = await PdfHelper.getFilePath(_fileName1);
-    var path2 = await PdfHelper.getFilePath(_fileName2);
-    setState(() => filePath1 = _path1);
-    setState(() => filePath2 = path2);
-    print('ppppppppppppppppppppppppppppp');
-    print(_path1);
+    var _path2 = await PdfHelper.getFilePath(_fileName2);
+    setState(() => {filePath1 = _path1, filePath2 = _path2});
+
+    print("$_path1 & $_path2");
     isFileAlreadyDownloaded1 = await PdfHelper.checkIfDownloaded(_fileName1);
     isFileAlreadyDownloaded2 = await PdfHelper.checkIfDownloaded(_fileName2);
     if (isFileAlreadyDownloaded1 && isFileAlreadyDownloaded2) {
@@ -256,7 +249,7 @@ class _MultiPaperViewState extends State<MultiPaperView> {
     } else {
       var isConnected = await PdfHelper.checkIfConnected();
       if (isConnected) {
-        await downloadFile(filePath1!);
+        await downloadFile(filePath1!, filePath2!);
       } else {
         // ignore: use_build_context_synchronously
         PdfHelper.handleNoConnection(context);
@@ -271,10 +264,7 @@ class _MultiPaperViewState extends State<MultiPaperView> {
     // for (var url in widget.url1) {
     p++;
     setState(() => progress = "$p%");
-    // if (!isQP) {
-    // url = url.replaceFirst("_qp_", "_ms_");
-    // log('my invalid url checker $url');
-    // }
+
     try {
       await dio.head(widget.url1);
       await dio.head(widget.url2);
@@ -283,19 +273,11 @@ class _MultiPaperViewState extends State<MultiPaperView> {
       debugPrint('Invalid url ${e.toString()}');
     }
 
-    // if (response.statusCode == 200 &&
-    //     response.headers.value(Headers.contentTypeHeader) ==
-    //         "application/pdf") {
-    //   setState(() => (isQP) ? urlInUse = url : msUrlInUse = url);
-    //   return true;
-    // }
-    // }
-
     return false;
   }
 
-  Future<void> downloadFile(String filePath) async {
-    setState(() => downloading1 = true);
+  Future<void> downloadFile(String filePath1, String filePath2) async {
+    setState(() => {downloading1 = true, downloading2 = true});
     Dio dio = Dio(PdfHelper.pdfDownloadOpt);
     if (urlInUse == null || msUrlInUse == null) {
       // if (isQP && urlInUse == null || !isQP && msUrlInUse == null) {
@@ -309,7 +291,7 @@ class _MultiPaperViewState extends State<MultiPaperView> {
     await dio.download(
       // (isQP) ? urlInUse! : msUrlInUse!,
       widget.url1,
-      filePath,
+      filePath1,
       onReceiveProgress: (received, total) {
         var percentage = ((received / total) * 100);
         setState(() {
@@ -327,7 +309,7 @@ class _MultiPaperViewState extends State<MultiPaperView> {
     await dio.download(
       // (isQP) ? urlInUse! : msUrlInUse!,
       widget.url2,
-      filePath,
+      filePath2,
       onReceiveProgress: (received, total) {
         var percentage = ((received / total) * 100);
         setState(() {

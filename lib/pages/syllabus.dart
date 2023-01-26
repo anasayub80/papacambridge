@@ -11,6 +11,7 @@ import 'package:studento/UI/studento_app_bar.dart';
 import 'package:studento/model/MainFolder.dart';
 import 'package:studento/UI/loading_indicator.dart';
 import 'package:studento/UI/show_message_dialog.dart';
+import 'package:studento/pages/searchPage.dart';
 import 'package:studento/utils/pdf_helper.dart';
 import '../UI/mainFilesList.dart';
 import '../services/backend.dart';
@@ -33,6 +34,20 @@ class _SyllabusPageState extends State<SyllabusPage> {
         appBar: StudentoAppBar(
           title: "Syllabus",
           context: context,
+          actions: [
+            IconButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return SearchPage(
+                        domainId: widget.domainId,
+                        domainName: "Syllabus",
+                      );
+                    },
+                  ));
+                },
+                icon: Icon(Icons.search))
+          ],
         ),
         body: mainFilesList(domainId: widget.domainId, title: 'Syllabus'));
   }

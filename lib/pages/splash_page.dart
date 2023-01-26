@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:studento/model/subject.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:studento/model/user_data.dart';
+import 'package:studento/pages/setup.dart';
 import '../utils/theme_provider.dart';
 import 'home_page.dart';
 import 'intro.dart';
@@ -21,13 +23,7 @@ class _SplashPageState extends State<SplashPage> {
   bool timeUp = false;
   void checkifSetupComplete() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // int timesUpStamp = DateTime.now().millisecondsSinceEpoch;
-    // if (timesUpStamp > 1617993701458) {
-    //   setState(() {
-    //     timeUp = true;
-    //     isSetupComplete = false;
-    //   });
-    // } else
+
     if (prefs.containsKey('setup')) {
       bool? value = prefs.getBool('setup');
       setState(() {
@@ -42,21 +38,21 @@ class _SplashPageState extends State<SplashPage> {
         isSetupComplete = false;
       });
     }
+
     Future.delayed(
       Duration(seconds: 3),
       () {
         Navigator.pushReplacement(context, MaterialPageRoute(
           builder: (context) {
-            return isSetupComplete! ? HomePage() : IntroPage();
+            return isSetupComplete!
+                ? HomePage()
+                : kIsWeb
+                    ? Setup()
+                    : IntroPage();
           },
         ));
       },
     );
-    // var box = Hive.box<UserData>('userData');
-    // UserData userData =
-    //     box.get(0, defaultValue: UserData(false, null, [], isPro: false));
-    // userData.isInBox ? userData.save() : box.put(0, userData);
-    // isSetupComplete = userData.isSetupComplete;
   }
 
   @override

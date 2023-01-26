@@ -8,35 +8,56 @@ import 'package:provider/provider.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:studento/pages/home_page.dart';
 import 'package:studento/pages/multiPaperView.dart';
 import 'package:studento/pages/past_paper_view.dart';
+import 'package:studento/pages/webpdfView.dart';
 import 'package:studento/provider/multiViewhelper.dart';
 import 'package:studento/services/backend.dart';
 import 'package:studento/utils/bannerAdmob.dart';
+import 'package:studento/utils/constant.dart';
 import 'package:studento/utils/funHelper.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../UI/show_case_widget.dart';
 import '../UI/studento_app_bar.dart';
 import '../model/MainFolder.dart';
 import '../services/bread_crumb_navigation.dart';
 import '../utils/pdf_helper.dart';
 import 'other_fileView.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class innerfileScreen extends StatefulWidget {
   final inner_file;
   final title;
+  bool iscomeFromMainFiles;
+  static const isShowCaseLaunch = "isShowCaseLaunchinnerScreen";
 
-  const innerfileScreen({
+  innerfileScreen({
     super.key,
     required this.inner_file,
     required this.title,
+    required this.iscomeFromMainFiles,
   });
-  static MaterialPageRoute getRoute(String name, innerfile, title) =>
+  static MaterialPageRoute getRoute(
+          String name, innerfile, title, bool iscomeFromMainFiles) =>
       MaterialPageRoute(
           settings: RouteSettings(name: name),
-          builder: (context) => innerfileScreen(
-                inner_file: innerfile,
-                title: title,
-              ));
+          builder: (context) => (iscomeFromMainFiles || !kIsWeb)
+              ? ShowCaseWidget(
+                  builder: Builder(builder: (context) {
+                    return innerfileScreen(
+                      inner_file: innerfile,
+                      title: title,
+                      iscomeFromMainFiles: iscomeFromMainFiles,
+                    );
+                  }),
+                )
+              : innerfileScreen(
+                  inner_file: innerfile,
+                  iscomeFromMainFiles: iscomeFromMainFiles,
+                  title: title,
+                ));
   @override
   State<innerfileScreen> createState() => _innerfileScreenState();
 }
@@ -56,6 +77,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
   @override
   void initState() {
     super.initState();
+
     getStoredData();
   }
 
@@ -65,9 +87,9 @@ class _innerfileScreenState extends State<innerfileScreen> {
 
   @override
   void dispose() {
-    favItem = [];
-    favItemName = [];
-    allItem = [];
+    favItem.clear();
+    favItemName.clear();
+    allItem.clear();
     super.dispose();
   }
 
@@ -161,8 +183,22 @@ class _innerfileScreenState extends State<innerfileScreen> {
     }
 
     _streamController.add('event');
+    if (widget.iscomeFromMainFiles || !kIsWeb) {
+      Future.delayed(
+        Duration(milliseconds: 500),
+        () {
+          _isFirstLaunch().then((result) {
+            if (!result)
+              ShowCaseWidget.of(context)
+                  .startShowCase([searchLogoKey, favLogoKey]);
+          });
+        },
+      );
+    }
   }
 
+  GlobalKey favLogoKey = GlobalKey();
+  GlobalKey searchLogoKey = GlobalKey();
   List<MainFolder>? dataL;
   void initData() async {
     _streamController.add('loading');
@@ -190,18 +226,40 @@ class _innerfileScreenState extends State<innerfileScreen> {
   List multiItemurl = [];
   List multiItemname = [];
   List selectedList = [];
+  Future<bool> _isFirstLaunch() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    bool isFirstLaunch =
+        sharedPreferences.getBool(innerfileScreen.isShowCaseLaunch) ?? false;
+
+    if (!isFirstLaunch)
+      sharedPreferences.setBool(innerfileScreen.isShowCaseLaunch, true);
+    return isFirstLaunch;
+  }
+
   @override
   Widget build(BuildContext context) {
     final multiProvider = Provider.of<multiViewProvider>(context, listen: true);
     void openPaper(String url, fileName) async {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => PastPaperView([
-            url,
-          ], fileName, boardId, false),
-        ),
-      );
+      if (kIsWeb) {
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (_) => WebViewExample(
+        //       url: url,
+        //     ),
+        //   ),
+        // );
+        launchUrl(Uri.parse(url));
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PastPaperView([
+              url,
+            ], fileName, boardId, false),
+          ),
+        );
+      }
     }
 
     void openMultiPaperView() async {
@@ -289,12 +347,11 @@ class _innerfileScreenState extends State<innerfileScreen> {
                 SizedBox(
                   height: 10,
                 ),
-                // ignore: iterable_contains_unrelated_type
                 BreadCrumbNavigator(),
                 SizedBox(
                   height: 10,
                 ),
-                allItem.length >= 2
+                (allItem.length >= 2 || !kIsWeb)
                     ? Column(
                         children: [
                           SizedBox(
@@ -331,32 +388,21 @@ class _innerfileScreenState extends State<innerfileScreen> {
                                             : Colors.white),
                                   ),
                                 ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    multiProvider.setMultiViewTrue();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        multiProvider.multiView == false
-                                            ? Colors.transparent
-                                            : Color(0xff6C63FF),
-                                    side: BorderSide(
-                                        color: multiProvider.multiView == true
-                                            ? Colors.transparent
-                                            : Theme.of(context)
-                                                .unselectedWidgetColor),
-                                  ),
-                                  child: Text(
-                                    'Multi View',
-                                    style: TextStyle(
-                                        color: multiProvider.multiView == false
-                                            ? Theme.of(context)
-                                                .textTheme
-                                                .bodyText1!
-                                                .color
-                                            : Colors.white),
-                                  ),
-                                ),
+                                (widget.iscomeFromMainFiles || !kIsWeb)
+                                    ? CustomShowcaseWidget(
+                                        globalKey: searchLogoKey,
+                                        description:
+                                            "View Paper's in MultiView Screen",
+                                        title: 'MultiView',
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8.0),
+                                          child: MultiViewButton(
+                                              multiProvider: multiProvider),
+                                        ),
+                                      )
+                                    : MultiViewButton(
+                                        multiProvider: multiProvider),
                               ],
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             ),
@@ -383,6 +429,8 @@ class _innerfileScreenState extends State<innerfileScreen> {
                                   return innerfileScreen(
                                     inner_file: favItem[i],
                                     title: widget.title,
+                                    iscomeFromMainFiles:
+                                        widget.iscomeFromMainFiles,
                                   );
                                 },
                               ));
@@ -482,8 +530,10 @@ class _innerfileScreenState extends State<innerfileScreen> {
       onTap: () {
         if (urlPdf == "" || urlPdf == 'null') {
           debugPrint('newScreen');
-          Navigator.push(context,
-              innerfileScreen.getRoute(name, allItem[index].id, widget.title));
+          Navigator.push(
+              context,
+              innerfileScreen.getRoute(
+                  name, allItem[index].id, widget.title, false));
         } else {
           if (funHelper().pdfFilter(urlPdf)) {
             if (multiProvider.multiView == true && allItem.length >= 2) {
@@ -492,7 +542,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
                 multiItemname.remove(allItem[index].name);
                 selectedList[index] = false;
                 setState(() {});
-              } else {
+              } else if (multiItemurl.length != 2) {
                 multiItemurl.add(
                   urlPdf,
                 );
@@ -504,23 +554,30 @@ class _innerfileScreenState extends State<innerfileScreen> {
                 if (multiItemurl.length >= 2) {
                   openMultiPaperView();
                 }
+              } else {
+                BotToast.showText(
+                    text: 'Only Two Paper Supported in MultiView');
               }
             } else {
               openPaper(urlPdf, name.replaceFirst(" ", " \n"));
             }
           } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => OtherFilesViewPage(
-                  [
-                    urlPdf,
-                  ],
-                  prettifySubjectName(name),
-                  allItem[index].id.toString().replaceFirst(" ", " \n"),
+            if (kIsWeb) {
+              launchUrl(Uri.parse(url));
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => OtherFilesViewPage(
+                    [
+                      urlPdf,
+                    ],
+                    prettifySubjectName(name),
+                    allItem[index].id.toString().replaceFirst(" ", " \n"),
+                  ),
                 ),
-              ),
-            );
+              );
+            }
           }
         }
       },
@@ -532,19 +589,21 @@ class _innerfileScreenState extends State<innerfileScreen> {
         print(urlPdf);
       },
       trailing: funHelper().heartFilter(urlPdf.toString()) == true
-          ? IconButton(
-              onPressed: (() {
-                addtoFav(
-                  index,
-                  allItem[index].id,
-                  name,
-                );
-              }),
-              icon: Icon(
-                Icons.favorite_border,
-                color: Theme.of(context).textTheme.bodyText1!.color,
-              ),
-            )
+          ? (widget.iscomeFromMainFiles == true || !kIsWeb)
+              ? index == 0
+                  ? SizedBox(
+                      width: 50,
+                      height: 50,
+                      child: CustomShowcaseWidget(
+                        globalKey: favLogoKey,
+                        description:
+                            'You can save your favorite subject at top',
+                        title: 'Favourite',
+                        child: favButton(addtoFav, index, name, context),
+                      ),
+                    )
+                  : favButton(addtoFav, index, name, context)
+              : favButton(addtoFav, index, name, context)
           : selectedList[index] == true
               ? Icon(
                   Icons.check,
@@ -557,6 +616,60 @@ class _innerfileScreenState extends State<innerfileScreen> {
           fontWeight: FontWeight.w600,
           fontSize: 16,
         ),
+      ),
+    );
+  }
+
+  IconButton favButton(
+      Future<void> Function(dynamic index, String id, String name) addtoFav,
+      int index,
+      String name,
+      BuildContext context) {
+    return IconButton(
+      onPressed: (() {
+        addtoFav(
+          index,
+          allItem[index].id,
+          name,
+        );
+      }),
+      icon: Icon(
+        Icons.favorite_border,
+        color: Theme.of(context).textTheme.bodyText1!.color,
+      ),
+    );
+  }
+}
+
+class MultiViewButton extends StatelessWidget {
+  const MultiViewButton({
+    Key? key,
+    required this.multiProvider,
+  }) : super(key: key);
+
+  final multiViewProvider multiProvider;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        multiProvider.setMultiViewTrue();
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: multiProvider.multiView == false
+            ? Colors.transparent
+            : Color(0xff6C63FF),
+        side: BorderSide(
+            color: multiProvider.multiView == true
+                ? Colors.transparent
+                : Theme.of(context).unselectedWidgetColor),
+      ),
+      child: Text(
+        'Multi View',
+        style: TextStyle(
+            color: multiProvider.multiView == false
+                ? Theme.of(context).textTheme.bodyText1!.color
+                : Colors.white),
       ),
     );
   }

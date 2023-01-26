@@ -27,7 +27,7 @@ import 'syllabus.dart';
 var boardId;
 
 class HomePage extends StatefulWidget {
-  static const ishomelaunch = "ishomelaunch";
+  static const ishomelaunch = "ishomeshowcaselaunch";
   @override
   // ignore: library_private_types_in_public_api
   _HomePageState createState() => _HomePageState();
@@ -40,34 +40,16 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
     if (isLuckyDay) showRatingDialog();
   }
 
-  GlobalKey _one = GlobalKey();
-  GlobalKey _two = GlobalKey();
-
   StreamController _domainStream = StreamController();
 
   @override
   void initState() {
     Future.delayed(
       Duration.zero,
-      () {
-        WidgetsBinding.instance.addPostFrameCallback(
-          (_) => _isFirstLaunch().then((result) {
-            if (!result) ShowCaseWidget.of(context).startShowCase([_one, _two]);
-          }),
-        );
-      },
+      () {},
     );
     super.initState();
     getDomains();
-  }
-
-  Future<bool> _isFirstLaunch() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    bool isFirstLaunch =
-        sharedPreferences.getBool(HomePage.ishomelaunch) ?? true;
-
-    if (isFirstLaunch) sharedPreferences.setBool(HomePage.ishomelaunch, false);
-    return isFirstLaunch;
   }
 
   getDomains() async {
@@ -131,39 +113,22 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
         appBar: AppBar(
           title: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Showcase(
-              key: _one,
-              description: 'this is a side menu',
-              title: 'Side Menu',
-              titleTextStyle: TextStyle(color: Colors.green, fontSize: 16),
-              child: Image.asset(
-                themeProvider.currentTheme == ThemeMode.light
-                    ? 'assets/icons/logo.png'
-                    : 'assets/icons/Darklogo.png',
-                height: 50,
-                width: 200,
-                fit: BoxFit.contain,
-              ),
+            child: Image.asset(
+              themeProvider.currentTheme == ThemeMode.light
+                  ? 'assets/icons/logo.png'
+                  : 'assets/icons/Darklogo.png',
+              height: 50,
+              width: 200,
+              fit: BoxFit.contain,
             ),
           ),
-          leading: Showcase(
-            key: _two,
-            description: 'this is a side menu',
-            title: 'Side Menu',
-            titleTextStyle: TextStyle(color: Colors.white, fontSize: 32),
-            descTextStyle: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-            child: IconButton(
-                onPressed: () {
-                  _key.currentState!.openDrawer();
-                },
-                icon: Icon(
-                  Icons.menu,
-                )),
-          ),
+          leading: IconButton(
+              onPressed: () {
+                _key.currentState!.openDrawer();
+              },
+              icon: Icon(
+                Icons.menu,
+              )),
           iconTheme: Theme.of(context).iconTheme,
           backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         ),
@@ -363,7 +328,9 @@ class _HomePageButtonState extends State<HomePageButton> {
         if (boardId != '1') {
           Navigator.push(context, MaterialPageRoute(
             builder: (context) {
-              return PastPapersPage(domainId: domaindId);
+              return PastPapersPage(
+                domainId: domaindId,
+              );
             },
           ));
         } else {

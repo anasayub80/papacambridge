@@ -1,8 +1,12 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
+import 'package:bot_toast/bot_toast.dart';
+import 'package:fullscreen/fullscreen.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:studento/UI/error_report_dialog.dart';
 import 'package:studento/UI/show_message_dialog.dart';
 import 'package:studento/utils/ads_helper.dart';
@@ -87,10 +91,18 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
         createInterstitialAd();
         break;
       default:
+        if (Platform.isAndroid) {
+          platform = TargetPlatform.android;
+        } else {
+          platform = TargetPlatform.iOS;
+        }
+        checkFileDownloaded();
     }
 
     // loadDocs();
   }
+
+  bool isFullScreen = false;
 
   // hello.PDFDocument document;
   // loadDocs() async {
@@ -99,6 +111,48 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
   // }
   int? QPcurrentPage = 0;
   int? MScurrentPage = 0;
+  bool isDownloaded = false;
+  void checkFileDownloaded() async {
+    // ignore: no_leading_underscores_for_local_identifiers
+    var _path = await PdfHelper.getexternalFilePath(_fileName);
+    isFileAlreadyDownloaded =
+        await PdfHelper.checkIfDownloadedButton(_fileName);
+    if (isFileAlreadyDownloaded) {
+      Future.delayed(
+        Duration(milliseconds: 500),
+        () {
+          if (mounted) {
+            setState(() => isDownloaded = true);
+          }
+        },
+      );
+    } else {
+      print('not exist $_path');
+    }
+  }
+
+  late String _localPath;
+  late TargetPlatform? platform;
+
+  /// Check if papers are already downloaded, and download if not.
+  Future<void> _prepareSaveDir() async {
+    _localPath = (await _findLocalPath())!;
+    print(_localPath);
+    final savedDir = Directory(_localPath);
+    bool hasExisted = await savedDir.exists();
+    if (!hasExisted) {
+      savedDir.create();
+    }
+  }
+
+  Future<String?> _findLocalPath() async {
+    if (platform == TargetPlatform.android) {
+      return "/storage/emulated/0/Download";
+    } else {
+      var directory = await getApplicationDocumentsDirectory();
+      return '${directory.path}${Platform.pathSeparator}Download';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,49 +160,79 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
       //&& _isPro != null
       return Scaffold(
         key: _scaffoldKey,
-        appBar: StudentoAppBar(
-          context: context,
-          centerTitle: false,
-          title: (widget.isOthers)
-              ? widget.fileName
-              : (isQP)
-                  ? widget.fileName
-                  : "Marking Scheme",
-          isFile: true,
-          actions: <Widget>[
-            widget.boarId == '1'
-                ? widget.ispastPaper == true
-                    ? widget.isOthers == true
-                        ? SizedBox.shrink()
-                        : Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                shape: StadiumBorder(),
-                              ),
-                              icon: Icon(
-                                Icons.swap_horiz,
-                                color: Colors.white,
-                              ),
-                              label: Text(
-                                (isQP) ? "Open MS" : "Open QP",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              onPressed: () => switchToPaperOrMS(context),
-                            ),
-                          )
-                    : SizedBox.shrink()
-                : SizedBox.shrink(),
-            IconButton(
-              icon: Icon(Icons.share),
-              onPressed: () async {
-                // PdfHelper.shareFile(filePath!, "paper");
-                PdfHelper.shareFile(filePath!, "paper");
-              },
-            ),
-          ],
-        ),
+        appBar: isFullScreen
+            ? PreferredSize(
+                preferredSize: Size.fromHeight(0),
+                child: SizedBox.shrink(),
+              )
+            : StudentoAppBar(
+                context: context,
+                // centerTitle: false,
+                // title: (widget.isOthers)
+                //     ? widget.fileName
+                //     : (isQP)
+                //         ? widget.fileName
+                //         : "Marking Scheme",
+                isFile: true,
+                actions: <Widget>[
+                  widget.boarId == '1'
+                      ? widget.ispastPaper == true
+                          ? widget.isOthers == true
+                              ? SizedBox.shrink()
+                              : Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue,
+                                      shape: StadiumBorder(),
+                                    ),
+                                    icon: Icon(
+                                      Icons.swap_horiz,
+                                      color: Colors.white,
+                                    ),
+                                    label: Text(
+                                      (isQP) ? "Open MS" : "Open QP",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    onPressed: () => switchToPaperOrMS(context),
+                                  ),
+                                )
+                          : SizedBox.shrink()
+                      : SizedBox.shrink(),
+                  IconButton(
+                    icon: Icon(Icons.share),
+                    onPressed: () async {
+                      // PdfHelper.shareFile(filePath!, "paper");
+                      PdfHelper.shareFile(filePath!, "paper");
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.download,
+                      color: isDownloaded
+                          ? Colors.green
+                          : Theme.of(context).iconTheme.color,
+                    ),
+                    onPressed: () async {
+                      if (isDownloaded) {
+                        BotToast.showText(
+                            text: 'Already Downloaded!',
+                            contentColor: Colors.green);
+                      } else {
+                        BotToast.showText(
+                            text: 'Downloading Start!',
+                            contentColor: Colors.green);
+                        await _prepareSaveDir();
+                        var path =
+                            await PdfHelper.getexternalFilePath(_fileName);
+                        await downloadFile(path);
+                        BotToast.showText(
+                            text: 'Downloaded', contentColor: Colors.green);
+                      }
+                    },
+                  ),
+                ],
+              ),
         body: Stack(
           children: <Widget>[
             PDFView(
@@ -182,6 +266,27 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
               LoadingIndicator(progress, loadingText: "Loading: "),
           ],
         ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            if (isFullScreen) {
+              FullScreen.exitFullScreen();
+              setState(() {
+                isFullScreen = false;
+              });
+              debugPrint('exit fullScreen ${isFullScreen.toString()}');
+            } else {
+              FullScreen.enterFullScreen(FullScreenMode.EMERSIVE);
+              setState(() {
+                isFullScreen = true;
+              });
+              debugPrint('enter fullScreen ${isFullScreen.toString()}');
+            }
+          },
+          child: Icon(
+            isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen,
+            color: Theme.of(context).iconTheme.color,
+          ),
+        ),
       );
     }
 
@@ -194,6 +299,10 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
   @override
   void dispose() {
     _interstitialAd?.dispose();
+    if (isFullScreen) {
+      debugPrint('exist fullScreen');
+      FullScreen.exitFullScreen();
+    }
     super.dispose();
   }
 
@@ -206,10 +315,6 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
     print(_path);
     isFileAlreadyDownloaded = await PdfHelper.checkIfDownloaded(_fileName);
     if (isFileAlreadyDownloaded) {
-      // The setState is wrapped in a [Future.delayed] so as to give enough
-      // time for the pdf viewer to close. If this isn't done, the pdf viewer
-      // wouldn't close before the widget is rebuilt, and would get stuck
-      // on an infinite loading loop.
       Future.delayed(
         Duration(milliseconds: 500),
         () {
@@ -288,6 +393,7 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
         downloading = false;
         isLoaded = true;
       });
+      checkFileDownloaded();
     }
   }
 

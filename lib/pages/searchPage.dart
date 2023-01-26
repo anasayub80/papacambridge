@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:studento/pages/inner_files_screen.dart';
-
 import '../model/MainFolder.dart';
 import 'package:http/http.dart' as http;
-
 import '../services/backend.dart';
 
 // ignore: must_be_immutable
@@ -91,7 +88,8 @@ class _SearchPageState extends State<SearchPage> {
         actions: [
           IconButton(
               onPressed: () {
-                initSubjects();
+                if (_searchController.text.isNotEmpty &&
+                    _searchController.text.trim().isNotEmpty) initSubjects();
               },
               icon: Icon(Icons.search))
         ],
@@ -104,12 +102,12 @@ class _SearchPageState extends State<SearchPage> {
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Center(
                 child: Text(
                   'Search result will appear here!',
-                  style: Theme.of(context).textTheme.headline5,
+                  style: Theme.of(context).textTheme.headline6,
                 ),
               ),
             );
@@ -132,7 +130,7 @@ class _SearchPageState extends State<SearchPage> {
                     Navigator.push(
                         context,
                         innerfileScreen.getRoute(allItem[index].name!,
-                            allItem[index].id, "widget.title"));
+                            allItem[index].id, "widget.title", false));
                   },
                   leading: Padding(
                     padding: const EdgeInsets.all(8.0),

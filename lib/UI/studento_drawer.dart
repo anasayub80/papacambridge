@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import '../pages/setup.dart';
 import '../utils/newHelper.dart';
 import '../utils/theme_provider.dart';
@@ -15,6 +14,7 @@ String? encodeQueryParameters(Map<String, String> params) {
       .join('&');
 }
 
+// ignore: must_be_immutable
 class studentoDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -34,13 +34,6 @@ class studentoDrawer extends StatelessWidget {
           width: 75,
           fit: BoxFit.contain,
         ),
-        // Text(
-        //   "Created with 💖 ",
-        //   textAlign: TextAlign.center,
-        //   style: TextStyle(
-        //     fontSize: 12,
-        //   ),
-        // ),
       ),
     );
     // var currentTime = TimeOfDay.now();

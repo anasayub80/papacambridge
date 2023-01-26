@@ -42,6 +42,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_colorpicker: ^1.0.3
+  flutter_inappwebview: ^5.7.2+3
   flutter_launcher_icons: ^0.11.0
   flutter_markdown: ^0.6.12
   flutter_pdfview: ^1.2.5
@@ -73,6 +74,7 @@ dependencies:
   showcaseview: ^2.0.0+1
   sqflite: ^2.1.0+1
   url_launcher: ^6.1.7
+  webview_flutter_web: ^0.2.1
 
 dev_dependencies:
   auto_size_text: ^3.0.0

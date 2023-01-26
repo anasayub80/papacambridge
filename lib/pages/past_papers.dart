@@ -3,10 +3,14 @@ import 'dart:developer';
 
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:showcaseview/showcaseview.dart';
+import 'package:studento/UI/show_case_widget.dart';
 import 'package:studento/model/MainFolder.dart';
 import 'package:flutter/material.dart';
 import 'package:studento/pages/searchPage.dart';
-
+import 'package:studento/provider/loadigProvider.dart';
+import 'package:studento/utils/constant.dart';
+import 'package:provider/provider.dart';
 import '../UI/loading_page.dart';
 import '../UI/mainFilesList.dart';
 import '../CAIE/past_papers_details_select.dart';
@@ -43,12 +47,17 @@ class _PastPapersPageState extends State<PastPapersPage> {
                     },
                   ));
                 },
-                icon: Icon(Icons.search))
+                icon: Icon(Icons.search)),
           ],
         ),
-        body: mainFilesList(
-          domainId: widget.domainId,
-          title: 'Past Papers',
+        body: ShowCaseWidget(
+          builder: Builder(builder: (context) {
+            return mainFilesList(
+              domainId: widget.domainId,
+              title: 'Past Papers',
+              isPastPapers: true,
+            );
+          }),
         )
         //  SubjectsStaggeredListView(openPastPapersDetailsSelect),
         );

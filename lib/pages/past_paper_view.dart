@@ -109,39 +109,51 @@ class _PastPaperViewState extends State<PastPaperView> {
       //&& _isPro != null
       return Scaffold(
         key: _scaffoldKey,
-        appBar: StudentoAppBar(
-          context: context,
-          centerTitle: false,
-          isFile: true,
-          title: widget.fileName,
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.share),
-              onPressed: () async {
-                // PdfHelper.shareFile(filePath!, "paper");
-                PdfHelper.shareFile(filePath!, "paper");
-              },
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.download,
-                color: isDownloaded ? Colors.green : Colors.black,
+        appBar: isFullScreen
+            ? PreferredSize(
+                preferredSize: Size.fromHeight(0),
+                child: SizedBox.shrink(),
+              )
+            : StudentoAppBar(
+                context: context,
+                centerTitle: false,
+                isFile: true,
+                title: widget.fileName,
+                actions: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.share),
+                    onPressed: () async {
+                      // PdfHelper.shareFile(filePath!, "paper");
+                      PdfHelper.shareFile(filePath!, "paper");
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.download,
+                      color: isDownloaded
+                          ? Colors.green
+                          : Theme.of(context).iconTheme.color,
+                    ),
+                    onPressed: () async {
+                      if (isDownloaded) {
+                        BotToast.showText(
+                            text: 'Already Downloaded!',
+                            contentColor: Colors.green);
+                      } else {
+                        BotToast.showText(
+                            text: 'Downloading Start!',
+                            contentColor: Colors.green);
+                        await _prepareSaveDir();
+                        var path =
+                            await PdfHelper.getexternalFilePath(_fileName);
+                        await downloadFile(path);
+                        BotToast.showText(
+                            text: 'Downloaded', contentColor: Colors.green);
+                      }
+                    },
+                  ),
+                ],
               ),
-              onPressed: () async {
-                if (isDownloaded) {
-                  BotToast.showText(
-                      text: 'Already Downloaded!', contentColor: Colors.green);
-                } else {
-                  await _prepareSaveDir();
-                  var path = await PdfHelper.getexternalFilePath(_fileName);
-                  await downloadFile(path);
-                  BotToast.showText(
-                      text: 'Downloaded', contentColor: Colors.green);
-                }
-              },
-            ),
-          ],
-        ),
         body: Stack(
           children: <Widget>[
             PDFView(
@@ -172,18 +184,23 @@ class _PastPaperViewState extends State<PastPaperView> {
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             if (isFullScreen) {
-              await FullScreen.enterFullScreen(FullScreenMode.EMERSIVE_STICKY);
+              FullScreen.exitFullScreen();
               setState(() {
                 isFullScreen = false;
               });
+              debugPrint('exit fullScreen ${isFullScreen.toString()}');
             } else {
-              await FullScreen.exitFullScreen();
+              FullScreen.enterFullScreen(FullScreenMode.EMERSIVE);
               setState(() {
-                isFullScreen = false;
+                isFullScreen = true;
               });
+              debugPrint('enter fullScreen ${isFullScreen.toString()}');
             }
           },
-          child: Icon(isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen),
+          child: Icon(
+            isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen,
+            color: Theme.of(context).iconTheme.color,
+          ),
         ),
       );
     }
@@ -197,6 +214,10 @@ class _PastPaperViewState extends State<PastPaperView> {
   @override
   void dispose() {
     _interstitialAd?.dispose();
+    if (isFullScreen) {
+      debugPrint('exist fullScreen');
+      FullScreen.exitFullScreen();
+    }
     super.dispose();
   }
 
@@ -288,13 +309,6 @@ class _PastPaperViewState extends State<PastPaperView> {
       } catch (e) {
         debugPrint('Invalid url ${e.toString()}');
       }
-
-      // if (response.statusCode == 200 &&
-      //     response.headers.value(Headers.contentTypeHeader) ==
-      //         "application/pdf") {
-      //   setState(() => (isQP) ? urlInUse = url : msUrlInUse = url);
-      //   return true;
-      // }
     }
 
     return false;
@@ -339,24 +353,6 @@ class _PastPaperViewState extends State<PastPaperView> {
       checkFileDownloaded();
     }
   }
-
-  /// Depending on what's currently shown, switch to
-  /// the past paper/marking scheme view.
-  // void switchToPaperOrMS(BuildContext context) {
-  //   if (isQP) {
-  //     _fileName = _fileName.replaceFirst("qp_", "ms_");
-  //   } else {
-  //     _fileName = _fileName.replaceFirst("ms_", "qp_");
-  //   }
-
-  //   setState(() {
-  //     isQP = !isQP;
-  //     isLoaded = false;
-  //     isFileAlreadyDownloaded = false;
-  //     isRendered = false;
-  //     initPapers();
-  //   });
-  // }
 
   void handlePdfLoadError(String errorMsg) async {
     await showMessageDialog(

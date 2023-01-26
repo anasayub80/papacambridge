@@ -6,8 +6,11 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:showcaseview/showcaseview.dart';
+import 'package:studento/UI/show_case_widget.dart';
 import 'package:studento/pages/inner_files_screen.dart';
 import 'package:studento/services/backend.dart';
+import 'package:studento/utils/constant.dart';
 
 import '../model/MainFolder.dart';
 import 'package:http/http.dart' as http;
@@ -17,9 +20,15 @@ import '../utils/funHelper.dart';
 import '../utils/pdf_helper.dart';
 
 class mainFilesList extends StatefulWidget {
+  // static const isShowCaseLaunch = "isShowCaseLaunch";
+  bool? isPastPapers = false;
+  mainFilesList(
+      {super.key,
+      required this.domainId,
+      required this.title,
+      this.isPastPapers});
   final domainId;
   final title;
-  const mainFilesList({super.key, required this.domainId, required this.title});
 
   @override
   State<mainFilesList> createState() => _mainFilesListState();
@@ -37,6 +46,7 @@ class _mainFilesListState extends State<mainFilesList> {
     // ignore: todo
     // TODO: implement initState
     super.initState();
+
     getStoredData();
     int randomNumber = random.nextInt(5);
     switch (randomNumber) {
@@ -118,6 +128,16 @@ class _mainFilesListState extends State<mainFilesList> {
       }
     }
   }
+
+  // Future<bool> _isFirstLaunch() async {
+  //   final sharedPreferences = await SharedPreferences.getInstance();
+  //   bool isFirstLaunch =
+  //       sharedPreferences.getBool(mainFilesList.isShowCaseLaunch) ?? false;
+
+  //   if (!isFirstLaunch)
+  //     sharedPreferences.setBool(mainFilesList.isShowCaseLaunch, true);
+  //   return isFirstLaunch;
+  // }
 
   clearifyData(dynamic res, bool isLocal) async {
     allItem.clear();
@@ -236,7 +256,6 @@ class _mainFilesListState extends State<mainFilesList> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<dynamic>(
-      // future: backEnd().fetchMainFiles(domainId),
       stream: _streamController.stream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting ||
@@ -268,8 +287,8 @@ class _mainFilesListState extends State<mainFilesList> {
                             debugPrint('not syllabus');
                             Navigator.push(
                                 context,
-                                innerfileScreen.getRoute(
-                                    favItemName[i], favItem[i], widget.title));
+                                innerfileScreen.getRoute(favItemName[i],
+                                    favItem[i], widget.title, false));
                           },
                           leading: Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -302,20 +321,10 @@ class _mainFilesListState extends State<mainFilesList> {
                 itemBuilder: (context, index) {
                   return ListTile(
                     onTap: () {
-                      // if (widget.title != 'Syllabus') {
                       Navigator.push(
                           context,
                           innerfileScreen.getRoute(allItem[index].name!,
-                              allItem[index].id, widget.title));
-
-                      // Navigator.push(context, MaterialPageRoute(
-                      //   builder: (context) {
-                      //     return innerfileScreen(
-                      //       inner_file: allItem[index].id,
-                      //       title: widget.title,
-                      //     );
-                      //   },
-                      // ));
+                              allItem[index].id, widget.title, true));
                     },
                     leading: Padding(
                       padding: const EdgeInsets.all(8.0),
