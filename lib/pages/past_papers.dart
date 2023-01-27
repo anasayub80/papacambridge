@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:showcaseview/showcaseview.dart';
-import 'package:studento/UI/show_case_widget.dart';
+import 'package:studento/UI/web_appbar.dart';
 import 'package:studento/model/MainFolder.dart';
 import 'package:flutter/material.dart';
 import 'package:studento/pages/searchPage.dart';
-import 'package:studento/provider/loadigProvider.dart';
-import 'package:studento/utils/constant.dart';
 import 'package:provider/provider.dart';
 import '../UI/loading_page.dart';
 import '../UI/mainFilesList.dart';
@@ -18,6 +18,7 @@ import 'package:studento/UI/studento_app_bar.dart';
 import 'package:studento/CAIE/subjects_staggered_view.dart';
 
 import '../utils/ads_helper.dart';
+import '../utils/theme_provider.dart';
 
 // ignore: must_be_immutable
 class PastPapersPage extends StatefulWidget {
@@ -31,31 +32,36 @@ class PastPapersPage extends StatefulWidget {
 class _PastPapersPageState extends State<PastPapersPage> {
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeSettings>(context, listen: false);
+
     return Scaffold(
-        appBar: StudentoAppBar(
-          title: "Past Papers",
-          context: context,
-          actions: [
-            IconButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return SearchPage(
-                        domainId: widget.domainId,
-                        domainName: "Past Papers",
-                      );
-                    },
-                  ));
-                },
-                icon: Icon(Icons.search)),
-          ],
-        ),
+        appBar: kIsWeb
+            ? webAppBar(themeProvider, context)
+            : StudentoAppBar(
+                title: "Past Papers",
+                context: context,
+                actions: [
+                  IconButton(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return SearchPage(
+                              domainId: widget.domainId,
+                              domainName: "Past Papers",
+                            );
+                          },
+                        ));
+                      },
+                      icon: Icon(Icons.search)),
+                ],
+              ),
         body: ShowCaseWidget(
           builder: Builder(builder: (context) {
             return mainFilesList(
               domainId: widget.domainId,
               title: 'Past Papers',
               isPastPapers: true,
+              domainName: 'papers',
             );
           }),
         )
@@ -172,12 +178,11 @@ class _PastPapersPageCAIEState extends State<PastPapersPageCAIE> {
     if (_ad != null) {
       _ad!.dispose();
     }
-    // ignore: todo
-    // TODO: implement dispose
+
     super.dispose();
   }
 
-  StreamController _streamController = StreamController();
+  StreamController _streamController = BehaviorSubject();
   @override
   Widget build(BuildContext context) {
     return Scaffold(

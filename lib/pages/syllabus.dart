@@ -49,7 +49,11 @@ class _SyllabusPageState extends State<SyllabusPage> {
                 icon: Icon(Icons.search))
           ],
         ),
-        body: mainFilesList(domainId: widget.domainId, title: 'Syllabus'));
+        body: mainFilesList(
+          domainId: widget.domainId,
+          title: 'Syllabus',
+          domainName: 'syllabus',
+        ));
   }
 }
 

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:studento/UI/random_gradient.dart';
+import 'package:studento/responsive/responsive_layout.dart';
 
 Widget buildTopBackground(
         IconData icon, BuildContext context, topBackgroundDecoration) =>
@@ -101,20 +102,35 @@ class _SetupPageState extends State<SetupPage> {
     return Scaffold(
       floatingActionButton: buildNextButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          buildTopBackground(widget.leadIcon, context, topBackgroundDecoration),
-          buildPageCaption(widget.caption),
-          Expanded(
-            // flex: 2,
-            child: Container(
-              // color: Colors.red,
-              child: widget.body,
-            ),
-          ),
-        ],
+      body: ResponsiveLayout(
+        mobileBody: mobileBody(context),
+        webBody: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(width: MediaQuery.of(context).size.width * 0.20),
+            Expanded(child: mobileBody(context)),
+            SizedBox(width: MediaQuery.of(context).size.width * 0.20),
+          ],
+        ),
       ),
+    );
+  }
+
+  Column mobileBody(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        buildTopBackground(widget.leadIcon, context, topBackgroundDecoration),
+        buildPageCaption(widget.caption),
+        Expanded(
+          // flex: 2,
+          child: Container(
+            // color: Colors.red,
+            child: widget.body,
+          ),
+        ),
+      ],
     );
   }
 }

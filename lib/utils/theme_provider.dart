@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -66,7 +67,7 @@ class MyTheme {
     colorScheme: ColorScheme.dark(),
   );
   final lightTheme = ThemeData(
-    scaffoldBackgroundColor: Colors.white,
+    scaffoldBackgroundColor: kIsWeb ? Color(0xfff1f2f7) : Colors.white,
     fontFamily: 'Montserrat',
     iconTheme: IconThemeData(color: Colors.black87),
     brightness: Brightness.light,

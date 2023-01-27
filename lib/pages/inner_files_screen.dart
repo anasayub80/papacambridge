@@ -1,32 +1,36 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'package:go_router/go_router.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:studento/pages/home_page.dart';
 import 'package:studento/pages/multiPaperView.dart';
 import 'package:studento/pages/past_paper_view.dart';
-import 'package:studento/pages/webpdfView.dart';
 import 'package:studento/provider/multiViewhelper.dart';
+import 'package:studento/responsive/responsive_layout.dart';
 import 'package:studento/services/backend.dart';
 import 'package:studento/utils/bannerAdmob.dart';
-import 'package:studento/utils/constant.dart';
 import 'package:studento/utils/funHelper.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../UI/show_case_widget.dart';
 import '../UI/studento_app_bar.dart';
+import '../UI/web_appbar.dart';
 import '../model/MainFolder.dart';
 import '../services/bread_crumb_navigation.dart';
 import '../utils/pdf_helper.dart';
+import '../utils/sideAdsWidget.dart';
+import '../utils/theme_provider.dart';
 import 'other_fileView.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+// ignore: must_be_immutable
 class innerfileScreen extends StatefulWidget {
   final inner_file;
   final title;
@@ -43,7 +47,7 @@ class innerfileScreen extends StatefulWidget {
           String name, innerfile, title, bool iscomeFromMainFiles) =>
       MaterialPageRoute(
           settings: RouteSettings(name: name),
-          builder: (context) => (iscomeFromMainFiles || !kIsWeb)
+          builder: (context) => (iscomeFromMainFiles && kIsWeb == false)
               ? ShowCaseWidget(
                   builder: Builder(builder: (context) {
                     return innerfileScreen(
@@ -87,9 +91,9 @@ class _innerfileScreenState extends State<innerfileScreen> {
 
   @override
   void dispose() {
-    favItem.clear();
-    favItemName.clear();
-    allItem.clear();
+    // favItem.clear();
+    // favItemName.clear();
+    // allItem.clear();
     super.dispose();
   }
 
@@ -183,7 +187,8 @@ class _innerfileScreenState extends State<innerfileScreen> {
     }
 
     _streamController.add('event');
-    if (widget.iscomeFromMainFiles || !kIsWeb) {
+    // show showcase if platform is not web
+    if (widget.iscomeFromMainFiles && kIsWeb == false) {
       Future.delayed(
         Duration(milliseconds: 500),
         () {
@@ -215,7 +220,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
   List<MainFolder> allItem = [];
   List<String> favItemName = [];
   var url;
-  StreamController _streamController = StreamController();
+  StreamController _streamController = BehaviorSubject();
   addtoBlockList(id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     blockList = prefs.getStringList('blockList') ?? [];
@@ -241,14 +246,6 @@ class _innerfileScreenState extends State<innerfileScreen> {
     final multiProvider = Provider.of<multiViewProvider>(context, listen: true);
     void openPaper(String url, fileName) async {
       if (kIsWeb) {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (_) => WebViewExample(
-        //       url: url,
-        //     ),
-        //   ),
-        // );
         launchUrl(Uri.parse(url));
       } else {
         Navigator.push(
@@ -315,188 +312,20 @@ class _innerfileScreenState extends State<innerfileScreen> {
       getStoredData();
     }
 
+    final themeProvider = Provider.of<ThemeSettings>(context, listen: false);
+
     return Scaffold(
-      appBar: StudentoAppBar(
-        title: widget.title,
-        context: context,
-      ),
-      body: StreamBuilder<dynamic>(
-        stream: _streamController.stream,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting ||
-              snapshot.data == 'loading') {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.data == 'NetworkError') {
-            return Center(child: Text('No Internet Connection'));
-          } else if (allItem.isEmpty && favItem.isEmpty) {
-            addtoBlockList(widget.inner_file);
-            return Center(
-              child: Text(
-                'No Data Found',
-                style: Theme.of(context).textTheme.headline4,
-              ),
-            );
-          } else if (snapshot.hasData) {
-            if (multiItemurl.isEmpty)
-              selectedList = List.generate(
-                  favItem.length + allItem.length, (index) => false);
-            return ListView(
-              children: [
-                SizedBox(
-                  height: 10,
-                ),
-                BreadCrumbNavigator(),
-                SizedBox(
-                  height: 10,
-                ),
-                (allItem.length >= 2 || !kIsWeb)
-                    ? Column(
-                        children: [
-                          SizedBox(
-                            child: Row(
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    multiProvider.setMultiViewFalse();
-                                    selectedList = List.generate(
-                                        favItem.length + allItem.length,
-                                        (index) => false);
-                                    multiItemname.clear();
-                                    multiItemurl.clear();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        multiProvider.multiView == true
-                                            ? Colors.transparent
-                                            : Color(0xff6C63FF),
-                                    side: BorderSide(
-                                        color: multiProvider.multiView == false
-                                            ? Colors.transparent
-                                            : Theme.of(context)
-                                                .unselectedWidgetColor),
-                                  ),
-                                  child: Text(
-                                    'Single View',
-                                    style: TextStyle(
-                                        color: multiProvider.multiView == true
-                                            ? Theme.of(context)
-                                                .textTheme
-                                                .bodyText1!
-                                                .color
-                                            : Colors.white),
-                                  ),
-                                ),
-                                (widget.iscomeFromMainFiles || !kIsWeb)
-                                    ? CustomShowcaseWidget(
-                                        globalKey: searchLogoKey,
-                                        description:
-                                            "View Paper's in MultiView Screen",
-                                        title: 'MultiView',
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0),
-                                          child: MultiViewButton(
-                                              multiProvider: multiProvider),
-                                        ),
-                                      )
-                                    : MultiViewButton(
-                                        multiProvider: multiProvider),
-                              ],
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            ),
-                            height: 48,
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                        ],
-                      )
-                    : SizedBox.shrink(),
-                favItem.isEmpty
-                    ? SizedBox.shrink()
-                    : ListView.builder(
-                        itemCount: favItem.length,
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, i) {
-                          return ListTile(
-                            onTap: () {
-                              log('not syllabus');
-                              Navigator.push(context, MaterialPageRoute(
-                                builder: (context) {
-                                  return innerfileScreen(
-                                    inner_file: favItem[i],
-                                    title: widget.title,
-                                    iscomeFromMainFiles:
-                                        widget.iscomeFromMainFiles,
-                                  );
-                                },
-                              ));
-                            },
-                            leading: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Image.asset('assets/icons/folder.png'),
-                            ),
-                            trailing: IconButton(
-                              onPressed: (() {
-                                removeFromFav(
-                                  i,
-                                  favItem[i],
-                                  favItemName[i],
-                                );
-                              }),
-                              icon: Icon(
-                                Icons.favorite,
-                                color: Colors.red,
-                              ),
-                            ),
-                            // subtitle: Text(allItem[i].id),
-                            title: Text(
-                              prettifySubjectName(favItemName[i]),
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                ListView.separated(
-                  itemCount: allItem.length,
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  separatorBuilder: (context, index) {
-                    if (index % 10 == 5 && index != 0)
-                      return BannerAdmob(
-                        size: AdSize.largeBanner,
-                      );
-
-                    return const SizedBox();
-                  },
-                  itemBuilder: (context, index) {
-                    return filesListTile(
-                        index,
-                        context,
-                        allItem[index].urlPdf!,
-                        allItem[index].id,
-                        allItem[index].name!,
-                        multiProvider,
-                        openMultiPaperView,
-                        openPaper,
-                        addtoFav);
-                  },
-                ),
-              ],
-            );
-
-            // }
-          }
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        },
+      appBar: kIsWeb
+          ? webAppBar(themeProvider, context)
+          : StudentoAppBar(
+              title: widget.title,
+              context: context,
+            ),
+      body: ResponsiveLayout(
+        mobileBody: mobileLayout(multiProvider, removeFromFav,
+            openMultiPaperView, openPaper, addtoFav),
+        webBody: webBody(context, multiProvider, removeFromFav,
+            openMultiPaperView, openPaper, addtoFav),
       ),
       bottomNavigationBar: allItem.length <= 5
           ? Container(
@@ -509,6 +338,235 @@ class _innerfileScreenState extends State<innerfileScreen> {
           : SizedBox(
               height: 0,
             ),
+    );
+  }
+
+  Row webBody(
+      BuildContext context,
+      multiViewProvider multiProvider,
+      Future<void> Function(dynamic index, dynamic id, dynamic name)
+          removeFromFav,
+      void Function() openMultiPaperView,
+      void Function(String url, dynamic fileName) openPaper,
+      Future<void> Function(dynamic index, String id, String name) addtoFav) {
+    return Row(
+      children: [
+        Expanded(
+            child: mobileLayout(multiProvider, removeFromFav,
+                openMultiPaperView, openPaper, addtoFav)),
+        // second column
+        SizedBox(
+            width: MediaQuery.of(context).size.width * 0.20,
+            height: 500,
+            child: sideAdsWidget())
+      ],
+    );
+  }
+
+  StreamBuilder<dynamic> mobileLayout(
+      multiViewProvider multiProvider,
+      Future<void> Function(dynamic index, dynamic id, dynamic name)
+          removeFromFav,
+      void Function() openMultiPaperView,
+      void Function(String url, dynamic fileName) openPaper,
+      Future<void> Function(dynamic index, String id, String name) addtoFav) {
+    return StreamBuilder<dynamic>(
+      stream: _streamController.stream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            snapshot.data == 'loading') {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.data == 'NetworkError') {
+          return Center(child: Text('No Internet Connection'));
+        } else if (allItem.isEmpty && favItem.isEmpty) {
+          addtoBlockList(widget.inner_file);
+          return Center(
+            child: Text(
+              'No Data Found',
+              style: Theme.of(context).textTheme.headline4,
+            ),
+          );
+        } else if (snapshot.hasData) {
+          if (multiItemurl.isEmpty)
+            selectedList = List.generate(
+                favItem.length + allItem.length, (index) => false);
+          return ListView(
+            children: [
+              SizedBox(
+                height: 10,
+              ),
+              kIsWeb
+                  ? ElevatedButton.icon(
+                      onPressed: () {
+                        GoRouter.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.pink,
+                        padding: EdgeInsets.all(8),
+                        maximumSize: Size(200, 50),
+                      ),
+                      icon: Icon(
+                        Icons.arrow_back_ios,
+                        color: Colors.white,
+                      ),
+                      label: Text(
+                        'Go Back',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ))
+                  : BreadCrumbNavigator(),
+              SizedBox(
+                height: 10,
+              ),
+              (allItem.length >= 2 && !kIsWeb)
+                  ? Column(
+                      children: [
+                        SizedBox(
+                          child: Row(
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  multiProvider.setMultiViewFalse();
+                                  selectedList = List.generate(
+                                      favItem.length + allItem.length,
+                                      (index) => false);
+                                  multiItemname.clear();
+                                  multiItemurl.clear();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      multiProvider.multiView == true
+                                          ? Colors.transparent
+                                          : Color(0xff6C63FF),
+                                  side: BorderSide(
+                                      color: multiProvider.multiView == false
+                                          ? Colors.transparent
+                                          : Theme.of(context)
+                                              .unselectedWidgetColor),
+                                ),
+                                child: Text(
+                                  'Single View',
+                                  style: TextStyle(
+                                      color: multiProvider.multiView == true
+                                          ? Theme.of(context)
+                                              .textTheme
+                                              .bodyText1!
+                                              .color
+                                          : Colors.white),
+                                ),
+                              ),
+                              (widget.iscomeFromMainFiles && !kIsWeb)
+                                  ? CustomShowcaseWidget(
+                                      globalKey: searchLogoKey,
+                                      description:
+                                          "View Paper's in MultiView Screen",
+                                      title: 'MultiView',
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0),
+                                        child: MultiViewButton(
+                                            multiProvider: multiProvider),
+                                      ),
+                                    )
+                                  : MultiViewButton(
+                                      multiProvider: multiProvider),
+                            ],
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          ),
+                          height: 48,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                      ],
+                    )
+                  : SizedBox.shrink(),
+              favItem.isEmpty
+                  ? SizedBox.shrink()
+                  : ListView.builder(
+                      itemCount: favItem.length,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, i) {
+                        return ListTile(
+                          onTap: () {
+                            log('not syllabus');
+                            Navigator.push(context, MaterialPageRoute(
+                              builder: (context) {
+                                return innerfileScreen(
+                                  inner_file: favItem[i],
+                                  title: widget.title,
+                                  iscomeFromMainFiles:
+                                      widget.iscomeFromMainFiles,
+                                );
+                              },
+                            ));
+                          },
+                          leading: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Image.asset('assets/icons/folder.png'),
+                          ),
+                          trailing: IconButton(
+                            onPressed: (() {
+                              removeFromFav(
+                                i,
+                                favItem[i],
+                                favItemName[i],
+                              );
+                            }),
+                            icon: Icon(
+                              Icons.favorite,
+                              color: Colors.red,
+                            ),
+                          ),
+                          // subtitle: Text(allItem[i].id),
+                          title: Text(
+                            prettifySubjectName(favItemName[i]),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+              ListView.separated(
+                itemCount: allItem.length,
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                separatorBuilder: (context, index) {
+                  if (index % 10 == 5 && index != 0)
+                    return BannerAdmob(
+                      size: AdSize.largeBanner,
+                    );
+
+                  return const SizedBox();
+                },
+                itemBuilder: (context, index) {
+                  return filesListTile(
+                      index,
+                      context,
+                      allItem[index].urlPdf!,
+                      allItem[index].id,
+                      allItem[index].name!,
+                      multiProvider,
+                      openMultiPaperView,
+                      openPaper,
+                      addtoFav);
+                },
+              ),
+            ],
+          );
+
+          // }
+        }
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      },
     );
   }
 
@@ -530,10 +588,22 @@ class _innerfileScreenState extends State<innerfileScreen> {
       onTap: () {
         if (urlPdf == "" || urlPdf == 'null') {
           debugPrint('newScreen');
-          Navigator.push(
-              context,
-              innerfileScreen.getRoute(
-                  name, allItem[index].id, widget.title, false));
+          if (kIsWeb) {
+            print('inner go route');
+            GoRouter.of(context).pushNamed('innerfile', params: {
+              // 'title': widget.title,
+              // 'id': allItem[index].id,
+              'id': allItem[index].id,
+              'domainName': 'papers',
+              'boardName': 'ocr',
+              'url': allItem[index].mainUrl.toString(),
+            });
+          } else {
+            Navigator.push(
+                context,
+                innerfileScreen.getRoute(
+                    name, allItem[index].id, widget.title, false));
+          }
         } else {
           if (funHelper().pdfFilter(urlPdf)) {
             if (multiProvider.multiView == true && allItem.length >= 2) {
@@ -563,7 +633,8 @@ class _innerfileScreenState extends State<innerfileScreen> {
             }
           } else {
             if (kIsWeb) {
-              launchUrl(Uri.parse(url));
+              print(urlPdf.toString());
+              launchUrl(Uri.parse(urlPdf));
             } else {
               Navigator.push(
                 context,
@@ -589,7 +660,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
         print(urlPdf);
       },
       trailing: funHelper().heartFilter(urlPdf.toString()) == true
-          ? (widget.iscomeFromMainFiles == true || !kIsWeb)
+          ? (widget.iscomeFromMainFiles == true && !kIsWeb)
               ? index == 0
                   ? SizedBox(
                       width: 50,

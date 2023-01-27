@@ -45,7 +45,7 @@ class _SubjectsListState extends State<SubjectsList> {
 
   void getSubjects() async {
     List<MainFolder> subjectsList = [];
-
+    print("my level id ${widget.levelid}");
     print("Subject list from json file is: \n $subjectsList");
 
     String url1 = '$caeiAPI?main_folder=${widget.levelid}&papers=pastpapers';
@@ -81,15 +81,6 @@ class _SubjectsListState extends State<SubjectsList> {
             buildTopBackground(Icons.book, context, topBackgroundDecoration),
             buildPageCaption("Choose your subjects below for ${widget.name}"),
             if (loading) loadingPage(),
-            // if (!loading && subjects.isEmpty)
-            //   Expanded(
-            //     child: Center(
-            //       child: Text(
-            //         'No Data Found',
-            //         style: Theme.of(context).textTheme.headline4,
-            //       ),
-            //     ),
-            //   ),
             Expanded(
               child: ListView.builder(
                   padding: EdgeInsets.only(bottom: 50),

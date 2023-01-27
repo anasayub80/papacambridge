@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:after_layout/after_layout.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:seo_renderer/renderers/text_renderer/text_renderer_style.dart';
+import 'package:seo_renderer/renderers/text_renderer/text_renderer_vm.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:showcaseview/showcaseview.dart';
-
 import 'package:studento/UI/rate_dialog.dart';
 import 'package:studento/UI/studento_drawer.dart';
 import 'package:studento/pages/notes_page.dart';
@@ -13,20 +15,27 @@ import 'package:studento/pages/otherres_page.dart';
 import 'package:studento/pages/schedule.dart';
 import 'package:studento/pages/timetable_page.dart';
 import 'package:studento/pages/todo_list.dart';
+import 'package:studento/responsive/responsive_layout.dart';
 import 'package:studento/utils/funHelper.dart';
+import 'package:studento/utils/sideAdsWidget.dart';
 import 'package:studento/utils/theme_provider.dart';
 import 'package:provider/provider.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 import '../UI/customDelgate.dart';
+import '../UI/web_appbar.dart';
+import '../responsive/dimensions.dart';
 import '../services/backend.dart';
 import '../utils/pdf_helper.dart';
 import 'ebook_page.dart';
 import 'past_papers.dart';
 import 'syllabus.dart';
+import 'package:go_router/go_router.dart';
 
 var boardId;
 
 class HomePage extends StatefulWidget {
+  // static final beamLocation = BeamPage(page: HomePage(), key: ValueKey('home'));
+  // static final path = '/';
   static const ishomelaunch = "ishomeshowcaselaunch";
   @override
   // ignore: library_private_types_in_public_api
@@ -36,25 +45,29 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
   @override
   void afterFirstLayout(BuildContext context) {
-    bool isLuckyDay = decideWhetherToShowRatingDialog();
-    if (isLuckyDay) showRatingDialog();
+    if (!kIsWeb) {
+      bool isLuckyDay = decideWhetherToShowRatingDialog();
+      if (isLuckyDay) showRatingDialog();
+    }
   }
 
-  StreamController _domainStream = StreamController();
+  StreamController _domainStream = BehaviorSubject();
 
   @override
   void initState() {
-    Future.delayed(
-      Duration.zero,
-      () {},
-    );
+    // Future.delayed(
+    //   Duration.zero,
+    //   () {},
+    // );
     super.initState();
     getDomains();
   }
 
   getDomains() async {
+    print('get Domain Call');
     final prefs = await SharedPreferences.getInstance();
-    boardId = prefs.getString('board')!;
+    boardId = prefs.getString('board') ?? '2';
+    print('my board is $boardId');
     var isConnected = await PdfHelper.checkIfConnected();
     if (isConnected) {
       var res = await funHelper().checkifDataExist('DomainsData');
@@ -106,88 +119,183 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeSettings>(context, listen: false);
-
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
-        key: _key, // Assign the key to Scaffold.
-        drawer: studentoDrawer(),
-        appBar: AppBar(
-          title: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.asset(
-              themeProvider.currentTheme == ThemeMode.light
-                  ? 'assets/icons/logo.png'
-                  : 'assets/icons/Darklogo.png',
-              height: 50,
-              width: 200,
-              fit: BoxFit.contain,
+      key: _key, // Assign the key to Scaffold.
+
+      drawer: studentoDrawer(),
+      appBar: (kIsWeb && size.width >= mobileWidth)
+          ? webAppBar(themeProvider, context)
+          : AppBar(
+              title: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.asset(
+                  themeProvider.currentTheme == ThemeMode.light
+                      ? 'assets/icons/logo.png'
+                      : 'assets/icons/Darklogo.png',
+                  height: 50,
+                  width: 200,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              leading: IconButton(
+                  onPressed: () {
+                    _key.currentState!.openDrawer();
+                  },
+                  icon: Icon(
+                    Icons.menu,
+                  )),
+              iconTheme: Theme.of(context).iconTheme,
+              backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
             ),
-          ),
-          leading: IconButton(
-              onPressed: () {
-                _key.currentState!.openDrawer();
-              },
-              icon: Icon(
-                Icons.menu,
-              )),
-          iconTheme: Theme.of(context).iconTheme,
-          backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-        ),
-        backgroundColor: Theme.of(context).cardColor,
-        body: StreamBuilder<dynamic>(
-            // future: backEnd().fetchDomains(boardId),
-            stream: _domainStream.stream,
-            builder: (context, snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.waiting:
-                  return Center(child: CircularProgressIndicator());
-                default:
-                  if (snapshot.data == 'NetworkError') {
-                    return Text('No Internet Connection');
-                  } else if (snapshot.data == null) {
-                    return Center(
-                      child: Text(
-                        'No Data Found',
-                        style: Theme.of(context).textTheme.headline4,
-                      ),
-                    );
-                  } else if (snapshot.hasData) {
-                    List snap = snapshot.data;
-                    if (!updated) {
-                      // Merging Static data with api requested data
-                      snap.addAll([
-                        {'id': 'static', 'domain': 'Schedule'},
-                        {'id': 'static', 'domain': 'Todo List'},
-                      ]);
-                      updated = true;
-                    }
-                    return GridView.builder(
-                      // physics: NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: snapshot.data.length,
-                      gridDelegate:
-                          SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 2.0,
-                        mainAxisSpacing: 2.0,
-                      ),
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: HomePageButton(
-                            label: snap[index]['domain'],
-                            iconFileName: returnfileName(snap[index]['domain']),
-                            routeToBePushedWhenTapped: 'ignorethisline',
-                            domainId: snap[index]['id'],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: ResponsiveLayout(
+        mobileBody: mobileBody(),
+        webBody: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.45,
+              child: mobileBody(),
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  child: Card(
+                    child: ClipPath(
+                      child: Container(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/icons/launcher-icon.png',
+                                height: 75,
+                                width: 75,
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Text('Download PapaCambridge App From PlayStore'),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              ElevatedButton(
+                                  onPressed: () {
+                                    launchUrl(Uri.parse(
+                                        'https://play.google.com/store/apps/details?id=com.MaskyS.papaCambridge'));
+                                  },
+                                  child: Text('Download from Play Store'))
+                            ],
                           ),
-                        );
-                      },
+                        ),
+                        decoration: BoxDecoration(
+                          // borderRadius: BorderRadius.circular(20),
+                          border: Border(
+                            right: BorderSide(
+                              color: secColor,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                      ),
+                      clipper: ShapeBorderClipper(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
+                      ),
+                    ),
+                    color: Theme.of(context).cardColor,
+                    elevation: 20,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                      side: BorderSide.none,
+                    ),
+                  ),
+                  height: 200,
+                ),
+                SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.20,
+                    height: 500,
+                    child: sideAdsWidget())
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  StreamBuilder<dynamic> mobileBody() {
+    return StreamBuilder<dynamic>(
+        // future: backEnd().fetchDomains(boardId),
+        stream: _domainStream.stream,
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return Center(child: CircularProgressIndicator());
+            default:
+              if (snapshot.data == 'NetworkError') {
+                return Text('No Internet Connection');
+              } else if (snapshot.data == null) {
+                return Center(
+                  child: Text(
+                    'No Data Found',
+                    style: Theme.of(context).textTheme.headline4,
+                  ),
+                );
+              } else if (snapshot.hasData) {
+                List snap = snapshot.data;
+                if (!updated && !kIsWeb) {
+                  // Merging Static data with api requested data
+                  snap.addAll([
+                    {'id': 'static', 'domain': 'Schedule'},
+                    {'id': 'static', 'domain': 'Todo List'},
+                  ]);
+                  updated = true;
+                }
+                return GridView.builder(
+                  // physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: snapshot.data.length,
+                  gridDelegate:
+                      SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
+                    crossAxisCount:
+                        2, // HERE YOU CAN ADD THE NO OF ITEMS PER LINE
+                    crossAxisSpacing: 2.0,
+                    mainAxisSpacing: 2.0,
+                    height: kIsWeb
+                        ? (MediaQuery.of(context).size.width < mobileWidth)
+                            ? 200
+                            : 250
+                        : 175.0,
+                  ),
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextRenderer(
+                        text: snap[index]['domain'],
+                        style: TextRendererStyle.header3,
+                        child: HomePageButton(
+                          label: snap[index]['domain'],
+                          iconFileName: returnfileName(snap[index]['domain']),
+                          routeToBePushedWhenTapped: 'ignorethisline',
+                          domainId: snap[index]['id'],
+                        ),
+                      ),
                     );
-                  }
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
+                  },
+                );
               }
-            }));
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+          }
+        });
   }
 
   String returnfileName(name) {
@@ -266,7 +374,10 @@ class _HomePageButtonState extends State<HomePageButton> {
           style: labelStyle,
           textAlign: TextAlign.center,
         );
-    buttonsContainer() => SizedBox(
+    buttonsContainer() => Container(
+          constraints: BoxConstraints(
+            maxWidth: 20.0,
+          ),
           child: Card(
             child: ClipPath(
               child: Container(
@@ -308,9 +419,11 @@ class _HomePageButtonState extends State<HomePageButton> {
       verticalOffset: 5.0,
       message: widget.label,
       child: InkWell(
-        onTap: () => widget.domainId == ''
-            ? pushsimpleRoutes(context)
-            : pushRoute(context, widget.label, widget.domainId),
+        onTap: () {
+          widget.domainId == ''
+              ? pushsimpleRoutes(context)
+              : pushRoute(context, widget.label, widget.domainId);
+        },
         child: buttonsContainer(),
       ),
     );
@@ -326,13 +439,18 @@ class _HomePageButtonState extends State<HomePageButton> {
     switch (domainName.trim()) {
       case 'Past Papers':
         if (boardId != '1') {
-          Navigator.push(context, MaterialPageRoute(
-            builder: (context) {
-              return PastPapersPage(
-                domainId: domaindId,
-              );
-            },
-          ));
+          if (kIsWeb) {
+            GoRouter.of(context)
+                .pushNamed('pastpapers', params: {'id': widget.domainId});
+          } else {
+            Navigator.push(context, MaterialPageRoute(
+              builder: (context) {
+                return PastPapersPage(
+                  domainId: domaindId,
+                );
+              },
+            ));
+          }
         } else {
           Navigator.push(context, MaterialPageRoute(
             builder: (context) {
@@ -343,47 +461,62 @@ class _HomePageButtonState extends State<HomePageButton> {
         break;
       case 'Syllabus':
         // if (boardId != '1') {
-        Navigator.push(context, MaterialPageRoute(
-          builder: (context) {
-            return SyllabusPage(domainId: domaindId);
-          },
-        ));
-        // } else {
-        //   Navigator.push(context, MaterialPageRoute(
-        //     builder: (context) {
-        //       return SyllabusPageCAIE();
-        //     },
-        //   ));
-        // }
+        if (kIsWeb) {
+          GoRouter.of(context)
+              .pushNamed('syllabus', params: {'id': widget.domainId});
+        } else {
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) {
+              return SyllabusPage(domainId: domaindId);
+            },
+          ));
+        }
         break;
 
       case 'E Books':
-        Navigator.push(context, MaterialPageRoute(
-          builder: (context) {
-            return EBooksPage(domainId: domaindId);
-          },
-        ));
+        if (kIsWeb) {
+          GoRouter.of(context)
+              .pushNamed('e-books', params: {'id': widget.domainId});
+        } else
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) {
+              return EBooksPage(domainId: domaindId);
+            },
+          ));
         break;
       case 'Notes':
-        Navigator.push(context, MaterialPageRoute(
-          builder: (context) {
-            return NotesPage(domainId: domaindId);
-          },
-        ));
+        if (kIsWeb) {
+          GoRouter.of(context)
+              .pushNamed('notes', params: {'id': widget.domainId});
+        } else {
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) {
+              return NotesPage(domainId: domaindId);
+            },
+          ));
+        }
         break;
       case 'Others':
-        Navigator.push(context, MaterialPageRoute(
-          builder: (context) {
-            return OtherResources(domainId: domaindId);
-          },
-        ));
+        if (kIsWeb)
+          GoRouter.of(context)
+              .pushNamed('others', params: {'id': widget.domainId});
+        else
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) {
+              return OtherResources(domainId: domaindId);
+            },
+          ));
         break;
       case 'Timetables':
-        Navigator.push(context, MaterialPageRoute(
-          builder: (context) {
-            return TimeTablePage(domainId: domaindId);
-          },
-        ));
+        if (kIsWeb)
+          GoRouter.of(context)
+              .pushNamed('timetables', params: {'id': widget.domainId});
+        else
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) {
+              return TimeTablePage(domainId: domaindId);
+            },
+          ));
         break;
       case 'Schedule':
         Navigator.push(context, MaterialPageRoute(

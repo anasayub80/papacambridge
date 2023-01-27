@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:studento/pages/inner_files_screen.dart';
 import '../model/MainFolder.dart';
 import 'package:http/http.dart' as http;
@@ -20,7 +21,7 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   TextEditingController _searchController = TextEditingController();
   List<MainFolder> allItem = [];
-  StreamController _streamController = StreamController();
+  StreamController _streamController = BehaviorSubject();
   @override
   void dispose() {
     _streamController.close();

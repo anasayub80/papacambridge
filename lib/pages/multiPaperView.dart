@@ -226,11 +226,11 @@ class _MultiPaperViewState extends State<MultiPaperView> {
 
   /// Check if papers are already downloaded, and download if not.
   void initPapers() async {
-    var _path1 = await PdfHelper.getFilePath(_fileName1);
-    var _path2 = await PdfHelper.getFilePath(_fileName2);
-    setState(() => {filePath1 = _path1, filePath2 = _path2});
+    var path1 = await PdfHelper.getFilePath(_fileName1);
+    var path2 = await PdfHelper.getFilePath(_fileName2);
+    setState(() => {filePath1 = path1, filePath2 = path2});
 
-    print("$_path1 & $_path2");
+    print("$path1 & $path2");
     isFileAlreadyDownloaded1 = await PdfHelper.checkIfDownloaded(_fileName1);
     isFileAlreadyDownloaded2 = await PdfHelper.checkIfDownloaded(_fileName2);
     if (isFileAlreadyDownloaded1 && isFileAlreadyDownloaded2) {

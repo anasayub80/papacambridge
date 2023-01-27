@@ -18,6 +18,7 @@ class MainFolder {
     this.parent,
     this.folder,
     this.urlPdf,
+    this.mainUrl,
     this.keyword,
     this.paper,
     this.folderCode,
@@ -27,6 +28,7 @@ class MainFolder {
 
   var id;
   String? name;
+  String? mainUrl;
   int? active;
   int? parent;
   int? folder;
@@ -44,6 +46,7 @@ class MainFolder {
         parent: json["parent"],
         folder: json["folder"],
         urlPdf: json["url_pdf"],
+        mainUrl: json["url"],
         keyword: json["keyword"],
         paper: json["paper"],
         folderCode: json["folder_code"],
@@ -58,6 +61,7 @@ class MainFolder {
         "parent": parent,
         "folder": folder,
         "url_pdf": urlPdf,
+        "url": mainUrl,
         "keyword": keyword,
         "paper": paper,
         "folder_code": folderCode,

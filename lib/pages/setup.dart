@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/foundation.dart' show kIsWeb;
-
+import 'package:go_router/go_router.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -45,7 +45,16 @@ class _SetupState extends State<Setup> {
   int pageIndex = 0;
   bool dataUpdated = false;
 
-  UserData? userData = Hive.box<UserData>('userData').get(0);
+  hiveOpen() {
+    if (!kIsWeb) UserData? userData = Hive.box<UserData>('userData').get(0);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    hiveOpen();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,12 +82,6 @@ class _SetupState extends State<Setup> {
         onFloatingButtonPressed: validateAndPushSubjectsPage,
         issubject: true,
       ),
-      // SetupPage(
-      //   leadIcon: Icons.book,
-      //   caption: "Choose your subjects below:",
-      //   body: SubjectsList(),
-      //   onFloatingButtonPressed: validateAndCheckPermissions,
-      // ),
       if (!kIsWeb)
         SetupPage(
           leadIcon: Icons.lock,
@@ -93,8 +96,8 @@ class _SetupState extends State<Setup> {
         )
       else
         SetupPage(
-          leadIcon: Icons.lock,
-          caption: "We need these permissions to be able to assist you:",
+          leadIcon: Icons.celebration,
+          caption: "Let's Start Your Journey With PapaCambridge:",
           issubject: false,
           body: _buildWeb(),
           onFloatingButtonPressed: () {
@@ -289,6 +292,11 @@ class _SetupState extends State<Setup> {
           },
         );
 
+    return mobileBody(buildLevelRadioListTile);
+  }
+
+  StreamBuilder<dynamic> mobileBody(
+      Widget Function(dynamic board, dynamic id) buildLevelRadioListTile) {
     return StreamBuilder<dynamic>(
       // future: backEnd().fetchBoard(),
       stream: _boardController.stream,
@@ -337,12 +345,12 @@ class _SetupState extends State<Setup> {
     return Column(children: <Widget>[
       ListTile(
         isThreeLine: true,
-        leading: Icon(Icons.storage),
-        title: Text("Storage"),
+        leading: Icon(Icons.book),
+        title: Text("Past Papers"),
         subtitle: Column(children: <Widget>[
           SizedBox(height: 5),
           Text(
-            "For storing past papers, icons and more",
+            "Access past papers anytime, anywhere, just a couple taps away.",
             textScaleFactor: 0.9,
             style: TextStyle(),
           ),
@@ -471,21 +479,21 @@ class _SetupState extends State<Setup> {
     selectedboard = null;
     selectedItem = [];
     selectedlevelid = [];
-
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('setup', true);
-    // ignore: use_build_context_synchronously
-    Navigator.of(context).popUntil((route) => route.isFirst);
-    // ignore: use_build_context_synchronously
-    Navigator.pushReplacement(context, MaterialPageRoute(
-      builder: (context) {
-        return HomePage();
-      },
-    ));
-    // Navigator.of(context).pushNamedAndRemoveUntil(
-    //   'home_page',
-    //   ModalRoute.withName('home_page'),
-    // );
+    if (kIsWeb) {
+      // ignore: use_build_context_synchronously
+      GoRouter.of(context).pushNamed('home');
+    } else {
+      // ignore: use_build_context_synchronously
+      Navigator.of(context).popUntil((route) => route.isFirst);
+      // ignore: use_build_context_synchronously
+      Navigator.pushReplacement(context, MaterialPageRoute(
+        builder: (context) {
+          return HomePage();
+        },
+      ));
+    }
   }
 
   /// Pushes the [SetupPage] which is found at [pageIndex] in the [List]

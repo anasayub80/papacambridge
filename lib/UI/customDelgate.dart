@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 
 class SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight
@@ -12,7 +13,8 @@ class SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight
     required this.crossAxisCount,
     this.mainAxisSpacing = 0.0,
     this.crossAxisSpacing = 0.0,
-    this.height = 175.0,
+    this.height = 0.0,
+    // this.height = kIsWeb ? 300 : 175.0,
   })  : assert(crossAxisCount > 0),
         assert(mainAxisSpacing >= 0),
         assert(crossAxisSpacing >= 0),

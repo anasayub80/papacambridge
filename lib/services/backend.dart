@@ -5,18 +5,24 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
 const token = 'C8xWxGvIue37SwP2MEU7W5oKE32fm7Z3JxHfeK897a8eE0SdLl';
-const boardApi =
-    'https://pastpapers.papacambridge.com/api/api.php?page=select_board';
-const domainApi =
-    'https://pastpapers.papacambridge.com/api/api.php?page=domains';
-const innerFileApi =
-    'https://pastpapers.papacambridge.com/api/api.php?page=inner_file';
-const mainFileApi =
-    'https://pastpapers.papacambridge.com/api/api.php?page=main_file';
-const searchSubjectApi =
-    'https://pastpapers.papacambridge.com/api/api.php?page=search';
-const levelApi =
-    'https://pastpapers.papacambridge.com/api/api.php?page=inner_file';
+// const boardApi =
+//     'https://pastpapers.papacambridge.com/api/api.php?page=select_board';
+// const domainApi =
+//     'https://pastpapers.papacambridge.com/api/api.php?page=domains';
+// const innerFileApi =
+//     'https://pastpapers.papacambridge.com/api/api.php?page=inner_file';
+// const mainFileApi =
+//     'https://pastpapers.papacambridge.com/api/api.php?page=main_file';
+// const searchSubjectApi =
+//     'https://pastpapers.papacambridge.com/api/api.php?page=search';
+// const levelApi =
+//     'https://pastpapers.papacambridge.com/api/api.php?page=inner_file';
+const boardApi = 'https://api.papacambridge.com/api.php?page=select_board';
+const domainApi = 'https://api.papacambridge.com/api.php?page=domains';
+const innerFileApi = 'https://api.papacambridge.com/api.php?page=inner_file';
+const mainFileApi = 'https://api.papacambridge.com/api.php?page=main_file';
+const searchSubjectApi = 'https://api.papacambridge.com/api.php?page=search';
+const levelApi = 'https://api.papacambridge.com/api.php?page=inner_file';
 const caeiAPI = 'https://api.papacambridge.com/api-caie.php';
 // const subjectApi =
 //     'https://papacambridge.redrhinoz.com/api.php?page=inner_file';
@@ -56,7 +62,7 @@ class backEnd {
   }
 
   fetchDomains(boardId) async {
-    debugPrint('board id is $boardId');
+    debugPrint('board id is $boardId & $domainApi');
     http.Response res = await http.post(Uri.parse(domainApi), body: {
       'token': token,
       'board': boardId,
@@ -78,7 +84,7 @@ class backEnd {
   }
 
   fetchMainFiles(domainId) async {
-    debugPrint('domainId is $domainId');
+    debugPrint('fetch Main file & domainID $domainId & $mainFileApi');
     http.Response res = await http.post(Uri.parse(mainFileApi), body: {
       'token': token,
       'domain': domainId,

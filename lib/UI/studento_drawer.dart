@@ -85,15 +85,6 @@ class studentoDrawer extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Center(
-            //   child: Text(
-            //     time,
-            //     style: TextStyle(
-            //         fontSize: 20.0,
-            //         color: Colors.white,
-            //         fontWeight: FontWeight.w400),
-            //   ),
-            // ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,

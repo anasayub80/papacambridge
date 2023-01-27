@@ -33,6 +33,7 @@ class OtherResources extends StatelessWidget {
         body: mainFilesList(
           domainId: domainId,
           title: 'Other Resources',
+          domainName: 'other-resources',
         ));
   }
 }

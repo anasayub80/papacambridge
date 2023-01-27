@@ -2,15 +2,22 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:beamer/beamer.dart';
 import 'package:bot_toast/bot_toast.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:showcaseview/showcaseview.dart';
 import 'package:studento/UI/show_case_widget.dart';
 import 'package:studento/pages/inner_files_screen.dart';
+import 'package:studento/responsive/responsive_layout.dart';
 import 'package:studento/services/backend.dart';
+import 'package:studento/utils/beam_locations.dart';
 import 'package:studento/utils/constant.dart';
+import 'package:studento/utils/sideAdsWidget.dart';
 
 import '../model/MainFolder.dart';
 import 'package:http/http.dart' as http;
@@ -18,16 +25,19 @@ import 'package:http/http.dart' as http;
 import '../utils/ads_helper.dart';
 import '../utils/funHelper.dart';
 import '../utils/pdf_helper.dart';
+import '../utils/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 class mainFilesList extends StatefulWidget {
-  // static const isShowCaseLaunch = "isShowCaseLaunch";
   bool? isPastPapers = false;
   mainFilesList(
       {super.key,
       required this.domainId,
+      required this.domainName,
       required this.title,
       this.isPastPapers});
   final domainId;
+  final domainName;
   final title;
 
   @override
@@ -39,14 +49,14 @@ class _mainFilesListState extends State<mainFilesList> {
   List<String> favItem = [];
   List<String> favItemName = [];
   Random random = Random();
-
+  String? prettyTitle;
   // List<MainFolder> selectedM = [];
   @override
   void initState() {
     // ignore: todo
     // TODO: implement initState
     super.initState();
-
+    prettyTitle = widget.title.toString().replaceAll(' ', '-');
     getStoredData();
     int randomNumber = random.nextInt(5);
     switch (randomNumber) {
@@ -128,16 +138,6 @@ class _mainFilesListState extends State<mainFilesList> {
       }
     }
   }
-
-  // Future<bool> _isFirstLaunch() async {
-  //   final sharedPreferences = await SharedPreferences.getInstance();
-  //   bool isFirstLaunch =
-  //       sharedPreferences.getBool(mainFilesList.isShowCaseLaunch) ?? false;
-
-  //   if (!isFirstLaunch)
-  //     sharedPreferences.setBool(mainFilesList.isShowCaseLaunch, true);
-  //   return isFirstLaunch;
-  // }
 
   clearifyData(dynamic res, bool isLocal) async {
     allItem.clear();
@@ -251,10 +251,114 @@ class _mainFilesListState extends State<mainFilesList> {
     getStoredData();
   }
 
-  StreamController _streamController = StreamController();
+  StreamController _streamController = BehaviorSubject();
 
   @override
   Widget build(BuildContext context) {
+    return ResponsiveLayout(
+      mobileBody: mobileLayout(),
+      webBody: webBody(context),
+    );
+  }
+
+  Row webBody(BuildContext context) {
+    final themeProvider = Provider.of<ThemeSettings>(context, listen: false);
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.70,
+          child: Column(
+            children: [
+              SizedBox(
+                height: 200,
+                width: double.infinity,
+                child: Card(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "${widget.title}",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  color: Theme.of(context).cardColor,
+                ),
+              ),
+
+              Expanded(
+                  child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: mobileLayout(),
+                  ),
+                  color: Theme.of(context).cardColor,
+                ),
+              )),
+              SizedBox(
+                height: 20,
+              ),
+              // Working Mode
+              SizedBox(
+                width: double.infinity,
+                child: Card(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Image.asset(
+                          themeProvider.currentTheme == ThemeMode.light
+                              ? 'assets/icons/logo.png'
+                              : 'assets/icons/Darklogo.png',
+                          height: 50,
+                          width: 200,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          TextButton(
+                              onPressed: () {}, child: Text('Advertise')),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          TextButton(onPressed: () {}, child: Text('Contact')),
+                          SizedBox(
+                            width: 10,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  color: Theme.of(context).cardColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // second column
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.20,
+          child: sideAdsWidget(),
+        )
+      ],
+    );
+  }
+
+  StreamBuilder<dynamic> mobileLayout() {
     return StreamBuilder<dynamic>(
       stream: _streamController.stream,
       builder: (context, snapshot) {
@@ -321,10 +425,20 @@ class _mainFilesListState extends State<mainFilesList> {
                 itemBuilder: (context, index) {
                   return ListTile(
                     onTap: () {
-                      Navigator.push(
-                          context,
-                          innerfileScreen.getRoute(allItem[index].name!,
-                              allItem[index].id, widget.title, true));
+                      if (kIsWeb) {
+                        GoRouter.of(context).pushNamed('innerfile', params: {
+                          // 'title': prettyTitle!.toLowerCase(),
+                          'id': allItem[index].id,
+                          'domainName': widget.domainName,
+                          'boardName': 'ocr',
+                          'url': allItem[index].mainUrl.toString(),
+                        });
+                      } else {
+                        Navigator.push(
+                            context,
+                            innerfileScreen.getRoute(allItem[index].name!,
+                                allItem[index].id, widget.title, true));
+                      }
                     },
                     leading: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -368,19 +482,3 @@ class _mainFilesListState extends State<mainFilesList> {
     );
   }
 }
-
-// ignore: must_be_immutable
-// class normalListView extends StatelessWidget {
-//   normalListView({
-//     Key? key,
-//     required this.title,
-//     required this.snapshot,
-//   }) : super(key: key);
-
-//   var title;
-//   AsyncSnapshot snapshot;
-//   @override
-//   Widget build(BuildContext context) {
-//     return
-//   }
-// }

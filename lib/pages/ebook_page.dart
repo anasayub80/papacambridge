@@ -39,6 +39,7 @@ class _EBooksPageState extends State<EBooksPage> {
         body: mainFilesList(
           domainId: widget.domainId,
           title: 'E-Books',
+          domainName: 'ebooks',
         )
         //  SubjectsStaggeredListView(openPastPapersDetailsSelect),
         );

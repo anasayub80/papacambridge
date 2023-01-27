@@ -9,6 +9,7 @@ import '../utils/theme_provider.dart';
 import 'home_page.dart';
 import 'intro.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -42,15 +43,17 @@ class _SplashPageState extends State<SplashPage> {
     Future.delayed(
       Duration(seconds: 3),
       () {
-        Navigator.pushReplacement(context, MaterialPageRoute(
-          builder: (context) {
-            return isSetupComplete!
-                ? HomePage()
-                : kIsWeb
-                    ? Setup()
-                    : IntroPage();
-          },
-        ));
+        if (kIsWeb) {
+          isSetupComplete!
+              ? GoRouter.of(context).pushReplacementNamed('home')
+              : GoRouter.of(context).pushReplacementNamed('setup');
+        } else {
+          Navigator.pushReplacement(context, MaterialPageRoute(
+            builder: (context) {
+              return isSetupComplete! ? HomePage() : IntroPage();
+            },
+          ));
+        }
       },
     );
   }
@@ -90,7 +93,7 @@ class _SplashPageState extends State<SplashPage> {
                   : 'assets/icons/Darklogo.png',
               height: 125,
               fit: BoxFit.contain,
-              width: MediaQuery.of(context).size.width * 0.85,
+              width: kIsWeb ? 300 : MediaQuery.of(context).size.width * 0.85,
             ),
           ),
         ],

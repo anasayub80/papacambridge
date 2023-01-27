@@ -33,6 +33,7 @@ class TimeTablePage extends StatelessWidget {
         body: mainFilesList(
           domainId: domainId,
           title: 'Time Table',
+          domainName: 'timetable',
         ));
   }
 }
