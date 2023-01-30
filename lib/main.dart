@@ -6,22 +6,17 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:studento/model/todo/todo_list_model.dart';
-import 'package:studento/pages/home_page.dart';
-import 'package:studento/pages/setup.dart';
 import 'package:studento/pages/splash_page.dart';
 import 'package:studento/provider/loadigProvider.dart';
 import 'package:studento/provider/multiViewhelper.dart';
 import 'package:studento/routes.dart';
 import 'package:studento/services/navigate_observe.dart';
-import 'package:studento/utils/backbuttondispatcher.dart';
 import 'package:studento/utils/go_routes.dart';
 import 'package:studento/utils/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:url_strategy/url_strategy.dart';
-import 'package:go_router/go_router.dart';
-import 'package:studento/pages/past_papers.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

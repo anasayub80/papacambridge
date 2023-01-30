@@ -17,6 +17,7 @@ import '../CAIE/past_papers_details_select.dart';
 import 'package:studento/UI/studento_app_bar.dart';
 import 'package:studento/CAIE/subjects_staggered_view.dart';
 
+import '../provider/loadigProvider.dart';
 import '../utils/ads_helper.dart';
 import '../utils/theme_provider.dart';
 
@@ -31,9 +32,24 @@ class PastPapersPage extends StatefulWidget {
 
 class _PastPapersPageState extends State<PastPapersPage> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if (kIsWeb) {
+      Future.delayed(
+        Duration.zero,
+        () {
+          Provider.of<loadingProvider>(context, listen: false)
+              .changeDomainid(widget.domainId);
+        },
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeSettings>(context, listen: false);
-
+    print('past paper domain id ${widget.domainId}');
     return Scaffold(
         appBar: kIsWeb
             ? webAppBar(themeProvider, context)

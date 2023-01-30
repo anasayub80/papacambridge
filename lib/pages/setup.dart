@@ -17,7 +17,9 @@ import '../UI/subjects_list_select.dart';
 import '../UI/show_message_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:studento/Globals.dart' as globals;
+import 'package:provider/provider.dart';
 
+import '../provider/loadigProvider.dart';
 import '../services/backend.dart';
 
 List level = [];
@@ -46,11 +48,13 @@ class _SetupState extends State<Setup> {
   bool dataUpdated = false;
 
   hiveOpen() {
+    // ignore: unused_local_variable
     if (!kIsWeb) UserData? userData = Hive.box<UserData>('userData').get(0);
   }
 
   @override
   void initState() {
+    // ignore: todo
     // TODO: implement initState
     super.initState();
     hiveOpen();
@@ -285,9 +289,6 @@ class _SetupState extends State<Setup> {
               selectedboard = board;
               selectedboardid = id;
               log('my board is $selectedboard');
-              // userData
-              //   ..level = _level
-              //   ..save();
             });
           },
         );
@@ -451,6 +452,9 @@ class _SetupState extends State<Setup> {
     if (selectedboard != null) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('board', selectedboardid!);
+      // ignore: use_build_context_synchronously
+      Provider.of<loadingProvider>(context, listen: false)
+          .changeBoardId(selectedboardid);
       pushBoardPage();
     } else {
       Flushbar(
@@ -469,6 +473,7 @@ class _SetupState extends State<Setup> {
 
   // pushSubjectsPage() => pushNextPage(1);
   // void pushPermissionsPage() => pushNextPage(1);
+  // void pushBoardPage() => pushNextPage(selectedboardid != '1' ? 2 : 1 );
   void pushBoardPage() => pushNextPage(selectedboardid != '1' ? 2 : 1);
   // void pushSubjectsPage() => pushNextPage(2);
   void pushPermissionsPage() => pushNextPage(selectedboardid != '1' ? 1 : 2);

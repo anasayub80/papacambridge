@@ -23,6 +23,7 @@ import '../UI/show_case_widget.dart';
 import '../UI/studento_app_bar.dart';
 import '../UI/web_appbar.dart';
 import '../model/MainFolder.dart';
+import '../provider/loadigProvider.dart';
 import '../services/bread_crumb_navigation.dart';
 import '../utils/pdf_helper.dart';
 import '../utils/sideAdsWidget.dart';
@@ -32,15 +33,24 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 // ignore: must_be_immutable
 class innerfileScreen extends StatefulWidget {
-  final inner_file;
+  String? inner_file;
+  String? domain;
+  String? domainName;
+  String? domainId;
+  String? boardName;
   final title;
+  final url_structure;
   bool iscomeFromMainFiles;
   static const isShowCaseLaunch = "isShowCaseLaunchinnerScreen";
 
   innerfileScreen({
     super.key,
-    required this.inner_file,
+    this.inner_file,
+    this.domainName,
+    this.boardName,
+    this.domainId,
     required this.title,
+    required this.url_structure,
     required this.iscomeFromMainFiles,
   });
   static MaterialPageRoute getRoute(
@@ -54,6 +64,7 @@ class innerfileScreen extends StatefulWidget {
                       inner_file: innerfile,
                       title: title,
                       iscomeFromMainFiles: iscomeFromMainFiles,
+                      url_structure: '',
                     );
                   }),
                 )
@@ -61,6 +72,7 @@ class innerfileScreen extends StatefulWidget {
                   inner_file: innerfile,
                   iscomeFromMainFiles: iscomeFromMainFiles,
                   title: title,
+                  url_structure: 'none',
                 ));
   @override
   State<innerfileScreen> createState() => _innerfileScreenState();
@@ -81,8 +93,22 @@ class _innerfileScreenState extends State<innerfileScreen> {
   @override
   void initState() {
     super.initState();
-
-    getStoredData();
+    if (kIsWeb &&
+        Provider.of<loadingProvider>(context, listen: false).getboardId ==
+            'none') {
+      print('select board first ${widget.boardName}');
+      Future.delayed(
+        Duration.zero,
+        () {
+          // trying to fix get data from direct url without board select and null domain id
+          Provider.of<loadingProvider>(context, listen: false)
+              .changeBoardId(widget.boardName);
+          getStoredData();
+        },
+      );
+    } else {
+      getStoredData();
+    }
   }
 
   String prettifySubjectName(String subjectName) {
@@ -98,36 +124,39 @@ class _innerfileScreenState extends State<innerfileScreen> {
   }
 
   getStoredData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var isConnected = await PdfHelper.checkIfConnected();
-    if (isConnected) {
-      var res = await funHelper().checkifDataExist(
-          'innerData${widget.inner_file}${widget.title.trim()}');
-      if (res != null) {
-        http.Response myres = await http.post(Uri.parse(innerFileApi), body: {
-          'token': token,
-          'fileid': widget.inner_file,
-        });
-        if (myres.body.length <= res.length) {
-          print('equal');
-          clearifyData(res, true);
+    if (!kIsWeb) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var isConnected = await PdfHelper.checkIfConnected();
+      if (isConnected) {
+        var res = await funHelper().checkifDataExist(
+            'innerData${widget.inner_file}${widget.title.trim()}');
+        if (res != null) {
+          http.Response myres = await http.post(Uri.parse(innerFileApi), body: {
+            'token': token,
+            'fileid': widget.inner_file,
+          });
+          if (myres.body.length <= res.length) {
+            print('equal');
+            clearifyData(res, true);
+          } else {
+            print('not equal update');
+            prefs.remove('innerData${widget.inner_file}${widget.title.trim()}');
+          }
         } else {
-          print('not equal update');
-          prefs.remove('innerData${widget.inner_file}${widget.title.trim()}');
+          debugPrint(res.toString());
+          initData();
         }
       } else {
-        debugPrint(res.toString());
-        initData();
+        var res = await funHelper().checkifDataExist(
+            'innerData${widget.inner_file}${widget.title.trim()}');
+        if (res != null) {
+          clearifyData(res, true);
+        } else {
+          _streamController.add('NetworkError');
+        }
       }
-    } else {
-      var res = await funHelper().checkifDataExist(
-          'innerData${widget.inner_file}${widget.title.trim()}');
-      if (res != null) {
-        clearifyData(res, true);
-      } else {
-        _streamController.add('NetworkError');
-      }
-    }
+    } else
+      initData();
   }
 
   clearifyData(dynamic res, bool isLocal) async {
@@ -207,10 +236,25 @@ class _innerfileScreenState extends State<innerfileScreen> {
   List<MainFolder>? dataL;
   void initData() async {
     _streamController.add('loading');
-    http.Response res = await http.post(Uri.parse(innerFileApi), body: {
-      'token': token,
-      'fileid': widget.inner_file,
-    });
+    http.Response res;
+    if (!kIsWeb)
+      res = await http.post(Uri.parse(innerFileApi), body: {
+        'token': token,
+        'fileid': widget.inner_file,
+      });
+    else {
+      print('get data for web');
+      print(
+          'inner web$webAPI?domain=${widget.domainId}&url_structure=${widget.url_structure}');
+      res = await http.post(Uri.parse("$webAPI?page=inner_file"), body: {
+        // 'domain': widget.domain,
+        // 'url_structure': url_structure,
+        'domain':
+            Provider.of<loadingProvider>(context, listen: false).getdomainId,
+        'url_structure': widget.url_structure,
+        'token': token
+      });
+    }
     clearifyData(res, false);
   }
 
@@ -253,7 +297,10 @@ class _innerfileScreenState extends State<innerfileScreen> {
           MaterialPageRoute(
             builder: (_) => PastPaperView([
               url,
-            ], fileName, boardId, false),
+            ],
+                fileName,
+                Provider.of<loadingProvider>(context, listen: false).getboardId,
+                false),
           ),
         );
       }
@@ -268,7 +315,8 @@ class _innerfileScreenState extends State<innerfileScreen> {
               url2: multiItemurl[1],
               fileName1: multiItemname[0],
               fileName2: multiItemname[1],
-              boarId: boardId,
+              boarId: Provider.of<loadingProvider>(context, listen: false)
+                  .getboardId,
               isOthers: false),
         ),
       );
@@ -316,7 +364,10 @@ class _innerfileScreenState extends State<innerfileScreen> {
 
     return Scaffold(
       appBar: kIsWeb
-          ? webAppBar(themeProvider, context)
+          ? webAppBar(
+              themeProvider,
+              context,
+            )
           : StudentoAppBar(
               title: widget.title,
               context: context,
@@ -398,25 +449,29 @@ class _innerfileScreenState extends State<innerfileScreen> {
                 height: 10,
               ),
               kIsWeb
-                  ? ElevatedButton.icon(
-                      onPressed: () {
-                        GoRouter.of(context).pop();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pink,
-                        padding: EdgeInsets.all(8),
-                        maximumSize: Size(200, 50),
-                      ),
-                      icon: Icon(
-                        Icons.arrow_back_ios,
-                        color: Colors.white,
-                      ),
-                      label: Text(
-                        'Go Back',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ))
+                  ? Image.asset('assets/illustrations/top-sample-ads.png')
+                  : SizedBox.shrink(),
+              kIsWeb
+                  ? SizedBox.shrink()
+                  //  ElevatedButton.icon(
+                  //     onPressed: () {
+                  //       GoRouter.of(context).pop();
+                  //     },
+                  //     style: ElevatedButton.styleFrom(
+                  //       backgroundColor: Colors.pink,
+                  //       padding: EdgeInsets.all(8),
+                  //       maximumSize: Size(200, 50),
+                  //     ),
+                  //     icon: Icon(
+                  //       Icons.arrow_back_ios,
+                  //       color: Colors.white,
+                  //     ),
+                  //     label: Text(
+                  //       'Go Back',
+                  //       style: TextStyle(
+                  //         color: Colors.white,
+                  //       ),
+                  //     ))
                   : BreadCrumbNavigator(),
               SizedBox(
                 height: 10,
@@ -493,7 +548,6 @@ class _innerfileScreenState extends State<innerfileScreen> {
                       itemBuilder: (context, i) {
                         return ListTile(
                           onTap: () {
-                            log('not syllabus');
                             Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return innerfileScreen(
@@ -501,6 +555,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
                                   title: widget.title,
                                   iscomeFromMainFiles:
                                       widget.iscomeFromMainFiles,
+                                  url_structure: '',
                                 );
                               },
                             ));
@@ -538,10 +593,21 @@ class _innerfileScreenState extends State<innerfileScreen> {
                 physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 separatorBuilder: (context, index) {
-                  if (index % 10 == 5 && index != 0)
-                    return BannerAdmob(
-                      size: AdSize.largeBanner,
-                    );
+                  if (index % 10 == 5 && index != 0) {
+                    if (kIsWeb)
+                      return Container(
+                        width: double.infinity,
+                        height: 100,
+                        child: Image.asset(
+                          'assets/illustrations/in-list-view.png',
+                          fit: BoxFit.fill,
+                        ),
+                      );
+                    else
+                      return BannerAdmob(
+                        size: AdSize.largeBanner,
+                      );
+                  }
 
                   return const SizedBox();
                 },
@@ -589,13 +655,12 @@ class _innerfileScreenState extends State<innerfileScreen> {
         if (urlPdf == "" || urlPdf == 'null') {
           debugPrint('newScreen');
           if (kIsWeb) {
-            print('inner go route');
+            print('inner go route ${allItem[index].mainUrl.toString()}');
             GoRouter.of(context).pushNamed('innerfile', params: {
-              // 'title': widget.title,
-              // 'id': allItem[index].id,
-              'id': allItem[index].id,
-              'domainName': 'papers',
-              'boardName': 'ocr',
+              'domainName': widget.domainName!,
+              'boardName': returnBoardName(
+                  Provider.of<loadingProvider>(context, listen: false)
+                      .getboardId),
               'url': allItem[index].mainUrl.toString(),
             });
           } else {
@@ -659,28 +724,30 @@ class _innerfileScreenState extends State<innerfileScreen> {
       onLongPress: () {
         print(urlPdf);
       },
-      trailing: funHelper().heartFilter(urlPdf.toString()) == true
-          ? (widget.iscomeFromMainFiles == true && !kIsWeb)
-              ? index == 0
-                  ? SizedBox(
-                      width: 50,
-                      height: 50,
-                      child: CustomShowcaseWidget(
-                        globalKey: favLogoKey,
-                        description:
-                            'You can save your favorite subject at top',
-                        title: 'Favourite',
-                        child: favButton(addtoFav, index, name, context),
-                      ),
-                    )
+      trailing: kIsWeb
+          ? SizedBox.shrink()
+          : funHelper().heartFilter(urlPdf.toString()) == true
+              ? (widget.iscomeFromMainFiles == true && !kIsWeb)
+                  ? index == 0
+                      ? SizedBox(
+                          width: 50,
+                          height: 50,
+                          child: CustomShowcaseWidget(
+                            globalKey: favLogoKey,
+                            description:
+                                'You can save your favorite subject at top',
+                            title: 'favorite',
+                            child: favButton(addtoFav, index, name, context),
+                          ),
+                        )
+                      : favButton(addtoFav, index, name, context)
                   : favButton(addtoFav, index, name, context)
-              : favButton(addtoFav, index, name, context)
-          : selectedList[index] == true
-              ? Icon(
-                  Icons.check,
-                  color: Colors.green,
-                )
-              : SizedBox.shrink(),
+              : selectedList[index] == true
+                  ? Icon(
+                      Icons.check,
+                      color: Colors.green,
+                    )
+                  : SizedBox.shrink(),
       title: Text(
         prettifySubjectName(name),
         style: TextStyle(

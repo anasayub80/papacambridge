@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:studento/UI/error_report_dialog.dart';
 import 'package:dio/dio.dart';
@@ -14,9 +15,11 @@ import 'package:studento/UI/show_message_dialog.dart';
 import 'package:studento/pages/searchPage.dart';
 import 'package:studento/utils/pdf_helper.dart';
 import '../UI/mainFilesList.dart';
+import '../UI/web_appbar.dart';
 import '../services/backend.dart';
 import '../utils/ads_helper.dart';
-
+import '../utils/theme_provider.dart';
+import 'package:provider/provider.dart';
 // List? level;
 
 // ignore: must_be_immutable
@@ -30,25 +33,28 @@ class SyllabusPage extends StatefulWidget {
 class _SyllabusPageState extends State<SyllabusPage> {
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeSettings>(context, listen: false);
     return Scaffold(
-        appBar: StudentoAppBar(
-          title: "Syllabus",
-          context: context,
-          actions: [
-            IconButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return SearchPage(
-                        domainId: widget.domainId,
-                        domainName: "Syllabus",
-                      );
-                    },
-                  ));
-                },
-                icon: Icon(Icons.search))
-          ],
-        ),
+        appBar: kIsWeb
+            ? webAppBar(themeProvider, context)
+            : StudentoAppBar(
+                title: "Syllabus",
+                context: context,
+                actions: [
+                  IconButton(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return SearchPage(
+                              domainId: widget.domainId,
+                              domainName: "Syllabus",
+                            );
+                          },
+                        ));
+                      },
+                      icon: Icon(Icons.search))
+                ],
+              ),
         body: mainFilesList(
           domainId: widget.domainId,
           title: 'Syllabus',
@@ -170,48 +176,51 @@ class _SyllabusPdfViewState extends State<SyllabusPdfView> {
         progress,
         loadingText: (downloading) ? "Downloading: " : "Loading: ",
       );
+    final themeProvider = Provider.of<ThemeSettings>(context, listen: false);
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar: StudentoAppBar(
-        centerTitle: false,
-        context: context,
-        title: "$pdfName Syllabus",
-        // title: "${widget.subject.name} Syllabus",
-        actions: <Widget>[
-          Stack(
-            children: <Widget>[
-              Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: IconButton(
-                  color: shouldDownload ? Colors.blue : Colors.blueGrey,
-                  icon: Visibility(
-                    visible: shouldDownload,
-                    child: Icon(Icons.cloud_done),
-                    replacement: Icon(Icons.cloud_download),
-                  ),
-                  onPressed: () async {
-                    if (_isPro!)
-                      setState(() => shouldDownload = !shouldDownload);
-                    else {
-                      var isNowPro =
-                          await Navigator.pushNamed(context, 'get_pro_page') ??
-                              false;
-                      if (isNowPro as bool) {
-                        setState(() {
-                          _isPro = isNowPro;
-                          shouldDownload = !shouldDownload;
-                        });
-                      }
-                    }
-                  },
-                ),
-              )
-            ],
-          )
-        ],
-      ),
+      appBar: kIsWeb
+          ? webAppBar(themeProvider, context)
+          : StudentoAppBar(
+              centerTitle: false,
+              context: context,
+              title: "$pdfName Syllabus",
+              // title: "${widget.subject.name} Syllabus",
+              actions: <Widget>[
+                Stack(
+                  children: <Widget>[
+                    Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: IconButton(
+                        color: shouldDownload ? Colors.blue : Colors.blueGrey,
+                        icon: Visibility(
+                          visible: shouldDownload,
+                          child: Icon(Icons.cloud_done),
+                          replacement: Icon(Icons.cloud_download),
+                        ),
+                        onPressed: () async {
+                          if (_isPro!)
+                            setState(() => shouldDownload = !shouldDownload);
+                          else {
+                            var isNowPro = await Navigator.pushNamed(
+                                    context, 'get_pro_page') ??
+                                false;
+                            if (isNowPro as bool) {
+                              setState(() {
+                                _isPro = isNowPro;
+                                shouldDownload = !shouldDownload;
+                              });
+                            }
+                          }
+                        },
+                      ),
+                    )
+                  ],
+                )
+              ],
+            ),
       body: Stack(
         children: <Widget>[
           PDFView(

@@ -1,10 +1,6 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:showcaseview/showcaseview.dart';
-import 'package:studento/provider/loadigProvider.dart';
 import 'package:studento/utils/theme_provider.dart';
-import 'package:provider/provider.dart';
 
 class CustomShowcaseWidget extends StatelessWidget {
   final Widget child;

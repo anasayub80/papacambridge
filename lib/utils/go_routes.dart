@@ -114,12 +114,13 @@ class MyGoRouter {
       ),
       GoRoute(
         name: 'innerfile',
-        path: '/:domainName/:boardName/:url/:id',
+        path: '/:domainName/:boardName/:url',
         pageBuilder: (BuildContext context, GoRouterState state) {
           return MaterialPage(
             child: innerfileScreen(
-              inner_file: state.params["id"]!,
-              // title: state.params["title"]!,
+              url_structure: state.params["url"]!,
+              boardName: state.params["boardName"],
+              domainName: state.params["domainName"],
               title: 'title',
               iscomeFromMainFiles: true,
             ),

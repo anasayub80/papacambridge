@@ -24,6 +24,7 @@ const mainFileApi = 'https://api.papacambridge.com/api.php?page=main_file';
 const searchSubjectApi = 'https://api.papacambridge.com/api.php?page=search';
 const levelApi = 'https://api.papacambridge.com/api.php?page=inner_file';
 const caeiAPI = 'https://api.papacambridge.com/api-caie.php';
+const webAPI = 'https://api.papacambridge.com/api-web.php';
 // const subjectApi =
 //     'https://papacambridge.redrhinoz.com/api.php?page=inner_file';
 
@@ -74,7 +75,7 @@ class backEnd {
           return null;
         } else {
           var response = jsonDecode(res.body.toString());
-          debugPrint("innerFile Response $response");
+          // debugPrint("innerFile Response $response");
           return response;
         }
       } else {
@@ -105,6 +106,28 @@ class backEnd {
     http.Response res = await http.post(Uri.parse(innerFileApi), body: {
       'token': token,
       'fileid': fileid,
+    });
+    if (res.statusCode == 200) {
+      if (res.body.isNotEmpty) {
+        log(res.body.length.toString());
+        if (res.body.length <= 64) {
+          // no data found
+          return null;
+        } else {
+          var response = jsonDecode(res.body.toString());
+          debugPrint("innerFile Response $response");
+          return response;
+        }
+      } else {
+        print('Something Wrong');
+      }
+    }
+  }
+
+  fetchwebInnerFiles(url_structure, domain) async {
+    http.Response res = await http.post(Uri.parse(webAPI), body: {
+      'domain': domain,
+      'url_structure': url_structure,
     });
     if (res.statusCode == 200) {
       if (res.body.isNotEmpty) {

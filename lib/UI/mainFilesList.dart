@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:beamer/beamer.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,23 +10,25 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:showcaseview/showcaseview.dart';
-import 'package:studento/UI/show_case_widget.dart';
 import 'package:studento/pages/inner_files_screen.dart';
 import 'package:studento/responsive/responsive_layout.dart';
 import 'package:studento/services/backend.dart';
-import 'package:studento/utils/beam_locations.dart';
-import 'package:studento/utils/constant.dart';
 import 'package:studento/utils/sideAdsWidget.dart';
 
 import '../model/MainFolder.dart';
 import 'package:http/http.dart' as http;
 
+import '../pages/home_page.dart';
+import '../provider/loadigProvider.dart';
 import '../utils/ads_helper.dart';
 import '../utils/funHelper.dart';
 import '../utils/pdf_helper.dart';
 import '../utils/theme_provider.dart';
 import 'package:provider/provider.dart';
 
+import 'web_appbar.dart';
+
+// ignore: must_be_immutable
 class mainFilesList extends StatefulWidget {
   bool? isPastPapers = false;
   mainFilesList(
@@ -198,14 +199,25 @@ class _mainFilesListState extends State<mainFilesList> {
   }
 
   void initSubjects() async {
+    http.Response res;
     _streamController.add('loading');
     allItem.clear();
     favItem.clear();
     favItemName.clear();
-    http.Response res = await http.post(Uri.parse(mainFileApi), body: {
-      'token': token,
-      'domain': widget.domainId,
-    });
+    if (!kIsWeb)
+      res = await http.post(Uri.parse(mainFileApi), body: {
+        'token': token,
+        'domain': widget.domainId,
+      });
+    else {
+      print('get data for web');
+      res = await http.post(Uri.parse("$webAPI?page=main_file"), body: {
+        // 'domain': widget.domain,
+        // 'url_structure': url_structure,
+        'domain': widget.domainId,
+        'token': token,
+      });
+    }
     debugPrint(res.body);
     clearifyData(res, false);
   }
@@ -427,10 +439,11 @@ class _mainFilesListState extends State<mainFilesList> {
                     onTap: () {
                       if (kIsWeb) {
                         GoRouter.of(context).pushNamed('innerfile', params: {
-                          // 'title': prettyTitle!.toLowerCase(),
-                          'id': allItem[index].id,
                           'domainName': widget.domainName,
-                          'boardName': 'ocr',
+                          'boardName': returnBoardName(
+                              Provider.of<loadingProvider>(context,
+                                      listen: false)
+                                  .getboardId),
                           'url': allItem[index].mainUrl.toString(),
                         });
                       } else {
@@ -446,19 +459,22 @@ class _mainFilesListState extends State<mainFilesList> {
                         'assets/icons/folder.png',
                       ),
                     ),
-                    trailing: IconButton(
-                      onPressed: (() {
-                        addtoFav(
-                          index,
-                          allItem[index].id,
-                          allItem[index].name!,
-                        );
-                      }),
-                      icon: Icon(
-                        Icons.favorite_border,
-                        color: Theme.of(context).textTheme.bodyText1!.color,
-                      ),
-                    ),
+                    trailing: kIsWeb
+                        ? SizedBox.shrink()
+                        : IconButton(
+                            onPressed: (() {
+                              addtoFav(
+                                index,
+                                allItem[index].id,
+                                allItem[index].name!,
+                              );
+                            }),
+                            icon: Icon(
+                              Icons.favorite_border,
+                              color:
+                                  Theme.of(context).textTheme.bodyText1!.color,
+                            ),
+                          ),
                     title: Container(
                       // color: Colors.brown,
                       width: double.infinity,

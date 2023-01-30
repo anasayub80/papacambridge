@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:studento/model/user_data.dart';
-import 'package:studento/pages/setup.dart';
 import '../utils/theme_provider.dart';
 import 'home_page.dart';
 import 'intro.dart';

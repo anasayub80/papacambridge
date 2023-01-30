@@ -20,7 +20,9 @@ import 'package:http/http.dart' as http;
 import 'package:studento/services/backend.dart';
 
 import '../pages/other_fileView.dart';
+import '../provider/loadigProvider.dart';
 import '../utils/bannerAdmob.dart';
+import 'package:provider/provider.dart';
 
 enum Season { spring, summer, winter }
 
@@ -750,7 +752,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
             url,
           ], //..retainWhere((url) => url != null),
           fileName,
-          boardId,
+          Provider.of<loadingProvider>(context, listen: false).getboardId,
           false,
           type == 'QP' ? true : false,
           true,
@@ -775,7 +777,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
             url,
           ],
           fileName,
-          boardId,
+          Provider.of<loadingProvider>(context, listen: false).getboardId,
           true,
           type == 'QP' ? true : false,
           true,
