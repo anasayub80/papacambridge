@@ -94,8 +94,8 @@ class _innerfileScreenState extends State<innerfileScreen> {
   void initState() {
     super.initState();
     if (kIsWeb &&
-        Provider.of<loadingProvider>(context, listen: false).getboardId ==
-            'none' &&
+            Provider.of<loadingProvider>(context, listen: false).getboardId ==
+                'none' ||
         Provider.of<loadingProvider>(context, listen: false).getdomainId ==
             'none') {
       print('select board first ${widget.boardName}');
@@ -255,8 +255,6 @@ class _innerfileScreenState extends State<innerfileScreen> {
       print(
           'inner web$webAPI?domain=${Provider.of<loadingProvider>(context, listen: false).getdomainId}&url_structure=${widget.url_structure}');
       res = await http.post(Uri.parse("$webAPI?page=inner_file"), body: {
-        // 'domain': widget.domain,
-        // 'url_structure': url_structure,
         'domain':
             Provider.of<loadingProvider>(context, listen: false).getdomainId,
         'url_structure': widget.url_structure,

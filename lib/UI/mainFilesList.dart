@@ -57,6 +57,8 @@ class _mainFilesListState extends State<mainFilesList> {
     // ignore: todo
     // TODO: implement initState
     super.initState();
+    debugPrint(
+        'my board name ${returnBoardName(Provider.of<loadingProvider>(context, listen: false).getboardId)}');
     prettyTitle = widget.title.toString().replaceAll(' ', '-');
     getStoredData();
     int randomNumber = random.nextInt(5);
@@ -212,8 +214,6 @@ class _mainFilesListState extends State<mainFilesList> {
     else {
       print('get data for web');
       res = await http.post(Uri.parse("$webAPI?page=main_file"), body: {
-        // 'domain': widget.domain,
-        // 'url_structure': url_structure,
         'domain': widget.domainId,
         'token': token,
       });

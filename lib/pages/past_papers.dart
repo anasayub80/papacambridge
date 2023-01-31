@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
-
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:rxdart/rxdart.dart';
@@ -16,40 +16,20 @@ import '../UI/mainFilesList.dart';
 import '../CAIE/past_papers_details_select.dart';
 import 'package:studento/UI/studento_app_bar.dart';
 import 'package:studento/CAIE/subjects_staggered_view.dart';
-
+import 'package:http/http.dart' as http;
 import '../provider/loadigProvider.dart';
+import '../services/backend.dart';
 import '../utils/ads_helper.dart';
 import '../utils/theme_provider.dart';
 
 // ignore: must_be_immutable
-class PastPapersPage extends StatefulWidget {
-  String domainId;
-  PastPapersPage({required this.domainId});
-  @override
-  // ignore: library_private_types_in_public_api
-  _PastPapersPageState createState() => _PastPapersPageState();
-}
-
-class _PastPapersPageState extends State<PastPapersPage> {
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    if (kIsWeb) {
-      Future.delayed(
-        Duration.zero,
-        () {
-          Provider.of<loadingProvider>(context, listen: false)
-              .changeDomainid(widget.domainId);
-        },
-      );
-    }
-  }
+class PastPapersPage extends StatelessWidget {
+  String? domainId;
+  PastPapersPage({this.domainId});
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeSettings>(context, listen: false);
-    print('past paper domain id ${widget.domainId}');
     return Scaffold(
         appBar: kIsWeb
             ? webAppBar(themeProvider, context)
@@ -62,7 +42,7 @@ class _PastPapersPageState extends State<PastPapersPage> {
                         Navigator.push(context, MaterialPageRoute(
                           builder: (context) {
                             return SearchPage(
-                              domainId: widget.domainId,
+                              domainId: domainId!,
                               domainName: "Past Papers",
                             );
                           },
@@ -71,18 +51,91 @@ class _PastPapersPageState extends State<PastPapersPage> {
                       icon: Icon(Icons.search)),
                 ],
               ),
-        body: ShowCaseWidget(
-          builder: Builder(builder: (context) {
+        body: kIsWeb ? webBody() : mobileBody(domainId: domainId)
+        //  SubjectsStaggeredListView(openPastPapersDetailsSelect),
+        );
+  }
+}
+
+class webBody extends StatefulWidget {
+  const webBody({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<webBody> createState() => _webBodyState();
+}
+
+class _webBodyState extends State<webBody> {
+  void getDomainIdformainfile(provider) async {
+    // get domain id according to board
+    if (provider.getboardId == 'none') {
+      // if board id is stored in cache bcz user was a new visitor
+      provider.changeBoardId(returnboardid('caie'));
+      log('get pastpapers data board is ${provider.getboardId},');
+      http.Response res =
+          await http.post(Uri.parse("$webAPI?page=domains"), body: {
+        'board': provider.getboardId,
+        'websiteurl': 'pastpapers.papacambridge.com',
+        'token': token
+      });
+      var response = jsonDecode(res.body);
+      log('res get ${response[0]["id"]}');
+      _streamController.add(response);
+      // return res;
+    }
+  }
+
+  StreamController _streamController = BehaviorSubject();
+
+  @override
+  Widget build(BuildContext context) {
+    Future.delayed(
+      Duration.zero,
+      () {
+        getDomainIdformainfile(
+            Provider.of<loadingProvider>(context, listen: false));
+      },
+    );
+    return StreamBuilder<dynamic>(
+        stream: _streamController.stream,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
             return mainFilesList(
-              domainId: widget.domainId,
+              domainId: snapshot.data[0]["id"],
               title: 'Past Papers',
               isPastPapers: true,
               domainName: 'papers',
             );
-          }),
-        )
-        //  SubjectsStaggeredListView(openPastPapersDetailsSelect),
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        });
+  }
+}
+
+class mobileBody extends StatelessWidget {
+  const mobileBody({
+    Key? key,
+    required this.domainId,
+  }) : super(key: key);
+
+  final domainId;
+
+  @override
+  Widget build(BuildContext context) {
+    return ShowCaseWidget(
+      builder: Builder(builder: (context) {
+        return mainFilesList(
+          domainId: domainId,
+          title: 'Past Papers',
+          isPastPapers: true,
+          domainName: 'papers',
         );
+      }),
+    );
   }
 }
 

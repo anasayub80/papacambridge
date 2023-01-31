@@ -11,12 +11,15 @@ import 'package:studento/provider/loadigProvider.dart';
 import 'package:studento/provider/multiViewhelper.dart';
 import 'package:studento/routes.dart';
 import 'package:studento/services/navigate_observe.dart';
-import 'package:studento/utils/go_routes.dart';
 import 'package:studento/utils/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:url_strategy/url_strategy.dart';
+
+import 'utils/routes/go_routes.dart';
+import 'utils/routes/notes_routes.dart';
+import 'utils/routes/pastpapers_routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -82,10 +85,9 @@ class _StudentoState extends State<Studento> {
 
   MaterialApp webBody(ThemeSettings themeProvider) {
     return MaterialApp.router(
-      // routerConfig: MyGoRouter().router,
-      routeInformationParser: MyGoRouter.router.routeInformationParser,
-      routeInformationProvider: MyGoRouter.router.routeInformationProvider,
-      routerDelegate: MyGoRouter.router.routerDelegate,
+      routeInformationParser: NotesRoute.router.routeInformationParser,
+      routeInformationProvider: NotesRoute.router.routeInformationProvider,
+      routerDelegate: NotesRoute.router.routerDelegate,
       builder: BotToastInit(),
       themeMode: themeProvider.currentTheme,
       theme: MyTheme().lightTheme,
