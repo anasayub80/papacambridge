@@ -143,37 +143,37 @@ PreferredSize webAppBar(ThemeSettings themeProvider, BuildContext context) {
                 TextButton(
                     onPressed: () {
                       html.window.location.href =
-                          "http://ipastpapers.papacambridge.com/";
+                          "https://ipastpapers.papacambridge.com/";
                     },
                     child: Text("Past Papers")),
                 TextButton(
                     onPressed: () {
                       html.window.location.href =
-                          "http://inotes.papacambridge.com/";
+                          "https://inotes.papacambridge.com/";
                     },
                     child: Text("Notes")),
                 TextButton(
                     onPressed: () {
                       html.window.location.href =
-                          "http://iebooks.papacambridge.com/";
+                          "https://iebooks.papacambridge.com/";
                     },
                     child: Text("Ebooks")),
                 TextButton(
                     onPressed: () {
                       html.window.location.href =
-                          "http://isyllabus.papacambridge.com/";
+                          "https://isyllabus.papacambridge.com/";
                     },
                     child: Text("Syllabus")),
                 TextButton(
                     onPressed: () {
                       html.window.location.href =
-                          "http://iothers.papacambridge.com/";
+                          "https://iothers.papacambridge.com/";
                     },
                     child: Text("Others")),
                 TextButton(
                     onPressed: () {
                       html.window.location.href =
-                          "http://itimetable.papacambridge.com/";
+                          "https://itimetable.papacambridge.com/";
                     },
                     child: Text("Timetable")),
                 TextButton(

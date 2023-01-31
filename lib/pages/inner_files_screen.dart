@@ -445,6 +445,10 @@ class _innerfileScreenState extends State<innerfileScreen> {
               style: Theme.of(context).textTheme.headline4,
             ),
           );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text('Error'),
+          );
         } else if (snapshot.hasData) {
           if (multiItemurl.isEmpty)
             selectedList = List.generate(

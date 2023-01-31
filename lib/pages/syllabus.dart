@@ -1,9 +1,11 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:studento/UI/error_report_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -16,21 +18,20 @@ import 'package:studento/pages/searchPage.dart';
 import 'package:studento/utils/pdf_helper.dart';
 import '../UI/mainFilesList.dart';
 import '../UI/web_appbar.dart';
+import '../provider/loadigProvider.dart';
 import '../services/backend.dart';
 import '../utils/ads_helper.dart';
 import '../utils/theme_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+
 // List? level;
 
 // ignore: must_be_immutable
-class SyllabusPage extends StatefulWidget {
-  String domainId;
-  SyllabusPage({required this.domainId});
-  @override
-  _SyllabusPageState createState() => _SyllabusPageState();
-}
+class SyllabusPage extends StatelessWidget {
+  String? domainId;
+  SyllabusPage({this.domainId});
 
-class _SyllabusPageState extends State<SyllabusPage> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeSettings>(context, listen: false);
@@ -46,7 +47,7 @@ class _SyllabusPageState extends State<SyllabusPage> {
                         Navigator.push(context, MaterialPageRoute(
                           builder: (context) {
                             return SearchPage(
-                              domainId: widget.domainId,
+                              domainId: domainId!,
                               domainName: "Syllabus",
                             );
                           },
@@ -55,11 +56,86 @@ class _SyllabusPageState extends State<SyllabusPage> {
                       icon: Icon(Icons.search))
                 ],
               ),
-        body: mainFilesList(
-          domainId: widget.domainId,
-          title: 'Syllabus',
-          domainName: 'syllabus',
-        ));
+        body: kIsWeb ? webBody() : mobileBody(domainId: domainId));
+  }
+}
+
+class webBody extends StatefulWidget {
+  const webBody({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<webBody> createState() => _webBodyState();
+}
+
+class _webBodyState extends State<webBody> {
+  void getDomainIdformainfile(provider) async {
+    // get domain id according to board
+    if (provider.getboardId == 'none') {
+      // if board id is stored in cache bcz user was a new visitor
+      provider.changeBoardId(returnboardid('ocr'));
+      http.Response res =
+          await http.post(Uri.parse("$webAPI?page=domains"), body: {
+        'board': provider.getboardId,
+        'websiteurl': 'syllabus.papacambridge.com',
+        'token': token
+      });
+      var response = jsonDecode(res.body);
+      _streamController.add(response);
+      // return res;
+    }
+  }
+
+  StreamController _streamController = BehaviorSubject();
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(
+      Duration.zero,
+      () {
+        getDomainIdformainfile(
+            Provider.of<loadingProvider>(context, listen: false));
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<dynamic>(
+        stream: _streamController.stream,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return mainFilesList(
+              domainId: snapshot.data[0]["id"],
+              title: 'Syllabus',
+              isPastPapers: true,
+              domainName: 'syllabus',
+            );
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        });
+  }
+}
+
+class mobileBody extends StatelessWidget {
+  const mobileBody({
+    Key? key,
+    required this.domainId,
+  }) : super(key: key);
+
+  final domainId;
+
+  @override
+  Widget build(BuildContext context) {
+    return mainFilesList(
+      domainId: domainId,
+      title: 'Syllabus',
+      domainName: 'syllabus',
+    );
   }
 }
 

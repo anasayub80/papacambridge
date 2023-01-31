@@ -32,6 +32,7 @@ import 'ebook_page.dart';
 import 'past_papers.dart';
 import 'syllabus.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:html' as html;
 
 class HomePage extends StatefulWidget {
   // static final beamLocation = BeamPage(page: HomePage(), key: ValueKey('home'));
@@ -123,6 +124,14 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
     );
   }
 
+  List domainNameForWeb = [
+    'Past Papers',
+    'Notes',
+    'E Books',
+    'Syllabus',
+    'Others',
+    'Timetables',
+  ];
 // Use for stop snapshot list from updating
   bool updated = false;
   final GlobalKey<ScaffoldState> _key = GlobalKey(); // Create a key
@@ -167,9 +176,35 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
-              child: mobileBody(),
-            ),
+                width: MediaQuery.of(context).size.width * 0.45,
+                child: GridView.builder(
+                  // physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: domainNameForWeb.length,
+                  gridDelegate:
+                      SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
+                    crossAxisCount:
+                        2, // HERE YOU CAN ADD THE NO OF ITEMS PER LINE
+                    crossAxisSpacing: 2.0,
+                    mainAxisSpacing: 2.0,
+                    height: kIsWeb
+                        ? (MediaQuery.of(context).size.width < mobileWidth)
+                            ? 200
+                            : 250
+                        : 175.0,
+                  ),
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: HomePageButton(
+                        label: domainNameForWeb[index],
+                        iconFileName: returnfileName(domainNameForWeb[index]),
+                        routeToBePushedWhenTapped: 'ignorethisline',
+                        domainId: domainNameForWeb[index],
+                      ),
+                    );
+                  },
+                )),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.25,
               child: ListView(
@@ -456,8 +491,10 @@ class _HomePageButtonState extends State<HomePageButton> {
         if (Provider.of<loadingProvider>(context, listen: false).getboardId !=
             '1') {
           if (kIsWeb) {
-            GoRouter.of(context)
-                .pushNamed('pastpapers', params: {'id': widget.domainId});
+            // GoRouter.of(context)
+            //     .pushNamed('pastpapers', params: {'id': widget.domainId});
+            html.window.location.href =
+                "https://ipastpapers.papacambridge.com/";
           } else {
             Navigator.push(context, MaterialPageRoute(
               builder: (context) {
@@ -478,8 +515,9 @@ class _HomePageButtonState extends State<HomePageButton> {
       case 'Syllabus':
         // if (boardId != '1') {
         if (kIsWeb) {
-          GoRouter.of(context)
-              .pushNamed('syllabus', params: {'id': widget.domainId});
+          // GoRouter.of(context)
+          //     .pushNamed('syllabus', params: {'id': widget.domainId});
+          html.window.location.href = "https://isyllabus.papacambridge.com/";
         } else {
           Navigator.push(context, MaterialPageRoute(
             builder: (context) {
@@ -491,8 +529,9 @@ class _HomePageButtonState extends State<HomePageButton> {
 
       case 'E Books':
         if (kIsWeb) {
-          GoRouter.of(context)
-              .pushNamed('e-books', params: {'id': widget.domainId});
+          // GoRouter.of(context)
+          //     .pushNamed('e-books', params: {'id': widget.domainId});
+          html.window.location.href = "https://isyllabus.papacambridge.com/";
         } else
           Navigator.push(context, MaterialPageRoute(
             builder: (context) {
@@ -502,8 +541,9 @@ class _HomePageButtonState extends State<HomePageButton> {
         break;
       case 'Notes':
         if (kIsWeb) {
-          GoRouter.of(context)
-              .pushNamed('notes', params: {'id': widget.domainId});
+          // GoRouter.of(context)
+          //     .pushNamed('notes', params: {'id': widget.domainId});
+          html.window.location.href = "https://notes.papacambridge.com/";
         } else {
           Navigator.push(context, MaterialPageRoute(
             builder: (context) {
@@ -514,8 +554,9 @@ class _HomePageButtonState extends State<HomePageButton> {
         break;
       case 'Others':
         if (kIsWeb)
-          GoRouter.of(context)
-              .pushNamed('others', params: {'id': widget.domainId});
+          // GoRouter.of(context)
+          //     .pushNamed('others', params: {'id': widget.domainId});
+          html.window.location.href = "https://iothers.papacambridge.com/";
         else
           Navigator.push(context, MaterialPageRoute(
             builder: (context) {
@@ -525,8 +566,9 @@ class _HomePageButtonState extends State<HomePageButton> {
         break;
       case 'Timetables':
         if (kIsWeb)
-          GoRouter.of(context)
-              .pushNamed('timetables', params: {'id': widget.domainId});
+          // GoRouter.of(context)
+          //     .pushNamed('timetables', params: {'id': widget.domainId});
+          html.window.location.href = "https://itimetable.papacambridge.com/";
         else
           Navigator.push(context, MaterialPageRoute(
             builder: (context) {

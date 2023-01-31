@@ -25,27 +25,27 @@ class MyGoRouter {
       AppNavigatorObserver(),
     ],
     routes: [
-      GoRoute(
-        name: 'splash',
-        path: '/',
-        builder: (BuildContext context, GoRouterState state) {
-          return SplashPage();
-        },
-      ),
+      // GoRoute(
+      //   name: 'splash',
+      //   path: '/',
+      //   builder: (BuildContext context, GoRouterState state) {
+      //     return SplashPage();
+      //   },
+      // ),
       GoRoute(
         name: 'home',
-        path: '/home',
+        path: '/',
         builder: (BuildContext context, GoRouterState state) {
           return HomePage();
         },
       ),
-      GoRoute(
-        name: 'setup',
-        path: '/setup',
-        builder: (BuildContext context, GoRouterState state) {
-          return Setup();
-        },
-      ),
+      // GoRoute(
+      //   name: 'setup',
+      //   path: '/setup',
+      //   builder: (BuildContext context, GoRouterState state) {
+      //     return Setup();
+      //   },
+      // ),
       GoRoute(
         name: 'pastpapers',
         path: '/pastpapers/:id',

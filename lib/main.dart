@@ -2,16 +2,22 @@ import 'dart:async';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:studento/model/todo/todo_list_model.dart';
+import 'package:studento/pages/otherres_page.dart';
 import 'package:studento/pages/splash_page.dart';
+import 'package:studento/pages/syllabus.dart';
 import 'package:studento/provider/loadigProvider.dart';
 import 'package:studento/provider/multiViewhelper.dart';
 import 'package:studento/routes.dart';
 import 'package:studento/services/navigate_observe.dart';
 import 'package:studento/utils/routes/ebooks_routes.dart';
+import 'package:studento/utils/routes/notes_routes.dart';
+import 'package:studento/utils/routes/other_routes.dart';
+import 'package:studento/utils/routes/syllabus_routes.dart';
 import 'package:studento/utils/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,6 +26,7 @@ import 'package:url_strategy/url_strategy.dart';
 
 import 'utils/routes/go_routes.dart';
 import 'utils/routes/pastpapers_routes.dart';
+import 'utils/routes/timetable_route.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -85,9 +92,9 @@ class _StudentoState extends State<Studento> {
 
   MaterialApp webBody(ThemeSettings themeProvider) {
     return MaterialApp.router(
-      routeInformationParser: EbooksRoute.router.routeInformationParser,
-      routeInformationProvider: EbooksRoute.router.routeInformationProvider,
-      routerDelegate: EbooksRoute.router.routerDelegate,
+      routeInformationParser: MyGoRouter.router.routeInformationParser,
+      routeInformationProvider: MyGoRouter.router.routeInformationProvider,
+      routerDelegate: MyGoRouter.router.routerDelegate,
       builder: BotToastInit(),
       themeMode: themeProvider.currentTheme,
       theme: MyTheme().lightTheme,
