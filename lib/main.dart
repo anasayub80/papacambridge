@@ -83,8 +83,9 @@ class _StudentoState extends State<Studento> {
   MaterialApp webBody(ThemeSettings themeProvider) {
     return MaterialApp.router(
       // routerConfig: MyGoRouter().router,
-      routeInformationParser: MyGoRouter().router.routeInformationParser,
-      routerDelegate: MyGoRouter().router.routerDelegate,
+      routeInformationParser: MyGoRouter.router.routeInformationParser,
+      routeInformationProvider: MyGoRouter.router.routeInformationProvider,
+      routerDelegate: MyGoRouter.router.routerDelegate,
       builder: BotToastInit(),
       themeMode: themeProvider.currentTheme,
       theme: MyTheme().lightTheme,

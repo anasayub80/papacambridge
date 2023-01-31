@@ -4,7 +4,7 @@ class loadingProvider with ChangeNotifier {
   bool _loading = true;
   bool _showcaseDismiss = false;
   var _boardId = 'none';
-  var _domainId = '2';
+  var _domainId = 'none';
   get getboardId => _boardId;
   get getdomainId => _domainId;
   bool get loading => _loading;

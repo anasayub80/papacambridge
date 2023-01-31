@@ -1,3 +1,139 @@
+// import 'package:bot_toast/bot_toast.dart';
+// import 'package:flutter/material.dart';
+// import 'package:go_router/go_router.dart';
+// import 'package:studento/pages/ebook_page.dart';
+// import 'package:studento/pages/error_page.dart';
+// import 'package:studento/pages/inner_files_screen.dart';
+// import 'package:studento/pages/notes_page.dart';
+// import 'package:studento/pages/otherres_page.dart';
+// import 'package:studento/pages/syllabus.dart';
+// import 'package:studento/pages/timetable_page.dart';
+
+// import '../pages/home_page.dart';
+// import '../pages/past_papers.dart';
+// import '../pages/setup.dart';
+// import '../pages/splash_page.dart';
+// import '../services/navigate_observe.dart';
+
+// /// The route configuration.
+// class MyGoRouter {
+//   final GoRouter router = GoRouter(
+//     debugLogDiagnostics: true,
+//     observers: [
+//       BotToastNavigatorObserver(),
+//       NavigatorObserver(),
+//       AppNavigatorObserver(),
+//     ],
+//     routes: <RouteBase>[
+//       GoRoute(
+//         name: 'splash',
+//         path: '/',
+//         pageBuilder: (BuildContext context, GoRouterState state) {
+//           return MaterialPage(child: SplashPage());
+//         },
+//       ),
+//       GoRoute(
+//         name: 'home',
+//         path: '/home',
+//         pageBuilder: (BuildContext context, GoRouterState state) {
+//           return MaterialPage(child: HomePage());
+//         },
+//       ),
+//       GoRoute(
+//         name: 'setup',
+//         path: '/setup',
+//         pageBuilder: (BuildContext context, GoRouterState state) {
+//           return MaterialPage(child: Setup());
+//         },
+//       ),
+//       GoRoute(
+//         name: 'pastpapers',
+//         path: '/pastpapers/:id',
+//         pageBuilder: (BuildContext context, GoRouterState state) {
+//           return MaterialPage(
+//             child: PastPapersPage(
+//               domainId: state.params["id"]!,
+//             ),
+//           );
+//         },
+//       ),
+//       GoRoute(
+//         name: 'notes',
+//         path: '/notes/:id',
+//         pageBuilder: (BuildContext context, GoRouterState state) {
+//           return MaterialPage(
+//             child: NotesPage(
+//               domainId: state.params["id"]!,
+//             ),
+//           );
+//         },
+//       ),
+//       GoRoute(
+//         name: 'syllabus',
+//         path: '/syllabus/:id',
+//         pageBuilder: (BuildContext context, GoRouterState state) {
+//           return MaterialPage(
+//             child: SyllabusPage(
+//               domainId: state.params["id"]!,
+//             ),
+//           );
+//         },
+//       ),
+//       GoRoute(
+//         name: 'e-books',
+//         path: '/e-books/:id',
+//         pageBuilder: (BuildContext context, GoRouterState state) {
+//           return MaterialPage(
+//             child: EBooksPage(
+//               domainId: state.params["id"]!,
+//             ),
+//           );
+//         },
+//       ),
+//       GoRoute(
+//         name: 'others',
+//         path: '/others/:id',
+//         pageBuilder: (BuildContext context, GoRouterState state) {
+//           return MaterialPage(
+//             child: OtherResources(
+//               domainId: state.params["id"]!,
+//             ),
+//           );
+//         },
+//       ),
+//       GoRoute(
+//         name: 'timetables',
+//         path: '/timetables/:id',
+//         pageBuilder: (BuildContext context, GoRouterState state) {
+//           return MaterialPage(
+//             child: TimeTablePage(
+//               domainId: state.params["id"]!,
+//             ),
+//           );
+//         },
+//       ),
+//       GoRoute(
+//         name: 'innerfile',
+//         path: '/:domainName/:boardName/:url',
+//         pageBuilder: (BuildContext context, GoRouterState state) {
+//           return MaterialPage(
+//             child: innerfileScreen(
+//               url_structure: state.params["url"]!,
+//               boardName: state.params["boardName"],
+//               domainName: state.params["domainName"],
+//               title: 'title',
+//               iscomeFromMainFiles: true,
+//             ),
+//           );
+//         },
+//       ),
+//     ],
+//     errorPageBuilder: (context, state) {
+//       return MaterialPage(child: ErrorPage());
+//     },
+//   );
+// }
+
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -17,33 +153,33 @@ import '../services/navigate_observe.dart';
 
 /// The route configuration.
 class MyGoRouter {
-  final GoRouter router = GoRouter(
+  static final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
     observers: [
       BotToastNavigatorObserver(),
       NavigatorObserver(),
       AppNavigatorObserver(),
     ],
-    routes: <RouteBase>[
+    routes: [
       GoRoute(
         name: 'splash',
         path: '/',
-        pageBuilder: (BuildContext context, GoRouterState state) {
-          return MaterialPage(child: SplashPage());
+        builder: (BuildContext context, GoRouterState state) {
+          return SplashPage();
         },
       ),
       GoRoute(
         name: 'home',
         path: '/home',
-        pageBuilder: (BuildContext context, GoRouterState state) {
-          return MaterialPage(child: HomePage());
+        builder: (BuildContext context, GoRouterState state) {
+          return HomePage();
         },
       ),
       GoRoute(
         name: 'setup',
         path: '/setup',
-        pageBuilder: (BuildContext context, GoRouterState state) {
-          return MaterialPage(child: Setup());
+        builder: (BuildContext context, GoRouterState state) {
+          return Setup();
         },
       ),
       GoRoute(
@@ -60,74 +196,63 @@ class MyGoRouter {
       GoRoute(
         name: 'notes',
         path: '/notes/:id',
-        pageBuilder: (BuildContext context, GoRouterState state) {
-          return MaterialPage(
-            child: NotesPage(
-              domainId: state.params["id"]!,
-            ),
+        builder: (BuildContext context, GoRouterState state) {
+          return NotesPage(
+            domainId: state.params["id"]!,
           );
         },
       ),
       GoRoute(
         name: 'syllabus',
         path: '/syllabus/:id',
-        pageBuilder: (BuildContext context, GoRouterState state) {
-          return MaterialPage(
-            child: SyllabusPage(
-              domainId: state.params["id"]!,
-            ),
+        builder: (BuildContext context, GoRouterState state) {
+          return SyllabusPage(
+            domainId: state.params["id"]!,
           );
         },
       ),
       GoRoute(
         name: 'e-books',
         path: '/e-books/:id',
-        pageBuilder: (BuildContext context, GoRouterState state) {
-          return MaterialPage(
-            child: EBooksPage(
-              domainId: state.params["id"]!,
-            ),
+        builder: (BuildContext context, GoRouterState state) {
+          return EBooksPage(
+            domainId: state.params["id"]!,
           );
         },
       ),
       GoRoute(
         name: 'others',
         path: '/others/:id',
-        pageBuilder: (BuildContext context, GoRouterState state) {
-          return MaterialPage(
-            child: OtherResources(
-              domainId: state.params["id"]!,
-            ),
+        builder: (BuildContext context, GoRouterState state) {
+          return OtherResources(
+            domainId: state.params["id"]!,
           );
         },
       ),
       GoRoute(
         name: 'timetables',
         path: '/timetables/:id',
-        pageBuilder: (BuildContext context, GoRouterState state) {
-          return MaterialPage(
-            child: TimeTablePage(
-              domainId: state.params["id"]!,
-            ),
+        builder: (BuildContext context, GoRouterState state) {
+          return TimeTablePage(
+            domainId: state.params["id"]!,
           );
         },
       ),
       GoRoute(
         name: 'innerfile',
         path: '/:domainName/:boardName/:url',
-        pageBuilder: (BuildContext context, GoRouterState state) {
-          return MaterialPage(
-            child: innerfileScreen(
-              url_structure: state.params["url"]!,
-              boardName: state.params["boardName"],
-              domainName: state.params["domainName"],
-              title: 'title',
-              iscomeFromMainFiles: true,
-            ),
+        builder: (BuildContext context, GoRouterState state) {
+          return innerfileScreen(
+            url_structure: state.params["url"]!,
+            boardName: state.params["boardName"],
+            domainName: state.params["domainName"],
+            title: 'title',
+            iscomeFromMainFiles: true,
           );
         },
       ),
     ],
+    redirect: (context, state) {},
     errorPageBuilder: (context, state) {
       return MaterialPage(child: ErrorPage());
     },

@@ -95,15 +95,23 @@ class _innerfileScreenState extends State<innerfileScreen> {
     super.initState();
     if (kIsWeb &&
         Provider.of<loadingProvider>(context, listen: false).getboardId ==
+            'none' &&
+        Provider.of<loadingProvider>(context, listen: false).getdomainId ==
             'none') {
       print('select board first ${widget.boardName}');
       Future.delayed(
         Duration.zero,
-        () {
+        () async {
           // trying to fix get data from direct url without board select and null domain id
           Provider.of<loadingProvider>(context, listen: false)
-              .changeBoardId(widget.boardName);
-          getStoredData();
+              .changeBoardId(returnboardid(widget.boardName));
+          var myres =
+              await backEnd().fetchDomains(returnboardid(widget.boardName));
+          log("domain id ${myres[0]['id']}");
+          // ignore: use_build_context_synchronously
+          Provider.of<loadingProvider>(context, listen: false)
+              .changeDomainid(myres[0]['id']);
+          initData();
         },
       );
     } else {
@@ -245,7 +253,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
     else {
       print('get data for web');
       print(
-          'inner web$webAPI?domain=${widget.domainId}&url_structure=${widget.url_structure}');
+          'inner web$webAPI?domain=${Provider.of<loadingProvider>(context, listen: false).getdomainId}&url_structure=${widget.url_structure}');
       res = await http.post(Uri.parse("$webAPI?page=inner_file"), body: {
         // 'domain': widget.domain,
         // 'url_structure': url_structure,

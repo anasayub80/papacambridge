@@ -72,6 +72,7 @@ returnBoardName(name) {
       pushname = 'pearson';
       break;
     default:
+      pushname = 'ocr';
   }
   return pushname;
 }
@@ -102,7 +103,9 @@ returnboardid(name) {
       pushname = '7';
       break;
     default:
+      pushname = '2';
   }
+  log(pushname);
   return pushname;
 }
 
@@ -172,7 +175,7 @@ PreferredSize webAppBar(ThemeSettings themeProvider, BuildContext context) {
                 },
                 child: Center(
                   child: Text(
-                      'Change Exam - ${returnBoardName(Provider.of<loadingProvider>(context, listen: false).getboardId)}'),
+                      'Change Exam - ${returnBoardName(Provider.of<loadingProvider>(context, listen: true).getboardId)}'),
                 ))
           ],
         ),
