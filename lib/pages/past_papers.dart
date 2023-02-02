@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
@@ -16,15 +17,16 @@ import '../UI/mainFilesList.dart';
 import '../CAIE/past_papers_details_select.dart';
 import 'package:studento/UI/studento_app_bar.dart';
 import 'package:studento/CAIE/subjects_staggered_view.dart';
-
+import 'package:http/http.dart' as http;
 import '../provider/loadigProvider.dart';
+import '../services/backend.dart';
 import '../utils/ads_helper.dart';
 import '../utils/theme_provider.dart';
 
 // ignore: must_be_immutable
 class PastPapersPage extends StatefulWidget {
-  String domainId;
-  PastPapersPage({required this.domainId});
+  String? domainId;
+  PastPapersPage({this.domainId});
   @override
   // ignore: library_private_types_in_public_api
   _PastPapersPageState createState() => _PastPapersPageState();
@@ -36,11 +38,18 @@ class _PastPapersPageState extends State<PastPapersPage> {
     // TODO: implement initState
     super.initState();
     if (kIsWeb) {
+      // Future.delayed(
+      //   Duration.zero,
+      //   () {
+      //     Provider.of<loadingProvider>(context, listen: false)
+      //         .changeDomainid(widget.domainId);
+      //   },
+      // );
       Future.delayed(
         Duration.zero,
         () {
           Provider.of<loadingProvider>(context, listen: false)
-              .changeDomainid(widget.domainId);
+              .getLocalStorage();
         },
       );
     }
@@ -62,7 +71,7 @@ class _PastPapersPageState extends State<PastPapersPage> {
                         Navigator.push(context, MaterialPageRoute(
                           builder: (context) {
                             return SearchPage(
-                              domainId: widget.domainId,
+                              domainId: widget.domainId!,
                               domainName: "Past Papers",
                             );
                           },
@@ -71,18 +80,95 @@ class _PastPapersPageState extends State<PastPapersPage> {
                       icon: Icon(Icons.search)),
                 ],
               ),
-        body: ShowCaseWidget(
-          builder: Builder(builder: (context) {
+        body: kIsWeb ? webBody() : mobileBody()
+        //  SubjectsStaggeredListView(openPastPapersDetailsSelect),
+        );
+  }
+
+  ShowCaseWidget mobileBody() {
+    return ShowCaseWidget(
+      builder: Builder(builder: (context) {
+        return mainFilesList(
+          domainId: widget.domainId,
+          title: 'Past Papers',
+          isPastPapers: true,
+          domainName: 'papers',
+        );
+      }),
+    );
+  }
+}
+
+class webBody extends StatefulWidget {
+  const webBody({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<webBody> createState() => _webBodyState();
+}
+
+class _webBodyState extends State<webBody> {
+  void getDomainIdformainfile(provider) async {
+    // get domain id according to board
+    await Provider.of<loadingProvider>(context, listen: false)
+        .getLocalStorage();
+    // ignore: use_build_context_synchronously
+    if (provider.getboardId == 'none') {
+      // if board id is stored in cache bcz user was a new visitor
+      provider.saveBoard(1, 'CAIE', false);
+      log('get pastpapers data board is ${provider.getboardId},');
+      getData(provider);
+      // return res;
+    } else {
+      getData(provider);
+    }
+  }
+
+  getData(provider) async {
+    log('getDomainMainFile ${provider.getboardId}');
+    http.Response res =
+        await http.post(Uri.parse("$webAPI?page=domains"), body: {
+      'board': provider.getboardId,
+      'websiteurl': 'pastpapers.papacambridge.com',
+      'token': token
+    });
+    var response = jsonDecode(res.body);
+    log('res get ${response[0]["id"]}');
+    _streamController.add(response);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      getDomainIdformainfile(
+          Provider.of<loadingProvider>(context, listen: false));
+      //... others are same
+    });
+  }
+
+  StreamController _streamController = BehaviorSubject();
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<dynamic>(
+        stream: _streamController.stream,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
             return mainFilesList(
-              domainId: widget.domainId,
-              title: 'Past Papers',
+              domainId: snapshot.data[0]["id"],
+              title:
+                  'Past Papers ${Provider.of<loadingProvider>(context, listen: true).getselectedboard}',
               isPastPapers: true,
               domainName: 'papers',
             );
-          }),
-        )
-        //  SubjectsStaggeredListView(openPastPapersDetailsSelect),
-        );
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        });
   }
 }
 
@@ -98,23 +184,26 @@ class _PastPapersPageCAIEState extends State<PastPapersPageCAIE> {
   @override
   void initState() {
     super.initState();
-    BannerAd(
-      adUnitId: bannerAdUnitId,
-      size: AdSize.banner,
-      request: AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          setState(() {
-            _ad = ad as BannerAd;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          // Releases an ad resource when it fails to load
-          ad.dispose();
-          print('Ad load failed (code=${error.code} message=${error.message})');
-        },
-      ),
-    ).load();
+    if (!kIsWeb) {
+      BannerAd(
+        adUnitId: bannerAdUnitId,
+        size: AdSize.banner,
+        request: AdRequest(),
+        listener: BannerAdListener(
+          onAdLoaded: (ad) {
+            setState(() {
+              _ad = ad as BannerAd;
+            });
+          },
+          onAdFailedToLoad: (ad, error) {
+            // Releases an ad resource when it fails to load
+            ad.dispose();
+            print(
+                'Ad load failed (code=${error.code} message=${error.message})');
+          },
+        ),
+      ).load();
+    }
     // getData();
     getMyData();
   }

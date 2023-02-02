@@ -58,18 +58,22 @@ class _mainFilesListState extends State<mainFilesList> {
     // TODO: implement initState
     super.initState();
     prettyTitle = widget.title.toString().replaceAll(' ', '-');
-    getStoredData();
-    int randomNumber = random.nextInt(5);
-    switch (randomNumber) {
-      case 2:
-        _interstitialAd?.dispose();
-        createInterstitialAd();
-        break;
-      case 4:
-        _interstitialAd?.dispose();
-        createInterstitialAd();
-        break;
-      default:
+    if (kIsWeb) {
+      initSubjects();
+    } else {
+      getStoredData();
+      int randomNumber = random.nextInt(5);
+      switch (randomNumber) {
+        case 2:
+          _interstitialAd?.dispose();
+          createInterstitialAd();
+          break;
+        case 4:
+          _interstitialAd?.dispose();
+          createInterstitialAd();
+          break;
+        default:
+      }
     }
   }
 
@@ -212,13 +216,11 @@ class _mainFilesListState extends State<mainFilesList> {
     else {
       print('get data for web');
       res = await http.post(Uri.parse("$webAPI?page=main_file"), body: {
-        // 'domain': widget.domain,
-        // 'url_structure': url_structure,
         'domain': widget.domainId,
         'token': token,
       });
     }
-    debugPrint(res.body);
+    // debugPrint(res.body);
     clearifyData(res, false);
   }
 
@@ -239,7 +241,8 @@ class _mainFilesListState extends State<mainFilesList> {
   }
 
   String prettifySubjectName(String subjectName) {
-    return subjectName.replaceFirst("\r\n", "");
+    var name = subjectName.replaceFirst("\r", "");
+    return name.replaceFirst("\n", "");
   }
 
   removeFromFav(index, id, name) async {
@@ -385,7 +388,7 @@ class _mainFilesListState extends State<mainFilesList> {
           return Center(
             child: Text(
               'No Data Found',
-              style: Theme.of(context).textTheme.headline4,
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
           );
         } else {

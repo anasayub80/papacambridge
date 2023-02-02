@@ -54,6 +54,15 @@ class _StudentoState extends State<Studento> {
   @override
   void initState() {
     // checkifSetupComplete();
+    if (kIsWeb) {
+      Future.delayed(
+        Duration.zero,
+        () {
+          Provider.of<loadingProvider>(context, listen: false)
+              .getLocalStorage();
+        },
+      );
+    }
     super.initState();
   }
 

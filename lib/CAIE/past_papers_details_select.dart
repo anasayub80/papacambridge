@@ -14,7 +14,6 @@ import 'package:studento/model/user_data.dart';
 import 'package:studento/model/Filtered.dart';
 import 'package:studento/UI/steps/year.dart';
 import 'package:studento/UI/steps/season.dart';
-import 'package:studento/pages/home_page.dart';
 import 'package:studento/model/MainFolderInit.dart';
 import 'package:http/http.dart' as http;
 import 'package:studento/services/backend.dart';

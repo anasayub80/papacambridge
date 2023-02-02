@@ -43,9 +43,7 @@ class _SplashPageState extends State<SplashPage> {
       Duration(seconds: 3),
       () {
         if (kIsWeb) {
-          isSetupComplete!
-              ? GoRouter.of(context).pushReplacementNamed('home')
-              : GoRouter.of(context).pushReplacementNamed('setup');
+          GoRouter.of(context).pushReplacementNamed('home');
         } else {
           Navigator.pushReplacement(context, MaterialPageRoute(
             builder: (context) {

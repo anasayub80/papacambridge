@@ -60,7 +60,17 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
     //   () {},
     // );
     super.initState();
-    getDomains();
+    if (!kIsWeb) {
+      getDomains();
+    } else {
+      Future.delayed(
+        Duration.zero,
+        () {
+          Provider.of<loadingProvider>(context, listen: false)
+              .getLocalStorage();
+        },
+      );
+    }
   }
 
   getDomains() async {
@@ -68,8 +78,11 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
         'get Domain Call DomainsData${Provider.of<loadingProvider>(context, listen: false).getboardId}');
     final prefs = await SharedPreferences.getInstance();
     // ignore: use_build_context_synchronously
-    Provider.of<loadingProvider>(context, listen: false)
-        .changeBoardId(prefs.getString('board')!);
+    Provider.of<loadingProvider>(context, listen: false).saveBoard(
+      prefs.getString('board')!,
+      prefs.getString('boardName')!,
+      false,
+    );
     var isConnected = await PdfHelper.checkIfConnected();
     if (isConnected) {
       var res = await funHelper().checkifDataExist(
@@ -162,88 +175,123 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: ResponsiveLayout(
         mobileBody: mobileBody(),
-        webBody: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.45,
-              child: mobileBody(),
+        webBody: webBody(context),
+      ),
+    );
+  }
+
+  List domainsName = [
+    'Past Papers',
+    'Notes',
+    'E Books',
+    'Syllabus',
+    'Others',
+    'Timetables',
+    'Schedule',
+    'Todo List'
+  ];
+  Row webBody(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.45,
+          child: GridView.builder(
+            shrinkWrap: true,
+            itemCount: domainsName.length,
+            gridDelegate:
+                SliverGridDelegateWithFixedCrossAxisCountAndFixedHeight(
+              crossAxisCount: 2, // HERE YOU CAN ADD THE NO OF ITEMS PER LINE
+              crossAxisSpacing: 2.0,
+              mainAxisSpacing: 2.0,
+              height: kIsWeb
+                  ? (MediaQuery.of(context).size.width < mobileWidth)
+                      ? 200
+                      : 250
+                  : 175.0,
             ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.25,
-              child: ListView(
-                // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                // crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    child: Card(
-                      child: ClipPath(
-                        child: Container(
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 18.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  'assets/icons/launcher-icon.png',
-                                  height: 75,
-                                  width: 75,
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Text(
-                                    'Download PapaCambridge App From PlayStore'),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                ElevatedButton(
-                                    onPressed: () {
-                                      launchUrl(Uri.parse(
-                                          'https://play.google.com/store/apps/details?id=com.MaskyS.papaCambridge'));
-                                    },
-                                    child: Text('Download from Play Store'))
-                              ],
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: HomePageButton(
+                  label: domainsName[index],
+                  iconFileName: returnfileName(domainsName[index]),
+                  routeToBePushedWhenTapped: 'ignorethisline',
+                  domainId: domainsName[index],
+                ),
+              );
+            },
+          ),
+        ),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.25,
+          child: ListView(
+            children: [
+              Container(
+                child: Card(
+                  child: ClipPath(
+                    child: Container(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/icons/launcher-icon.png',
+                              height: 75,
+                              width: 75,
                             ),
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border(
-                              right: BorderSide(
-                                color: secColor,
-                                width: 2,
-                              ),
+                            SizedBox(
+                              height: 20,
                             ),
-                          ),
-                        ),
-                        clipper: ShapeBorderClipper(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20)),
+                            Text('Download PapaCambridge App From PlayStore'),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            ElevatedButton(
+                                onPressed: () {
+                                  launchUrl(Uri.parse(
+                                      'https://play.google.com/store/apps/details?id=com.MaskyS.papaCambridge'));
+                                },
+                                child: Text('Download from Play Store'))
+                          ],
                         ),
                       ),
-                      color: Theme.of(context).cardColor,
-                      elevation: 20,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        side: BorderSide.none,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          right: BorderSide(
+                            color: secColor,
+                            width: 2,
+                          ),
+                        ),
                       ),
                     ),
-                    height: 300,
-                    width: 250,
+                    clipper: ShapeBorderClipper(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                    ),
                   ),
-                  SizedBox(
-                      // height: 500,
-                      width: 400,
-                      height: 500,
-                      child: sideAdsWidget())
-                ],
+                  color: Theme.of(context).cardColor,
+                  elevation: 20,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                    side: BorderSide.none,
+                  ),
+                ),
+                height: 300,
+                width: 250,
               ),
-            ),
-          ],
+              SizedBox(
+                  // height: 500,
+                  width: 400,
+                  height: 500,
+                  child: sideAdsWidget())
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -262,7 +310,7 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
                 return Center(
                   child: Text(
                     'No Data Found',
-                    style: Theme.of(context).textTheme.headline4,
+                    style: Theme.of(context).textTheme.headlineMedium,
                   ),
                 );
               } else if (snapshot.hasData) {
@@ -377,10 +425,9 @@ class _HomePageButtonState extends State<HomePageButton> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('**my domain id is ${widget.domainId}**');
     final TextStyle labelStyle = TextStyle(
       fontWeight: FontWeight.bold,
-      color: Theme.of(context).textTheme.bodyText1!.color,
+      color: Theme.of(context).textTheme.bodyLarge!.color,
     );
 
     Widget labelText() => Text(
@@ -435,9 +482,13 @@ class _HomePageButtonState extends State<HomePageButton> {
       message: widget.label,
       child: InkWell(
         onTap: () {
-          widget.domainId == ''
-              ? pushsimpleRoutes(context)
-              : pushRoute(context, widget.label, widget.domainId);
+          if (kIsWeb) {
+            pushwebRoutes(widget.domainId);
+          } else {
+            widget.domainId == ''
+                ? pushsimpleRoutes(context)
+                : pushRoute(context, widget.label, widget.domainId);
+          }
         },
         child: buttonsContainer(),
       ),
@@ -446,6 +497,40 @@ class _HomePageButtonState extends State<HomePageButton> {
 
   void pushsimpleRoutes(BuildContext context) {
     Navigator.of(context).pushNamed(widget.routeToBePushedWhenTapped);
+  }
+
+  void pushwebRoutes(domainName) {
+    switch (domainName.trim()) {
+      case 'Past Papers':
+        GoRouter.of(context).pushNamed('pastpapers');
+
+        break;
+      case 'Syllabus':
+        GoRouter.of(context).pushNamed('syllabus');
+
+        break;
+
+      case 'E Books':
+        GoRouter.of(context).pushNamed('e-books');
+
+        break;
+      case 'Notes':
+        GoRouter.of(context).pushNamed('notes');
+
+        break;
+      case 'Others':
+        GoRouter.of(context).pushNamed('others');
+
+        break;
+      case 'Timetables':
+        GoRouter.of(context).pushNamed('timetables');
+
+        break;
+
+      default:
+        debugPrint('Something Wrong');
+        break;
+    }
   }
 
   void pushRoute(BuildContext context, String domainName, var domaindId) {

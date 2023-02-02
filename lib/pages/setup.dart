@@ -454,7 +454,7 @@ class _SetupState extends State<Setup> {
       prefs.setString('board', selectedboardid!);
       // ignore: use_build_context_synchronously
       Provider.of<loadingProvider>(context, listen: false)
-          .changeBoardId(selectedboardid);
+          .changeBoardId(selectedboardid, selectedboard, false);
       pushBoardPage();
     } else {
       Flushbar(

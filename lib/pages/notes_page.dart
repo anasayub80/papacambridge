@@ -10,8 +10,8 @@ import 'searchPage.dart';
 
 // ignore: must_be_immutable
 class NotesPage extends StatefulWidget {
-  String domainId;
-  NotesPage({required this.domainId});
+  String? domainId;
+  NotesPage({this.domainId});
 
   @override
   State<NotesPage> createState() => _NotesPageState();
@@ -20,7 +20,6 @@ class NotesPage extends StatefulWidget {
 class _NotesPageState extends State<NotesPage> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if (kIsWeb) {
       Future.delayed(
@@ -48,7 +47,7 @@ class _NotesPageState extends State<NotesPage> {
                         Navigator.push(context, MaterialPageRoute(
                           builder: (context) {
                             return SearchPage(
-                              domainId: widget.domainId,
+                              domainId: widget.domainId!,
                               domainName: "Notes",
                             );
                           },

@@ -4,7 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:studento/pages/home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../provider/loadigProvider.dart';
 import '../services/backend.dart';
 import '../utils/theme_provider.dart';
@@ -109,8 +109,14 @@ returnboardid(name) {
   return pushname;
 }
 
+getBoardName(BuildContext context) async {
+  // var board =
+  //     await Provider.of<loadingProvider>(context, listen: false).boardname();
+  // selectedboard = board;
+}
+
+List<String> boards = ['CAIE', 'OCR', 'CCEA', 'AQA', 'WJEC', 'IB', 'PEARSON'];
 PreferredSize webAppBar(ThemeSettings themeProvider, BuildContext context) {
-  getDomain(context);
   return PreferredSize(
     preferredSize: Size.fromHeight(55),
     child: SizedBox(
@@ -139,44 +145,72 @@ PreferredSize webAppBar(ThemeSettings themeProvider, BuildContext context) {
                 ),
               ),
             ),
-            Expanded(
-              child: StreamBuilder<dynamic>(
-                  stream: domainStream.stream,
-                  builder: (context, snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.waiting:
-                        return Center(child: CircularProgressIndicator());
-                      default:
-                        if (snapshot.hasData) {
-                          return ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: snapshot.data.length,
-                            itemBuilder: (context, index) {
-                              return TextButton(
-                                  onPressed: () {
-                                    GoRouter.of(context).pushNamed(
-                                        returnPushName(
-                                            snapshot.data[index]['domain']),
-                                        params: {
-                                          'id': snapshot.data[index]['id']
-                                        });
-                                  },
-                                  child: Text(snapshot.data[index]['domain']));
-                            },
-                          );
-                        }
-                    }
-                    return Text('');
-                  }),
-            ),
-            TextButton(
-                onPressed: () {
-                  GoRouter.of(context).pushNamed('setup');
-                },
-                child: Center(
-                  child: Text(
-                      'Change Exam - ${returnBoardName(Provider.of<loadingProvider>(context, listen: true).getboardId)}'),
-                ))
+            Row(
+              children: [
+                TextButton(
+                    onPressed: () {
+                      GoRouter.of(context).pushNamed(
+                        returnPushName('Past Papers'),
+                      );
+                    },
+                    child: Text("Past Papers")),
+                TextButton(
+                    onPressed: () {
+                      GoRouter.of(context).pushNamed(
+                        returnPushName('Notes'),
+                      );
+                    },
+                    child: Text("Notes")),
+                TextButton(
+                    onPressed: () {
+                      GoRouter.of(context).pushNamed(
+                        returnPushName('E Books'),
+                      );
+                    },
+                    child: Text("Ebooks")),
+                TextButton(
+                    onPressed: () {
+                      GoRouter.of(context).pushNamed(
+                        returnPushName('Syllabus'),
+                      );
+                    },
+                    child: Text("Syllabus")),
+                TextButton(
+                    onPressed: () {
+                      GoRouter.of(context).pushNamed(
+                        returnPushName('Others'),
+                      );
+                    },
+                    child: Text("Others")),
+                TextButton(
+                    onPressed: () {
+                      GoRouter.of(context).pushNamed(
+                        returnPushName('Timetable'),
+                      );
+                    },
+                    child: Text("Timetable")),
+                DropdownButton<String>(
+                  items: boards.map((String dropDownStringItem) {
+                    return DropdownMenuItem<String>(
+                        value: dropDownStringItem,
+                        child: Text(dropDownStringItem));
+                  }).toList(),
+                  value: Provider.of<loadingProvider>(context, listen: true)
+                              .selectedboard !=
+                          'none'
+                      ? Provider.of<loadingProvider>(context, listen: true)
+                          .selectedboard
+                      : null,
+                  isDense: true,
+                  icon: const Icon(Icons.keyboard_arrow_down),
+                  alignment: Alignment.center,
+                  onChanged: (value) {
+                    Provider.of<loadingProvider>(context, listen: false)
+                        .saveBoard(returnboardid(value), value, true);
+                  },
+                )
+              ],
+            )
           ],
         ),
         color: Theme.of(context).cardColor,

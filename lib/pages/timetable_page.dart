@@ -11,8 +11,8 @@ import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
 class TimeTablePage extends StatefulWidget {
-  String domainId;
-  TimeTablePage({required this.domainId});
+  String? domainId;
+  TimeTablePage({this.domainId});
 
   @override
   State<TimeTablePage> createState() => _TimeTablePageState();
@@ -21,7 +21,6 @@ class TimeTablePage extends StatefulWidget {
 class _TimeTablePageState extends State<TimeTablePage> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if (kIsWeb) {
       Future.delayed(
@@ -50,7 +49,7 @@ class _TimeTablePageState extends State<TimeTablePage> {
                         Navigator.push(context, MaterialPageRoute(
                           builder: (context) {
                             return SearchPage(
-                              domainId: widget.domainId,
+                              domainId: widget.domainId!,
                               domainName: "Past Papers",
                             );
                           },

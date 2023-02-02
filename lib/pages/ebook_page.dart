@@ -12,8 +12,8 @@ import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
 class EBooksPage extends StatefulWidget {
-  String domainId;
-  EBooksPage({required this.domainId});
+  String? domainId;
+  EBooksPage({this.domainId});
   @override
   // ignore: library_private_types_in_public_api
   _EBooksPageState createState() => _EBooksPageState();
@@ -22,7 +22,6 @@ class EBooksPage extends StatefulWidget {
 class _EBooksPageState extends State<EBooksPage> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if (kIsWeb) {
       Future.delayed(
@@ -50,7 +49,7 @@ class _EBooksPageState extends State<EBooksPage> {
                         Navigator.push(context, MaterialPageRoute(
                           builder: (context) {
                             return SearchPage(
-                              domainId: widget.domainId,
+                              domainId: widget.domainId!,
                               domainName: "E-Books",
                             );
                           },

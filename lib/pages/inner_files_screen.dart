@@ -93,34 +93,29 @@ class _innerfileScreenState extends State<innerfileScreen> {
   @override
   void initState() {
     super.initState();
-    if (kIsWeb &&
-        Provider.of<loadingProvider>(context, listen: false).getboardId ==
-            'none' &&
-        Provider.of<loadingProvider>(context, listen: false).getdomainId ==
-            'none') {
-      print('select board first ${widget.boardName}');
-      Future.delayed(
-        Duration.zero,
-        () async {
-          // trying to fix get data from direct url without board select and null domain id
-          Provider.of<loadingProvider>(context, listen: false)
-              .changeBoardId(returnboardid(widget.boardName));
-          var myres =
-              await backEnd().fetchDomains(returnboardid(widget.boardName));
-          log("domain id ${myres[0]['id']}");
-          // ignore: use_build_context_synchronously
-          Provider.of<loadingProvider>(context, listen: false)
-              .changeDomainid(myres[0]['id']);
-          initData();
-        },
-      );
+    if (kIsWeb) {
     } else {
-      getStoredData();
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        getStoredData();
+        //... others are same
+      });
     }
   }
 
   String prettifySubjectName(String subjectName) {
     return subjectName.replaceFirst("\r\n", "");
+  }
+
+  getWEbData() async {
+    // trying to fix get data from direct url without board select and null domain id
+    Provider.of<loadingProvider>(context, listen: false)
+        .saveBoard(returnboardid(widget.boardName), widget.boardName, false);
+    var myres = await backEnd().fetchDomains(returnboardid(widget.boardName));
+    log("domain id res ${myres[0]['id']}");
+    // ignore: use_build_context_synchronously
+    Provider.of<loadingProvider>(context, listen: false)
+        .changeDomainid(myres[0]['id']);
+    initData();
   }
 
   @override

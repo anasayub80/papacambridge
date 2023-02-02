@@ -11,8 +11,8 @@ import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
 class OtherResources extends StatefulWidget {
-  String domainId;
-  OtherResources({required this.domainId});
+  String? domainId;
+  OtherResources({this.domainId});
 
   @override
   State<OtherResources> createState() => _OtherResourcesState();
@@ -21,7 +21,6 @@ class OtherResources extends StatefulWidget {
 class _OtherResourcesState extends State<OtherResources> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if (kIsWeb) {
       Future.delayed(
@@ -50,7 +49,7 @@ class _OtherResourcesState extends State<OtherResources> {
                         Navigator.push(context, MaterialPageRoute(
                           builder: (context) {
                             return SearchPage(
-                              domainId: widget.domainId,
+                              domainId: widget.domainId!,
                               domainName: "Others",
                             );
                           },

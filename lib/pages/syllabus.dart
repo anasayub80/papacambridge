@@ -24,8 +24,8 @@ import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
 class SyllabusPage extends StatefulWidget {
-  String domainId;
-  SyllabusPage({required this.domainId});
+  String? domainId;
+  SyllabusPage({this.domainId});
   @override
   _SyllabusPageState createState() => _SyllabusPageState();
 }
@@ -46,7 +46,7 @@ class _SyllabusPageState extends State<SyllabusPage> {
                         Navigator.push(context, MaterialPageRoute(
                           builder: (context) {
                             return SearchPage(
-                              domainId: widget.domainId,
+                              domainId: widget.domainId!,
                               domainName: "Syllabus",
                             );
                           },
