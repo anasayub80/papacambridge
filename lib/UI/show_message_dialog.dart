@@ -16,7 +16,7 @@ Future<void> showMessageDialog(
           title,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: Theme.of(context).textTheme.bodyText1!.color,
+            color: Theme.of(context).textTheme.bodyLarge!.color,
           ),
         ),
         content: Text(msg),

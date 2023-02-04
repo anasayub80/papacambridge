@@ -74,7 +74,7 @@ class _SubjectsStaggeredListViewState extends State<SubjectsStaggeredListView> {
                         padding: const EdgeInsets.symmetric(horizontal: 12.0),
                         child: Text(
                           'Nothing Found',
-                          style: Theme.of(context).textTheme.headline3,
+                          style: Theme.of(context).textTheme.displaySmall,
                           textAlign: TextAlign.center,
                         ),
                       ),

@@ -68,7 +68,7 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
       appBar: AppBar(
         title: TextFormField(
-          style: Theme.of(context).textTheme.bodyText1,
+          style: Theme.of(context).textTheme.bodyLarge,
           controller: _searchController,
           // onChanged: _onSearchFieldChanged,
           autocorrect: false,
@@ -108,7 +108,7 @@ class _SearchPageState extends State<SearchPage> {
               child: Center(
                 child: Text(
                   'Search result will appear here!',
-                  style: Theme.of(context).textTheme.headline6,
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
             );
@@ -116,7 +116,7 @@ class _SearchPageState extends State<SearchPage> {
             return Center(
               child: Text(
                 'No Data Found',
-                style: Theme.of(context).textTheme.headline4,
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
             );
           } else {

@@ -21,7 +21,6 @@ class TimeTablePage extends StatefulWidget {
 class _TimeTablePageState extends State<TimeTablePage> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if (kIsWeb) {
       Future.delayed(

@@ -129,7 +129,7 @@ class _PastPaperViewState extends State<PastPaperView> {
                   ),
                   IconButton(
                     icon: Icon(
-                      Icons.download,
+                      isDownloaded ? Icons.verified : Icons.download,
                       color: isDownloaded
                           ? Colors.green
                           : Theme.of(context).iconTheme.color,

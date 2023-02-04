@@ -345,7 +345,7 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
       if (!isQP) {
         url = url.replaceFirst("qp", "ms");
       }
-      Response response = await dio.head(url).catchError((Object error) {});
+      Response response = await dio.head(url);
 
       if (response.statusCode == 200 &&
           response.headers.value(Headers.contentTypeHeader) ==

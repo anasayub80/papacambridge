@@ -64,7 +64,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
               title: Text(
                 'New Task',
                 style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyText1!.color),
+                    color: Theme.of(context).textTheme.bodyLarge!.color),
               ),
               centerTitle: true,
               elevation: 0,
@@ -82,7 +82,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                   Text(
                     'What task are you planning to perfrom?',
                     style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyText1!.color,
+                        color: Theme.of(context).textTheme.bodyLarge!.color,
                         fontWeight: FontWeight.w600,
                         fontSize: 16.0),
                   ),
@@ -101,12 +101,12 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                         hintStyle: TextStyle(
                           color: Theme.of(context)
                               .textTheme
-                              .bodyText1!
+                              .bodyLarge!
                               .color!
                               .withOpacity(0.4),
                         )),
                     style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyText1!.color,
+                        color: Theme.of(context).textTheme.bodyLarge!.color,
                         fontWeight: FontWeight.w500,
                         fontSize: 36.0),
                   ),
@@ -128,7 +128,7 @@ class _AddTodoScreenState extends State<AddTodoScreen> {
                         child: Text(
                           _task.name,
                           style: TextStyle(
-                            color: Theme.of(context).textTheme.bodyText1!.color,
+                            color: Theme.of(context).textTheme.bodyLarge!.color,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

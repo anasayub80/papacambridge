@@ -29,7 +29,7 @@ class RateDialog extends StatelessWidget {
             child: Text(
               'Rate the app?',
               style: TextStyle(
-                color: Theme.of(context).textTheme.bodyText1!.color,
+                color: Theme.of(context).textTheme.bodyLarge!.color,
                 fontSize: 24.0,
                 fontWeight: FontWeight.w700,
               ),
@@ -40,7 +40,7 @@ class RateDialog extends StatelessWidget {
             child: Text(
               'You are one of the first people to download PapaCambridge, and your feedback is very important.\n\nWould you mind giving it a rating on the Play Store?',
               style: TextStyle(
-                color: Theme.of(context).textTheme.bodyText1!.color,
+                color: Theme.of(context).textTheme.bodyLarge!.color,
               ),
             ),
           ),
@@ -123,7 +123,7 @@ class RateDialog extends StatelessWidget {
         content: Text(
           "Thank you, you are the absolute best.",
           style: TextStyle(
-            color: Theme.of(buildContext).textTheme.bodyText1!.color,
+            color: Theme.of(buildContext).textTheme.bodyLarge!.color,
           ),
         ),
         actions: <Widget>[
@@ -131,7 +131,7 @@ class RateDialog extends StatelessWidget {
             child: Text(
               "YOU BET I AM!",
               style: TextStyle(
-                color: Theme.of(buildContext).textTheme.bodyText1!.color,
+                color: Theme.of(buildContext).textTheme.bodyLarge!.color,
               ),
             ),
             onPressed: () {

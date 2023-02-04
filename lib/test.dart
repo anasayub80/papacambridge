@@ -91,6 +91,8 @@ class _TestPageState extends State<TestPage> {
           // ignore: unused_local_variable
           DioError myerror = error as DioError;
           print("Failed for $url. MSG: ${error.message}");
+          // ignore: invalid_return_type_for_catch_error
+          return myerror.message;
         });
         if (response.statusCode == 200) {
           print("SUCESS");
@@ -177,6 +179,7 @@ class _TestPageState extends State<TestPage> {
 
         print(url);
         try {
+          // ignore: body_might_complete_normally_catch_error
           response = await dio.head(url).catchError((Object error) {
             // ignore: no_leading_underscores_for_local_identifiers
             DioError _error = error as DioError;
@@ -192,6 +195,7 @@ class _TestPageState extends State<TestPage> {
             for (var i = 10; i < 20; i++) {
               var fileUrl =
                   "$url/${subject.subjectCode}_w${i}_qp_$component.pdf";
+              // ignore: body_might_complete_normally_catch_error
               response = await dio.head(fileUrl).catchError((Object error) {
                 // ignore: no_leading_underscores_for_local_identifiers
                 DioError _error = error as DioError;

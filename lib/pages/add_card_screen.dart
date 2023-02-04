@@ -43,7 +43,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
               title: Text(
                 'New Category',
                 style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyText1!.color),
+                    color: Theme.of(context).textTheme.bodyLarge!.color),
               ),
               centerTitle: true,
               elevation: 0,
@@ -63,7 +63,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
                     style: TextStyle(
                         color: Theme.of(context)
                             .textTheme
-                            .bodyText1!
+                            .bodyLarge!
                             .color!
                             .withOpacity(0.5),
                         fontWeight: FontWeight.w600,
@@ -84,14 +84,14 @@ class _AddCardScreenState extends State<AddCardScreen> {
                         hintStyle: TextStyle(
                           color: Theme.of(context)
                               .textTheme
-                              .bodyText1!
+                              .bodyLarge!
                               .color!
                               .withOpacity(0.3),
                         )),
                     style: TextStyle(
                         color: Theme.of(context)
                             .textTheme
-                            .bodyText1!
+                            .bodyLarge!
                             .color!
                             .withOpacity(0.6),
                         fontWeight: FontWeight.w500,
@@ -138,14 +138,14 @@ class _AddCardScreenState extends State<AddCardScreen> {
                   backgroundColor: taskColor,
                   label: Text(
                     'Create New Card',
-                    style: Theme.of(context).textTheme.bodyText1,
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   onPressed: () {
                     if (newTask!.isEmpty) {
                       final snackBar = SnackBar(
                         content: Text(
                           'Please choose a name for your category :)',
-                          style: Theme.of(context).textTheme.bodyText2!,
+                          style: Theme.of(context).textTheme.bodyMedium!,
                         ),
                         backgroundColor: taskColor,
                       );

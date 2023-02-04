@@ -134,7 +134,7 @@ class _OtherFilesViewPageState extends State<OtherFilesViewPage> {
         //     style: TextStyle(
         //       fontWeight: FontWeight.w400,
         //       // fontSize: 20.0,
-        //       color: Theme.of(context).textTheme.bodyText1!.color,
+        //       color: Theme.of(context).textTheme.bodyLarge!.color,
         //     ),
         //     // textScaleFactor: 1.2,
         //   ),
@@ -163,6 +163,7 @@ class _OtherFilesViewPageState extends State<OtherFilesViewPage> {
                   var res = await OpenFilex.open(filePath);
                   print("print something ${res.message}");
                   if (res.message != 'done') {
+                    // ignore: use_build_context_synchronously
                     showDialog(
                       context: context,
                       builder: (context) {

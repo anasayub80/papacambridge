@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../UI/mainFilesList.dart';
 import '../UI/studento_app_bar.dart';
 import '../UI/web_appbar.dart';
-import '../provider/loadigProvider.dart';
 import '../utils/theme_provider.dart';
 import 'searchPage.dart';
 
@@ -20,17 +19,7 @@ class NotesPage extends StatefulWidget {
 class _NotesPageState extends State<NotesPage> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    if (kIsWeb) {
-      Future.delayed(
-        Duration.zero,
-        () {
-          Provider.of<loadingProvider>(context, listen: false)
-              .changeDomainid(widget.domainId);
-        },
-      );
-    }
   }
 
   @override

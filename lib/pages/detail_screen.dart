@@ -153,7 +153,7 @@ class _DetailScreenState extends State<DetailScreen>
                           // color: _isCompleted ? _color : Colors.black54,
                           color: _isCompleted
                               ? _color
-                              : Theme.of(context).textTheme.bodyText1!.color,
+                              : Theme.of(context).textTheme.bodyLarge!.color,
                           decoration: _isCompleted
                               ? TextDecoration.lineThrough
                               : TextDecoration.none,
@@ -211,7 +211,7 @@ class _DetailScreenState extends State<DetailScreen>
                         Hero(
                           tag: 'title_hero_unused', //_hero.titleId,
                           child: Text(_task.name,
-                              style: Theme.of(context).textTheme.headline6),
+                              style: Theme.of(context).textTheme.titleLarge),
                         ),
                       ],
                     ),
@@ -222,7 +222,7 @@ class _DetailScreenState extends State<DetailScreen>
                         color: _color,
                         progress: model.getTaskCompletionPercent(_task),
                         textColor:
-                            Theme.of(context).textTheme.bodyText1?.color ??
+                            Theme.of(context).textTheme.bodyLarge?.color ??
                                 Colors.black,
                       ),
                     )

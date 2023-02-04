@@ -21,7 +21,6 @@ class OtherResources extends StatefulWidget {
 class _OtherResourcesState extends State<OtherResources> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if (kIsWeb) {
       Future.delayed(

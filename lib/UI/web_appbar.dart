@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:studento/pages/home_page.dart';
 import '../provider/loadigProvider.dart';
 import '../services/backend.dart';
 import '../utils/theme_provider.dart';

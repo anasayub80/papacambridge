@@ -93,7 +93,7 @@ class studentoDrawer extends StatelessWidget {
                   'Light',
                   style: Theme.of(context)
                       .textTheme
-                      .bodyText1!
+                      .bodyLarge!
                       .copyWith(color: Colors.white),
                 ),
                 ChangeThemeButton(),
@@ -101,7 +101,7 @@ class studentoDrawer extends StatelessWidget {
                   'Dark',
                   style: Theme.of(context)
                       .textTheme
-                      .bodyText1!
+                      .bodyLarge!
                       .copyWith(color: Colors.white),
                 ),
               ],

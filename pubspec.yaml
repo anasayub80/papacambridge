@@ -68,6 +68,7 @@ dependencies:
   permission_handler: ^10.2.0
   purchases_flutter: ^4.3.0
   quiver: ^3.1.0
+  resizable_widget: ^1.0.5
   rxdart: ^0.27.7
   scoped_model: ^2.0.0
   seo_renderer: ^0.6.0

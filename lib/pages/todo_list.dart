@@ -302,7 +302,7 @@ class TaskCard extends StatelessWidget {
                           "${getTotalTodos(task)} Tasks",
                           style: Theme.of(context)
                               .textTheme
-                              .bodyText2!
+                              .bodyMedium!
                               .copyWith(color: Colors.white.withOpacity(0.8)),
                         ),
                       ),
@@ -313,7 +313,7 @@ class TaskCard extends StatelessWidget {
                         child: Text(task.name,
                             style: Theme.of(context)
                                 .textTheme
-                                .headline2!
+                                .displayMedium!
                                 .copyWith(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w500)),

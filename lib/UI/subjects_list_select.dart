@@ -125,7 +125,7 @@ class _SubjectsListState extends State<SubjectsList> {
                 color: Colors.white,
               ),
               Text("SAVE",
-                  style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       color: Colors.white, fontWeight: FontWeight.w600)),
             ],
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -149,7 +149,7 @@ class _SubjectsListState extends State<SubjectsList> {
                 color: Colors.white,
               ),
               Text("Back",
-                  style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       color: Colors.white, fontWeight: FontWeight.w600)),
             ],
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

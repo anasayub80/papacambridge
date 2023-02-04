@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:studento/UI/random_gradient.dart';
-import 'package:studento/responsive/responsive_layout.dart';
 
 Widget buildTopBackground(
         IconData icon, BuildContext context, topBackgroundDecoration) =>
@@ -83,7 +82,7 @@ class _SetupPageState extends State<SetupPage> {
           label: Row(
             children: <Widget>[
               Text("NEXT",
-                  style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       color: Colors.white, fontWeight: FontWeight.w600)),
               Icon(
                 Icons.arrow_forward,
@@ -102,18 +101,7 @@ class _SetupPageState extends State<SetupPage> {
     return Scaffold(
       floatingActionButton: buildNextButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      body: ResponsiveLayout(
-        mobileBody: mobileBody(context),
-        webBody: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(width: MediaQuery.of(context).size.width * 0.20),
-            Expanded(child: mobileBody(context)),
-            SizedBox(width: MediaQuery.of(context).size.width * 0.20),
-          ],
-        ),
-      ),
+      body: mobileBody(context),
     );
   }
 

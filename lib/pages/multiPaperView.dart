@@ -9,7 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:studento/UI/loading_indicator.dart';
+import 'package:studento/utils/theme_provider.dart';
 import '../utils/ads_helper.dart';
+import 'package:resizable_widget/resizable_widget.dart';
 
 // ignore: must_be_immutable
 class MultiPaperView extends StatefulWidget {
@@ -110,10 +112,6 @@ class _MultiPaperViewState extends State<MultiPaperView> {
 
   InterstitialAd? _interstitialAd;
 
-  // int? currentPage = 0;
-  double _firstContainerHeight = 0.5;
-  double _secondContainerHeight = 0.5;
-
   @override
   Widget build(BuildContext context) {
     // ignore: unused_local_variable
@@ -129,16 +127,25 @@ class _MultiPaperViewState extends State<MultiPaperView> {
             style: TextStyle(
               fontWeight: FontWeight.w400,
               fontSize: 14.0,
-              color: Theme.of(context).textTheme.bodyText1!.color,
+              color: Theme.of(context).textTheme.bodyLarge!.color,
             ),
           ),
           iconTheme: Theme.of(context).iconTheme,
           backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         ),
-        body: Column(
+        body: ResizableWidget(
+          isHorizontalSeparator: true, // optional
+          isDisabledSmartHide: true, // optional
+          separatorColor: secColor, // optional
+          separatorSize: 10, // optional
+          percentages: [0.5, 0.5], // optional
+          onResized: (infoList) => // optional
+              print(infoList
+                  .map((x) => '(${x.size}, ${x.percentage}%)')
+                  .join(", ")),
+
           children: <Widget>[
-            Expanded(
-              flex: (_firstContainerHeight * 100).round(),
+            Container(
               child: PDFView(
                 filePath: filePath1,
                 pageFling: false,
@@ -158,27 +165,27 @@ class _MultiPaperViewState extends State<MultiPaperView> {
                 },
               ),
             ),
-            Expanded(
-              flex: (_secondContainerHeight * 100).round(),
+            Container(
               child: Column(
                 children: [
-                  Container(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Text(
-                          prettifySubjectName(widget.fileName2),
-                          style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 14.0,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                    height: 48,
-                    color: Color(0xff6C63FF),
-                  ),
+                  // Container(
+                  //   child: Center(
+                  //     child: Padding(
+                  //       padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  //       child: Text(
+                  //         prettifySubjectName(widget.fileName2),
+                  //         maxLines: 1,
+                  //         style: TextStyle(
+                  //           fontWeight: FontWeight.w400,
+                  //           fontSize: 14.0,
+                  //           color: Colors.white,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                  //   height: 48,
+                  //   color: Color(0xff6C63FF),
+                  // ),
                   Expanded(
                     child: PDFView(
                       filePath: filePath2,
@@ -204,7 +211,7 @@ class _MultiPaperViewState extends State<MultiPaperView> {
                   ),
                 ],
               ),
-            ),
+            )
           ],
         ),
       );

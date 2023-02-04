@@ -21,6 +21,7 @@ import 'package:provider/provider.dart';
 
 import '../provider/loadigProvider.dart';
 import '../services/backend.dart';
+import '../utils/pdf_helper.dart';
 
 List level = [];
 List levelid = [];
@@ -180,19 +181,24 @@ class _SetupState extends State<Setup> {
   List<String> levelid = [];
   Level? levelG;
   getLevel(boardId) async {
-    var res = await backEnd().fetchMainFiles(boardId);
-    // ignore: unused_local_variable
-    var resp = res.toString().replaceAll("\n", "");
-    debugPrint("checking response ${res.toString()}");
-    if (dataUpdated == false) {
-      for (var i = 0; i < res.length; i++) {
-        level.add(res[i]['name'].replaceAll("\n", ""));
-        levelid.add(res[i]['id'].replaceAll("\n", ""));
-        log(res[i]['name'].replaceAll("\n", ""));
+    var isConnected = await PdfHelper.checkIfConnected();
+    if (isConnected) {
+      var res = await backEnd().fetchMainFiles(boardId);
+      // ignore: unused_local_variable
+      var resp = res.toString().replaceAll("\n", "");
+      debugPrint("checking response ${res.toString()}");
+      if (dataUpdated == false) {
+        for (var i = 0; i < res.length; i++) {
+          level.add(res[i]['name'].replaceAll("\n", ""));
+          levelid.add(res[i]['id'].replaceAll("\n", ""));
+          log(res[i]['name'].replaceAll("\n", ""));
+        }
+        dataUpdated = true;
       }
-      dataUpdated = true;
+      _levelController.add(res);
+    } else {
+      _levelController.add('NetworkError');
     }
-    _levelController.add(res);
   }
 
   StreamController _levelController = BehaviorSubject();
@@ -209,6 +215,8 @@ class _SetupState extends State<Setup> {
             return Center(
               child: CircularProgressIndicator(),
             );
+          } else if (snapshot.data == 'NetworkError') {
+            return Text('No Internet Connection');
           } else if (snapshot.hasData) {
             return ListView.builder(
                 padding: EdgeInsets.only(bottom: 50),
@@ -272,8 +280,14 @@ class _SetupState extends State<Setup> {
   }
 
   getBoard() async {
-    var res = await backEnd().fetchBoard();
-    _boardController.add(res);
+    var isConnected = await PdfHelper.checkIfConnected();
+
+    if (isConnected) {
+      var res = await backEnd().fetchBoard();
+      _boardController.add(res);
+    } else {
+      _boardController.add('NetworkError');
+    }
   }
 
   _buildboardsBody() {
@@ -306,6 +320,8 @@ class _SetupState extends State<Setup> {
           return Center(
             child: CircularProgressIndicator(),
           );
+        } else if (snapshot.data == 'NetworkError') {
+          return Center(child: Text('No Internet Connection'));
         } else if (snapshot.hasData) {
           return ListView.builder(
             itemCount: snapshot.data.length,
@@ -370,7 +386,7 @@ class _SetupState extends State<Setup> {
           "Please select level!",
           style: Theme.of(context)
               .textTheme
-              .subtitle1!
+              .titleMedium!
               .copyWith(color: Colors.white),
         ),
         backgroundColor: Colors.red[400]!,
@@ -462,7 +478,7 @@ class _SetupState extends State<Setup> {
           "Please Select Board !",
           style: Theme.of(context)
               .textTheme
-              .subtitle1!
+              .titleMedium!
               .copyWith(color: Colors.white),
         ),
         backgroundColor: Colors.red[400]!,

@@ -60,7 +60,7 @@ class MyTheme {
     ),
     unselectedWidgetColor: Colors.white,
     textTheme: TextTheme(
-      bodyText1: TextStyle(
+      bodyLarge: TextStyle(
         color: Colors.white,
       ),
     ),
@@ -77,7 +77,7 @@ class MyTheme {
     ),
     unselectedWidgetColor: darkColor,
     textTheme: TextTheme(
-      bodyText1: TextStyle(
+      bodyLarge: TextStyle(
         color: Colors.black,
       ),
     ),

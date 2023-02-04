@@ -162,7 +162,7 @@ class _SchedulePageState extends State<SchedulePage>
         bottom: TabBar(
           tabs: tabs,
           controller: _tabController,
-          labelColor: Theme.of(context).textTheme.bodyText1!.color,
+          labelColor: Theme.of(context).textTheme.bodyLarge!.color,
           labelStyle: selectedLabelStyle,
           unselectedLabelStyle: unselectedLabelStyle,
         ),
@@ -337,10 +337,10 @@ class ClassTile extends StatelessWidget {
         name,
         style: TextStyle(
             color: isOngoing
-                ? Theme.of(context).textTheme.bodyText1!.color
+                ? Theme.of(context).textTheme.bodyLarge!.color
                 : Theme.of(context)
                     .textTheme
-                    .bodyText1!
+                    .bodyLarge!
                     .color!
                     .withOpacity(0.6),
             fontWeight: isOngoing ? FontWeight.w600 : FontWeight.w500,
@@ -367,7 +367,7 @@ class ClassTile extends StatelessWidget {
       text!,
       style: TextStyle(
         fontSize: 15,
-        color: Theme.of(context).textTheme.bodyText1!.color!.withOpacity(0.8),
+        color: Theme.of(context).textTheme.bodyLarge!.color!.withOpacity(0.8),
       ),
     );
   }
@@ -416,7 +416,7 @@ class ClassTile extends StatelessWidget {
                 color: Colors.blue,
                 fontWeight: FontWeight.w500,
               )
-            : TextStyle(color: Theme.of(context).textTheme.bodyText1!.color),
+            : TextStyle(color: Theme.of(context).textTheme.bodyLarge!.color),
       ),
     );
   }

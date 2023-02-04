@@ -14,11 +14,9 @@ import 'package:studento/model/user_data.dart';
 import 'package:studento/model/Filtered.dart';
 import 'package:studento/UI/steps/year.dart';
 import 'package:studento/UI/steps/season.dart';
-import 'package:studento/pages/home_page.dart';
 import 'package:studento/model/MainFolderInit.dart';
 import 'package:http/http.dart' as http;
 import 'package:studento/services/backend.dart';
-
 import '../pages/other_fileView.dart';
 import '../provider/loadigProvider.dart';
 import '../utils/bannerAdmob.dart';
@@ -105,7 +103,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
           title: Text(
             "Year",
             style: TextStyle(
-                color: Theme.of(context).textTheme.bodyText1!.color,
+                color: Theme.of(context).textTheme.bodyLarge!.color,
                 fontWeight: FontWeight.normal,
                 fontSize: 12),
           ),
@@ -139,7 +137,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
           title: Text(
             "Season",
             style: TextStyle(
-                color: Theme.of(context).textTheme.bodyText1!.color,
+                color: Theme.of(context).textTheme.bodyLarge!.color,
                 fontWeight: FontWeight.normal,
                 fontSize: 12),
           ),
@@ -848,7 +846,7 @@ class ComponentWidget extends StatelessWidget {
       fontWeight: FontWeight.w600,
       color: (isComponentSelected)
           ? Colors.blue
-          : Theme.of(context).textTheme.bodyText1!.color,
+          : Theme.of(context).textTheme.bodyLarge!.color,
     );
     // if (type == 'QP') {
     //   if (pdf!.name!.contains('_qp_')) {

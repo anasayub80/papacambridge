@@ -26,10 +26,10 @@ class CustomShowcaseWidget extends StatelessWidget {
         // disableAnimation: true,
         title: title,
         titleTextStyle: TextStyle(
-            color: Theme.of(context).textTheme.bodyText1!.color, fontSize: 18),
+            color: Theme.of(context).textTheme.bodyLarge!.color, fontSize: 18),
         description: description,
         descTextStyle: TextStyle(
-          color: Theme.of(context).textTheme.bodyText1!.color,
+          color: Theme.of(context).textTheme.bodyLarge!.color,
           fontWeight: FontWeight.bold,
           fontSize: 14,
         ),

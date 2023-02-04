@@ -22,7 +22,6 @@ class EBooksPage extends StatefulWidget {
 class _EBooksPageState extends State<EBooksPage> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if (kIsWeb) {
       Future.delayed(

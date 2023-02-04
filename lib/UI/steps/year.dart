@@ -36,8 +36,8 @@ class _YearStepState extends State<YearStep> {
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
-    var body = theme.textTheme.bodyText2!.copyWith(color: Colors.white);
-    var textTheme = theme.textTheme.copyWith(bodyText2: body);
+    var body = theme.textTheme.bodyMedium!.copyWith(color: Colors.white);
+    var textTheme = theme.textTheme.copyWith(bodyMedium: body);
     theme = theme.copyWith(textTheme: textTheme);
 
     var divider = BorderSide(

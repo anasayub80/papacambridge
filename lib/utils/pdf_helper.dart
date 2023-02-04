@@ -72,6 +72,8 @@ abstract class PdfHelper {
   /// internet.
   static Future<bool> checkIfConnected() async {
     var connectivityResult = await Connectivity().checkConnectivity();
+    // ignore: unrelated_type_equality_checks
+    print("${connectivityResult.name != ConnectionState.none}");
     return (connectivityResult != ConnectivityResult.none);
   }
 

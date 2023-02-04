@@ -21,7 +21,7 @@ class StudentoAppBar extends AppBar {
               style: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: 20.0,
-                color: Theme.of(context).textTheme.bodyText1!.color,
+                color: Theme.of(context).textTheme.bodyLarge!.color,
               ),
               textScaleFactor: isFile ? 1.0 : 1.2,
             ),

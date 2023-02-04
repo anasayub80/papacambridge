@@ -11,20 +11,14 @@ import 'package:studento/provider/loadigProvider.dart';
 import 'package:studento/provider/multiViewhelper.dart';
 import 'package:studento/routes.dart';
 import 'package:studento/services/navigate_observe.dart';
-import 'package:studento/utils/go_routes.dart';
 import 'package:studento/utils/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:url_strategy/url_strategy.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (kIsWeb) {
-    setPathUrlStrategy();
-  } else {
-    MobileAds.instance.initialize();
-  }
+  MobileAds.instance.initialize();
+
   PurchasesConfiguration("AuXGxOAwTbgrcvIVwCYYAPoHhcRHUdLa");
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
   final isDark = sharedPreferences.getBool('is_dark') ?? false;
@@ -70,7 +64,7 @@ class _StudentoState extends State<Studento> {
       ],
       builder: (context, child) {
         final themeProvider = Provider.of<ThemeSettings>(context);
-        return kIsWeb ? webBody(themeProvider) : mobileBody(themeProvider);
+        return mobileBody(themeProvider);
         // );
       },
     );
@@ -80,20 +74,20 @@ class _StudentoState extends State<Studento> {
     );
   }
 
-  MaterialApp webBody(ThemeSettings themeProvider) {
-    return MaterialApp.router(
-      // routerConfig: MyGoRouter().router,
-      routeInformationParser: MyGoRouter.router.routeInformationParser,
-      routeInformationProvider: MyGoRouter.router.routeInformationProvider,
-      routerDelegate: MyGoRouter.router.routerDelegate,
-      builder: BotToastInit(),
-      themeMode: themeProvider.currentTheme,
-      theme: MyTheme().lightTheme,
-      darkTheme: MyTheme().darkTheme,
-      color: Colors.red,
-      debugShowCheckedModeBanner: false,
-    );
-  }
+  // MaterialApp webBody(ThemeSettings themeProvider) {
+  //   return MaterialApp.router(
+  //     // routerConfig: MyGoRouter().router,
+  //     routeInformationParser: MyGoRouter.router.routeInformationParser,
+  //     routeInformationProvider: MyGoRouter.router.routeInformationProvider,
+  //     routerDelegate: MyGoRouter.router.routerDelegate,
+  //     builder: BotToastInit(),
+  //     themeMode: themeProvider.currentTheme,
+  //     theme: MyTheme().lightTheme,
+  //     darkTheme: MyTheme().darkTheme,
+  //     color: Colors.red,
+  //     debugShowCheckedModeBanner: false,
+  //   );
+  // }
 
   MaterialApp mobileBody(ThemeSettings themeProvider) {
     return MaterialApp(

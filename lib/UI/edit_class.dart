@@ -85,7 +85,7 @@ class _EditClassState extends State<EditClass> {
         hintText: "Enter class",
         contentPadding: EdgeInsets.only(left: 20),
         hintStyle: TextStyle(
-          color: Theme.of(context).textTheme.bodyText1!.color,
+          color: Theme.of(context).textTheme.bodyLarge!.color,
           fontSize: 24.0,
           fontWeight: FontWeight.w500,
         ),
@@ -236,7 +236,7 @@ class _EditClassState extends State<EditClass> {
                   fontSize: 20.0,
                   color: Theme.of(context)
                       .textTheme
-                      .bodyText1!
+                      .bodyLarge!
                       .color!
                       .withOpacity(0.6),
                   fontWeight: FontWeight.w500),
@@ -318,7 +318,7 @@ class TextFieldTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var hintStyle = TextStyle(
-      color: Theme.of(context).textTheme.bodyText1!.color,
+      color: Theme.of(context).textTheme.bodyLarge!.color,
       fontWeight: FontWeight.w500,
     );
 

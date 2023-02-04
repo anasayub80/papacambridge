@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,14 +10,10 @@ import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:showcaseview/showcaseview.dart';
 import 'package:studento/pages/inner_files_screen.dart';
-import 'package:studento/responsive/responsive_layout.dart';
 import 'package:studento/services/backend.dart';
 import 'package:studento/utils/sideAdsWidget.dart';
-
 import '../model/MainFolder.dart';
 import 'package:http/http.dart' as http;
-
-import '../pages/home_page.dart';
 import '../provider/loadigProvider.dart';
 import '../utils/ads_helper.dart';
 import '../utils/funHelper.dart';
@@ -267,10 +262,7 @@ class _mainFilesListState extends State<mainFilesList> {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsiveLayout(
-      mobileBody: mobileLayout(),
-      webBody: webBody(context),
-    );
+    return mobileLayout();
   }
 
   Row webBody(BuildContext context) {
@@ -385,7 +377,7 @@ class _mainFilesListState extends State<mainFilesList> {
           return Center(
             child: Text(
               'No Data Found',
-              style: Theme.of(context).textTheme.headline4,
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
           );
         } else {
@@ -472,7 +464,7 @@ class _mainFilesListState extends State<mainFilesList> {
                             icon: Icon(
                               Icons.favorite_border,
                               color:
-                                  Theme.of(context).textTheme.bodyText1!.color,
+                                  Theme.of(context).textTheme.bodyLarge!.color,
                             ),
                           ),
                     title: Container(

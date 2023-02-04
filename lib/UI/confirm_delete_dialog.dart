@@ -19,7 +19,7 @@ class ConfirmDeleteDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-      content: Text(bodyMsg, style: Theme.of(context).textTheme.bodyText1),
+      content: Text(bodyMsg, style: Theme.of(context).textTheme.bodyLarge),
       actions: <Widget>[
         ElevatedButton(
           style: ElevatedButton.styleFrom(
@@ -37,7 +37,7 @@ class ConfirmDeleteDialog extends StatelessWidget {
           child: Text(
             altButtonLabel,
             style: TextStyle(
-              color: Theme.of(context).textTheme.bodyText1!.color,
+              color: Theme.of(context).textTheme.bodyLarge!.color,
             ),
           ),
           onPressed: onAltPressed,

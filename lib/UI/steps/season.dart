@@ -122,7 +122,7 @@ class _SeasonTileState extends State<SeasonTile> {
           returnIcons(widget.season),
           color: (isSeasonSelected)
               ? Colors.blue
-              : Theme.of(context).textTheme.bodyText1!.color,
+              : Theme.of(context).textTheme.bodyLarge!.color,
         ),
       ),
       title: Text(
@@ -136,13 +136,13 @@ class _SeasonTileState extends State<SeasonTile> {
           color: (isSeasonSelected)
               ? Theme.of(context)
                           .textTheme
-                          .bodyText1!
+                          .bodyLarge!
                           .color!
                           .computeLuminance() <
                       0.5
                   ? Colors.white
                   : Colors.black
-              : Theme.of(context).textTheme.bodyText1!.color,
+              : Theme.of(context).textTheme.bodyLarge!.color,
           fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
@@ -158,13 +158,13 @@ class _SeasonTileState extends State<SeasonTile> {
           color: (isSeasonSelected)
               ? Theme.of(context)
                           .textTheme
-                          .bodyText1!
+                          .bodyLarge!
                           .color!
                           .computeLuminance() <
                       0.5
                   ? Colors.white
                   : Colors.black
-              : Theme.of(context).textTheme.bodyText1!.color,
+              : Theme.of(context).textTheme.bodyLarge!.color,
           fontSize: 12,
         ),
       ),
