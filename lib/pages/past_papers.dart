@@ -195,6 +195,20 @@ class _PastPapersPageCAIEState extends State<PastPapersPageCAIE> {
       appBar: StudentoAppBar(
         title: "Past Papers",
         context: context,
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (context) {
+                    return SearchPage(
+                      domainId: '1',
+                      domainName: "Past Papers",
+                    );
+                  },
+                ));
+              },
+              icon: Icon(Icons.search)),
+        ],
       ),
       // body: SubjectsStaggeredListView(openPastPapersDetailsSelect),
       body: StreamBuilder(

@@ -21,9 +21,12 @@ class BreadCrumbNavigator extends StatelessWidget {
                   index,
                   GestureDetector(
                       onTap: () {
-                        print('back call');
-                        Navigator.popUntil(context,
-                            (route) => route == currentRouteStack[index]);
+                        if (currentRouteStack[index] == currentRouteStack[0]) {
+                        } else {
+                          print('back call');
+                          Navigator.popUntil(context,
+                              (route) => route == currentRouteStack[index]);
+                        }
                       },
                       child: currentRouteStack[index].settings.name == null
                           ? SizedBox.shrink()

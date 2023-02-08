@@ -17,6 +17,12 @@ abstract class PdfHelper {
     return await file.exists();
   }
 
+  static checkIfDownloadeds(String fileName) {
+    var filePath = getFilePath(fileName);
+    var file = File(filePath.toString());
+    return file.exists();
+  }
+
   static Future<bool> checkIfDownloadedButton(String fileName) async {
     var filePath = await getexternalFilePath(fileName);
     var file = File(filePath);

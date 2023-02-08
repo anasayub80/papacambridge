@@ -11,8 +11,11 @@ import '../services/backend.dart';
 class SearchPage extends StatefulWidget {
   String domainId;
   String domainName;
-
-  SearchPage({super.key, required this.domainId, required this.domainName});
+  SearchPage({
+    super.key,
+    required this.domainId,
+    required this.domainName,
+  });
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -82,6 +85,10 @@ class _SearchPageState extends State<SearchPage> {
             errorBorder: InputBorder.none,
             disabledBorder: InputBorder.none,
           ),
+          onFieldSubmitted: (value) {
+            if (_searchController.text.isNotEmpty &&
+                _searchController.text.trim().isNotEmpty) initSubjects();
+          },
         ),
         iconTheme: Theme.of(context).iconTheme,
         centerTitle: true,
@@ -131,7 +138,7 @@ class _SearchPageState extends State<SearchPage> {
                     Navigator.push(
                         context,
                         innerfileScreen.getRoute(allItem[index].name!,
-                            allItem[index].id, "widget.title", false));
+                            allItem[index].id, widget.domainName, false));
                   },
                   leading: Padding(
                     padding: const EdgeInsets.all(8.0),

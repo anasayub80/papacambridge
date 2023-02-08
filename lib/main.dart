@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -52,8 +51,8 @@ class _StudentoState extends State<Studento> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
+    // SystemChrome.setPreferredOrientations(
+    //     [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
 
     var app = MultiProvider(
       providers: [

@@ -22,6 +22,8 @@ import '../provider/loadigProvider.dart';
 import '../utils/bannerAdmob.dart';
 import 'package:provider/provider.dart';
 
+import '../utils/pdf_helper.dart';
+
 enum Season { spring, summer, winter }
 
 final dataKey = GlobalKey();
@@ -157,10 +159,6 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
   void initState() {
     getPapersData();
     super.initState();
-    //([widget.subject.startYear, widget.subject.endYear]);
-    // var userData = Hive.box<UserData>('userData').get(0);
-    // // level = userData.level;
-    // loadDisplayNames();
   }
 
   int median(List<int> a) {
@@ -225,12 +223,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
           break;
         default:
       }
-      // String season = selectedSeason == Season.summer
-      //     ? 'Summer'
-      //     : Season.spring
-      //         ? 'Spring'
-      //         : 'Winter';
-      print('My Season $season');
+
       int? id;
       for (var e in filteredL) {
         if (season == e.weather) {
@@ -238,7 +231,6 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
         }
       }
 
-      print('iddddddddddddddddddddddddd');
       String url1 =
           'https://papacambridge.com/api.php?main_folder=${widget.subject.parent}&papers=pastpapers&id=$id&year=skip';
       print(url1);
@@ -258,6 +250,8 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
     }
   }
 
+  List downloadedId = [];
+
   // check if data null or not []
   var resCheck;
   @override
@@ -267,6 +261,8 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
       appBar: StudentoAppBar(
         title: "Past Paper Details",
         context: context,
+        centerTitle: false,
+        isFile: true,
         leading: IconButton(
           icon: Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
@@ -821,18 +817,47 @@ Widget buildNextButton(VoidCallback onPressed, IconData icon, String label) {
   );
 }
 
-class ComponentWidget extends StatelessWidget {
+String prettifySubjectName(String subjectName) {
+  var name = subjectName.replaceFirst("\r", "");
+  return name.replaceFirst("\n", "");
+}
+
+class ComponentWidget extends StatefulWidget {
   final PdfModal? pdf;
   final type;
   const ComponentWidget(this.component, this.type, {this.pdf});
   final int component;
 
   @override
-  Widget build(BuildContext context) {
+  State<ComponentWidget> createState() => _ComponentWidgetState();
+}
+
+class _ComponentWidgetState extends State<ComponentWidget> {
+  @override
+  void initState() {
+    checkifDownloaded();
+    super.initState();
+  }
+
+  bool isFileAlreadyDownloadedresult = false;
+  checkifDownloaded() async {
+    bool isFileAlreadyDownloaded = await PdfHelper.checkIfDownloaded(
+        prettifySubjectName(widget.pdf!.name!));
+    setState(() {
+      isFileAlreadyDownloadedresult = isFileAlreadyDownloaded;
+    });
+    if (isFileAlreadyDownloaded) {
+      print('exist');
+    }
+  }
+
+  @override
+  build(BuildContext context) {
     Widget? mywidget = SizedBox.shrink();
     bool isComponentSelected =
-        (PaperDetailsSelectionPage.of(context)!.selectedComponent == component);
-    debugPrint("${pdf!.keyword!} & ${pdf!.name}");
+        (PaperDetailsSelectionPage.of(context)!.selectedComponent ==
+            widget.component);
+    debugPrint("${widget.pdf!.keyword!} & ${widget.pdf!.name}");
     final shapeDeco = ShapeDecoration(
       color: (isComponentSelected)
           ? Theme.of(context).iconTheme.color
@@ -848,32 +873,41 @@ class ComponentWidget extends StatelessWidget {
           ? Colors.blue
           : Theme.of(context).textTheme.bodyLarge!.color,
     );
+
     // if (type == 'QP') {
     //   if (pdf!.name!.contains('_qp_')) {
-    mywidget = pdf!.keyword == ''
+    mywidget = widget.pdf!.keyword == ''
         ? SizedBox.shrink()
         : SizedBox(
             height: 40.0,
             width: 100.0,
             child: RawMaterialButton(
               onPressed: () {
-                // var route=MaterialPageRoute(builder: (context)=>PdfDemo());
                 Scrollable.ensureVisible(dataKey.currentContext!,
                     duration: Duration(seconds: 1));
                 PaperDetailsSelectionPage.of(context)!.selectedComponent =
-                    component;
-                PaperDetailsSelectionPage.of(context)!.selectedPdf = pdf;
+                    widget.component;
+                PaperDetailsSelectionPage.of(context)!.selectedPdf = widget.pdf;
               },
               child: Card(
                 elevation: isComponentSelected ? 2 : 4,
                 shape: StadiumBorder(),
                 child: Container(
                   decoration: shapeDeco,
-                  child: Center(
-                    child: Text(
-                      pdf!.keyword!,
-                      style: textStyle,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      isFileAlreadyDownloadedresult
+                          ? Icon(Icons.verified, color: Colors.green)
+                          : SizedBox.shrink(),
+                      Center(
+                        child: Text(
+                          widget.pdf!.keyword!,
+                          style: textStyle,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

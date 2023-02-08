@@ -9,8 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:studento/pages/editable_pdf.dart';
+import 'package:studento/pages/home_page.dart';
 import 'package:studento/pages/multiPaperView.dart';
-import 'package:studento/pages/past_paper_view.dart';
 import 'package:studento/provider/multiViewhelper.dart';
 import 'package:studento/services/backend.dart';
 import 'package:studento/utils/bannerAdmob.dart';
@@ -22,9 +23,10 @@ import '../model/MainFolder.dart';
 import '../provider/loadigProvider.dart';
 import '../services/bread_crumb_navigation.dart';
 import '../utils/pdf_helper.dart';
-import '../utils/sideAdsWidget.dart';
 import 'other_fileView.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+
+import 'past_paper_view.dart';
 
 // ignore: must_be_immutable
 class innerfileScreen extends StatefulWidget {
@@ -86,7 +88,10 @@ class _innerfileScreenState extends State<innerfileScreen> {
   @override
   void initState() {
     super.initState();
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<multiViewProvider>(context, listen: false)
+          .setMultiViewFalse();
+    });
     getStoredData();
   }
 
@@ -136,6 +141,8 @@ class _innerfileScreenState extends State<innerfileScreen> {
     }
   }
 
+  List downloadedId = [];
+
   clearifyData(dynamic res, bool isLocal) async {
     allItem.clear();
     favItem.clear();
@@ -184,6 +191,11 @@ class _innerfileScreenState extends State<innerfileScreen> {
         } else if (blockList.contains(subject.id.toString())) {
           // print('Should not to show bcz it is blocked ');
         } else {
+          bool isFileAlreadyDownloaded = await PdfHelper.checkIfDownloaded(
+              prettifySubjectName(subject.name!));
+          if (isFileAlreadyDownloaded) {
+            downloadedId.add(subject.id);
+          }
           selectedM.add(subject);
         }
       }
@@ -191,7 +203,6 @@ class _innerfileScreenState extends State<innerfileScreen> {
         allItem = selectedM;
       });
     }
-
     _streamController.add('event');
     // show showcase if platform is not web
     // if (widget.iscomeFromMainFiles) {
@@ -254,21 +265,28 @@ class _innerfileScreenState extends State<innerfileScreen> {
   Widget build(BuildContext context) {
     final multiProvider = Provider.of<multiViewProvider>(context, listen: true);
     void openPaper(String url, fileName) async {
-      if (kIsWeb) {
-        launchUrl(Uri.parse(url));
-      } else {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => PastPaperView([
-              url,
-            ],
-                fileName,
-                Provider.of<loadingProvider>(context, listen: false).getboardId,
-                false),
-          ),
-        );
-      }
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (_) => EditablePastPaperView([
+      //       url,
+      //     ],
+      //         fileName,
+      //         Provider.of<loadingProvider>(context, listen: false).getboardId,
+      //         false),
+      //   ),
+      // );
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PastPaperView([
+            url,
+          ],
+              fileName,
+              Provider.of<loadingProvider>(context, listen: false).getboardId,
+              false),
+        ),
+      );
     }
 
     void openMultiPaperView() async {
@@ -356,12 +374,15 @@ class _innerfileScreenState extends State<innerfileScreen> {
               }
               print(isrever.toString());
             },
-            icon: Icon(
-              Icons.sort,
-              color: isrever
-                  ? Color(0xff6C63FF)
-                  : Theme.of(context).iconTheme.color,
-            ),
+            icon: isrever
+                ? Icon(
+                    Icons.arrow_downward,
+                    color: Color(0xff6C63FF),
+                  )
+                : Icon(
+                    Icons.arrow_upward,
+                    color: Theme.of(context).iconTheme.color,
+                  ),
           )
         ],
       ),
@@ -381,56 +402,47 @@ class _innerfileScreenState extends State<innerfileScreen> {
     );
   }
 
-  IconButton multiViewBTN(
-      BuildContext context, multiViewProvider multiProvider) {
-    return IconButton(
-      onPressed: () {
-        if (Provider.of<multiViewProvider>(context, listen: false).multiView ==
-            false) {
-          debugPrint('set true');
-          multiProvider.setMultiViewTrue();
-        } else {
-          multiProvider.setMultiViewFalse();
-          debugPrint('set false');
-          selectedList =
-              List.generate(favItem.length + allItem.length, (index) => false);
-          multiItemname.clear();
-          multiItemurl.clear();
-        }
-      },
-      style: IconButton.styleFrom(
-        backgroundColor:
-            multiProvider.multiView == false ? Colors.white : Color(0xff6C63FF),
-        side: BorderSide(
-            color: multiProvider.multiView == true
-                ? Colors.transparent
-                : Theme.of(context).unselectedWidgetColor),
-      ),
-      icon: Icon(Icons.view_agenda_outlined,
-          color: multiProvider.multiView == false
-              ? Theme.of(context).iconTheme.color
-              : Color(0xff6C63FF)),
-    );
-  }
-
-  Row webBody(
-      BuildContext context,
-      multiViewProvider multiProvider,
-      Future<void> Function(dynamic index, dynamic id, dynamic name)
-          removeFromFav,
-      void Function() openMultiPaperView,
-      void Function(String url, dynamic fileName) openPaper,
-      Future<void> Function(dynamic index, String id, String name) addtoFav) {
+  Widget multiViewBTN(BuildContext context, multiViewProvider multiProvider) {
     return Row(
       children: [
-        Expanded(
-            child: mobileLayout(multiProvider, removeFromFav,
-                openMultiPaperView, openPaper, addtoFav)),
-        // second column
-        SizedBox(
-            width: MediaQuery.of(context).size.width * 0.20,
-            height: 500,
-            child: sideAdsWidget())
+        Text(
+          'Multi View',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).textTheme.bodyMedium!.color,
+            fontSize: 12,
+          ),
+        ),
+        IconButton(
+          onPressed: () {
+            if (Provider.of<multiViewProvider>(context, listen: false)
+                    .multiView ==
+                false) {
+              debugPrint('set true');
+              multiProvider.setMultiViewTrue();
+            } else {
+              multiProvider.setMultiViewFalse();
+              debugPrint('set false');
+              selectedList = List.generate(
+                  favItem.length + allItem.length, (index) => false);
+              multiItemname.clear();
+              multiItemurl.clear();
+            }
+          },
+          style: IconButton.styleFrom(
+            backgroundColor: multiProvider.multiView == false
+                ? Colors.white
+                : Color(0xff6C63FF),
+            side: BorderSide(
+                color: multiProvider.multiView == true
+                    ? Colors.transparent
+                    : Theme.of(context).unselectedWidgetColor),
+          ),
+          icon: Icon(Icons.view_agenda_outlined,
+              color: multiProvider.multiView == false
+                  ? Theme.of(context).iconTheme.color
+                  : Color(0xff6C63FF)),
+        ),
       ],
     );
   }
@@ -469,7 +481,33 @@ class _innerfileScreenState extends State<innerfileScreen> {
               SizedBox(
                 height: 10,
               ),
-              BreadCrumbNavigator(),
+              SizedBox(
+                width: double.infinity,
+                height: 30,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    IconButton(
+                        onPressed: () {
+                          Navigator.of(context)
+                              .popUntil((route) => route.isFirst);
+                          Navigator.pushReplacement(context, MaterialPageRoute(
+                            builder: (context) {
+                              return HomePage();
+                            },
+                          ));
+                        },
+                        icon: Icon(
+                          Icons.home_outlined,
+                          color: Colors.pink,
+                        )),
+                    BreadCrumbNavigator(),
+                    SizedBox(
+                      width: 100,
+                    ),
+                  ],
+                ),
+              ),
               SizedBox(
                 height: 10,
               ),
@@ -482,17 +520,6 @@ class _innerfileScreenState extends State<innerfileScreen> {
                       itemBuilder: (context, i) {
                         return ListTile(
                           onTap: () {
-                            // Navigator.push(context, MaterialPageRoute(
-                            //   builder: (context) {
-                            //     return innerfileScreen(
-                            //       inner_file: favItem[i],
-                            //       title: widget.title,
-                            //       iscomeFromMainFiles:
-                            //           widget.iscomeFromMainFiles,
-                            //       url_structure: '',
-                            //     );
-                            //   },
-                            // ));
                             Navigator.push(
                                 context,
                                 innerfileScreen.getRoute(
@@ -568,7 +595,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
     );
   }
 
-  ListTile filesListTile(
+  Widget filesListTile(
       int index,
       BuildContext context,
       String urlPdf,
@@ -618,23 +645,18 @@ class _innerfileScreenState extends State<innerfileScreen> {
               openPaper(urlPdf, name.replaceFirst(" ", " \n"));
             }
           } else {
-            if (kIsWeb) {
-              print(urlPdf.toString());
-              launchUrl(Uri.parse(urlPdf));
-            } else {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => OtherFilesViewPage(
-                    [
-                      urlPdf,
-                    ],
-                    prettifySubjectName(name),
-                    allItem[index].id.toString().replaceFirst(" ", " \n"),
-                  ),
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => OtherFilesViewPage(
+                  [
+                    urlPdf,
+                  ],
+                  prettifySubjectName(name),
+                  allItem[index].id.toString().replaceFirst(" ", " \n"),
                 ),
-              );
-            }
+              ),
+            );
           }
         }
       },
@@ -668,7 +690,9 @@ class _innerfileScreenState extends State<innerfileScreen> {
                       Icons.check,
                       color: Colors.green,
                     )
-                  : SizedBox.shrink(),
+                  : downloadedId.contains(allItem[index].id)
+                      ? Icon(Icons.verified, color: Colors.green)
+                      : SizedBox.shrink(),
       title: Text(
         prettifySubjectName(name),
         style: TextStyle(

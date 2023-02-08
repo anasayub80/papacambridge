@@ -4,36 +4,33 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'package:bot_toast/bot_toast.dart';
-import 'package:fullscreen/fullscreen.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:studento/UI/error_report_dialog.dart';
 import 'package:studento/UI/show_message_dialog.dart';
-import 'package:studento/utils/ads_helper.dart';
+import 'package:studento/UI/studento_app_bar.dart';
 import 'package:studento/utils/pdf_helper.dart';
 import 'package:flutter/material.dart';
-
 import 'package:dio/dio.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:studento/UI/loading_indicator.dart';
+import 'package:fullscreen/fullscreen.dart';
 
-import '../UI/studento_app_bar.dart';
+import '../utils/ads_helper.dart';
 
-class PastPaperViewCAIE extends StatefulWidget {
+class EditablePastPaperView extends StatefulWidget {
   final List<String> urls;
 
-  const PastPaperViewCAIE(this.urls, this.fileName, this.boarId, this.isOthers,
-      this.type, this.ispastPaper);
+  const EditablePastPaperView(
+      this.urls, this.fileName, this.boarId, this.isOthers);
   final String fileName;
   final bool isOthers;
-  final bool ispastPaper;
-  final bool type;
   final String boarId;
   @override
-  _PastPaperViewCAIEState createState() => _PastPaperViewCAIEState();
+  Editable_PastPaperViewState createState() => Editable_PastPaperViewState();
 }
 
-class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
+class Editable_PastPaperViewState extends State<EditablePastPaperView> {
   /// Whether all data has been loaded.
   bool isLoaded = false;
 
@@ -58,7 +55,7 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
   /// Whether the file we're loading is a question paper
   /// or a marking scheme. Set to true at the start as first the QP is opened.
   /// This value will be toggled when the switch button is pressed.
-  bool isQP = true;
+  // bool isQP = true;
 
   // InterstitialAd _interstitialAd;
 
@@ -69,17 +66,19 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
   GlobalKey<ScaffoldMessengerState> _scaffoldKey =
       GlobalKey<ScaffoldMessengerState>();
   // late bool _isPro;
-  InterstitialAd? _interstitialAd;
   Random random = Random();
+  initpdfLICENSES() async {
+    // await Pspdfkit.setLicenseKeys("YOUR_FLUTTER_ANDROID_LICENSE_KEY_GOES_HERE",
+    //     "YOUR_FLUTTER_IOS_LICENSE_KEY_GOES_HERE");
+  }
+
   @override
   void initState() {
-    print("past paper view fileName ${widget.fileName}  ${widget.urls}");
+    print("past paper view fileName ${widget.fileName}");
     super.initState();
+    initpdfLICENSES();
     print(widget.fileName);
-    _fileName = widget.fileName;
-    isQP = widget.type;
-    initPapers();
-
+    _fileName = prettifySubjectName(widget.fileName);
     int randomNumber = random.nextInt(5);
     switch (randomNumber) {
       case 2:
@@ -92,6 +91,7 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
         break;
       default:
     }
+    initPapers();
     if (Platform.isAndroid) {
       platform = TargetPlatform.android;
     } else {
@@ -101,60 +101,34 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
     // loadDocs();
   }
 
+  String prettifySubjectName(String subjectName) {
+    return subjectName.replaceFirst("\r\n", "");
+  }
+
+  InterstitialAd? _interstitialAd;
   bool isFullScreen = false;
+  int? currentPage = 0;
+  // late PspdfkitWidgetController controller;
 
-  // hello.PDFDocument document;
-  // loadDocs() async {
-  //   document = await hello.PDFDocument.fromURL(
-  //       "http://conorlastowka.com/book/CitationNeededBook-Sample.pdf");
-  // }
-  int? QPcurrentPage = 0;
-  int? MScurrentPage = 0;
-  bool isDownloaded = false;
-  void checkFileDownloaded() async {
-    // ignore: no_leading_underscores_for_local_identifiers
-    var _path = await PdfHelper.getexternalFilePath(_fileName);
-    isFileAlreadyDownloaded =
-        await PdfHelper.checkIfDownloadedButton(_fileName);
-    if (isFileAlreadyDownloaded) {
-      Future.delayed(
-        Duration(milliseconds: 500),
-        () {
-          if (mounted) {
-            setState(() => isDownloaded = true);
-          }
-        },
-      );
-    } else {
-      print('not exist $_path');
-    }
-  }
-
-  late String _localPath;
-  late TargetPlatform? platform;
-
-  /// Check if papers are already downloaded, and download if not.
-  Future<void> _prepareSaveDir() async {
-    _localPath = (await _findLocalPath())!;
-    print(_localPath);
-    final savedDir = Directory(_localPath);
-    bool hasExisted = await savedDir.exists();
-    if (!hasExisted) {
-      savedDir.create();
-    }
-  }
-
-  Future<String?> _findLocalPath() async {
-    if (platform == TargetPlatform.android) {
-      return "/storage/emulated/0/Download";
-    } else {
-      var directory = await getApplicationDocumentsDirectory();
-      return '${directory.path}${Platform.pathSeparator}Download';
-    }
+  Future<void> onPlatformViewCreated(int id) async {
+    // controller = PspdfkitWidgetController(id);
+    // if (widget.onPspdfkitWidgetCreated != null) {
+    // widget.onPspdfkitWidgetCreated!(controller);
+    // }
   }
 
   @override
   Widget build(BuildContext context) {
+    // This is used in the platform side to register the view.
+    // ignore: unused_local_variable
+    const String viewType = 'com.pspdfkit.widget';
+    // Pass parameters to the platform side.
+    // ignore: unused_local_variable
+    final Map<String, dynamic> creationParams = <String, dynamic>{
+      'document': filePath,
+      // 'configuration':
+    };
+
     if (isLoaded) {
       //&& _isPro != null
       return Scaffold(
@@ -166,38 +140,10 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
               )
             : StudentoAppBar(
                 context: context,
-                // centerTitle: false,
-                // title: (widget.isOthers)
-                //     ? widget.fileName
-                //     : (isQP)
-                //         ? widget.fileName
-                //         : "Marking Scheme",
+                centerTitle: false,
                 isFile: true,
+                title: widget.fileName,
                 actions: <Widget>[
-                  widget.boarId == '1'
-                      ? widget.ispastPaper == true
-                          ? widget.isOthers == true
-                              ? SizedBox.shrink()
-                              : Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue,
-                                      shape: StadiumBorder(),
-                                    ),
-                                    icon: Icon(
-                                      Icons.swap_horiz,
-                                      color: Colors.white,
-                                    ),
-                                    label: Text(
-                                      (isQP) ? "Open MS" : "Open QP",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    onPressed: () => switchToPaperOrMS(context),
-                                  ),
-                                )
-                          : SizedBox.shrink()
-                      : SizedBox.shrink(),
                   IconButton(
                     icon: Icon(Icons.share),
                     onPressed: () async {
@@ -234,33 +180,57 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
               ),
         body: Stack(
           children: <Widget>[
-            PDFView(
-              filePath: filePath,
-              pageFling: false,
-              pageSnap: false,
-              defaultPage: (isQP) ? QPcurrentPage! : MScurrentPage!,
-              onRender: (x) {
-                setState(() => isRendered = true);
-              },
-              onPageChanged: (int? page, int? total) {
-                print('page change: $page/$total');
-                if (isQP) {
+            CustomPaint(
+              // foregroundPainter: Anoota(),
+              child: PDFView(
+                filePath: filePath,
+                pageFling: false,
+                pageSnap: false,
+                onPageChanged: (int? page, int? total) {
+                  print('page change: $page/$total');
                   setState(() {
-                    QPcurrentPage = page;
+                    currentPage = page;
                   });
-                } else {
-                  setState(() {
-                    MScurrentPage = page;
-                  });
-                }
-              },
-              onError: (error) {
-                handlePdfLoadError(error.toString());
-              },
-              onPageError: (page, error) {
-                handlePdfLoadError(error.toString());
-              },
+                },
+                onRender: (x) {
+                  debugPrint('rendering');
+                  setState(() => isRendered = true);
+                },
+                onError: (error) {
+                  handlePdfLoadError(error.toString());
+                },
+                onPageError: (page, error) {
+                  handlePdfLoadError(error.toString());
+                },
+              ),
             ),
+            // PlatformViewLink(
+            //   viewType: viewType,
+            //   surfaceFactory:
+            //       (BuildContext context, PlatformViewController controller) {
+            //     return AndroidViewSurface(
+            //       controller: controller as AndroidViewController,
+            //       gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{},
+            //       hitTestBehavior: PlatformViewHitTestBehavior.opaque,
+            //     );
+            //   },
+            //   onCreatePlatformView: (PlatformViewCreationParams params) {
+            //     return PlatformViewsService.initSurfaceAndroidView(
+            //       id: params.id,
+            //       viewType: viewType,
+            //       layoutDirection: TextDirection.ltr,
+            //       creationParams: creationParams,
+            //       creationParamsCodec: const StandardMessageCodec(),
+            //       onFocus: () {
+            //         params.onFocusChanged(true);
+            //       },
+            //     )
+            //       ..addOnPlatformViewCreatedListener(
+            //           params.onPlatformViewCreated)
+            //       ..addOnPlatformViewCreatedListener(onPlatformViewCreated)
+            //       ..create();
+            //   },
+            // ),
             if (!isRendered)
               LoadingIndicator(progress, loadingText: "Loading: "),
           ],
@@ -333,6 +303,49 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
     }
   }
 
+  bool isDownloaded = false;
+  void checkFileDownloaded() async {
+    // ignore: no_leading_underscores_for_local_identifiers
+    var _path = await PdfHelper.getexternalFilePath(_fileName);
+    isFileAlreadyDownloaded =
+        await PdfHelper.checkIfDownloadedButton(_fileName);
+    if (isFileAlreadyDownloaded) {
+      Future.delayed(
+        Duration(milliseconds: 500),
+        () {
+          if (mounted) {
+            setState(() => isDownloaded = true);
+          }
+        },
+      );
+    } else {
+      print('not exist $_path');
+    }
+  }
+
+  late String _localPath;
+  late TargetPlatform? platform;
+
+  /// Check if papers are already downloaded, and download if not.
+  Future<void> _prepareSaveDir() async {
+    _localPath = (await _findLocalPath())!;
+    print(_localPath);
+    final savedDir = Directory(_localPath);
+    bool hasExisted = await savedDir.exists();
+    if (!hasExisted) {
+      savedDir.create();
+    }
+  }
+
+  Future<String?> _findLocalPath() async {
+    if (platform == TargetPlatform.android) {
+      return "/storage/emulated/0/Download";
+    } else {
+      var directory = await getApplicationDocumentsDirectory();
+      return '${directory.path}${Platform.pathSeparator}Download';
+    }
+  }
+
   Future<bool> filterInvalidUrls() async {
     Dio dio = Dio(PdfHelper.pdfDownloadOpt);
     int p = 0;
@@ -340,17 +353,15 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
     for (var url in widget.urls) {
       p++;
       setState(() => progress = "$p%");
-
-      if (!isQP) {
-        url = url.replaceFirst("qp", "ms");
-      }
-      Response response = await dio.head(url);
-
-      if (response.statusCode == 200 &&
-          response.headers.value(Headers.contentTypeHeader) ==
-              "application/pdf") {
-        setState(() => (isQP) ? urlInUse = url : msUrlInUse = url);
+      // if (!isQP) {
+      // url = url.replaceFirst("_qp_", "_ms_");
+      // log('my invalid url checker $url');
+      // }
+      try {
+        await dio.head(url);
         return true;
+      } catch (e) {
+        debugPrint('Invalid url ${e.toString()}');
       }
     }
 
@@ -360,7 +371,8 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
   Future<void> downloadFile(String filePath) async {
     setState(() => downloading = true);
     Dio dio = Dio(PdfHelper.pdfDownloadOpt);
-    if (isQP && urlInUse == null || !isQP && msUrlInUse == null) {
+    if (urlInUse == null || msUrlInUse == null) {
+      // if (isQP && urlInUse == null || !isQP && msUrlInUse == null) {
       bool fileAvailable = await filterInvalidUrls();
       if (!fileAvailable) {
         await handleNotFoundError();
@@ -369,7 +381,7 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
     }
 
     await dio.download(
-      (isQP) ? urlInUse! : msUrlInUse!,
+      widget.urls[0],
       filePath,
       onReceiveProgress: (received, total) {
         var percentage = ((received / total) * 100);
@@ -394,23 +406,6 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
       });
       checkFileDownloaded();
     }
-  }
-
-  /// Depending on what's currently shown, switch to
-  /// the past paper/marking scheme view.
-  void switchToPaperOrMS(BuildContext context) {
-    if (isQP) {
-      _fileName = _fileName.replaceFirst("qp_", "ms_");
-    } else {
-      _fileName = _fileName.replaceFirst("ms_", "qp_");
-    }
-    setState(() {
-      isQP = !isQP;
-      isLoaded = false;
-      isFileAlreadyDownloaded = false;
-      isRendered = false;
-      initPapers();
-    });
   }
 
   void handlePdfLoadError(String errorMsg) async {
