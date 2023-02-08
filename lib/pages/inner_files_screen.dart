@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'package:go_router/go_router.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -19,7 +18,6 @@ import 'package:studento/utils/funHelper.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../UI/show_case_widget.dart';
 import '../UI/studento_app_bar.dart';
-import '../UI/web_appbar.dart';
 import '../model/MainFolder.dart';
 import '../provider/loadigProvider.dart';
 import '../services/bread_crumb_navigation.dart';
@@ -76,8 +74,6 @@ class innerfileScreen extends StatefulWidget {
 }
 
 class _innerfileScreenState extends State<innerfileScreen> {
-  var mytotalAmount = '';
-
   var listUpdate = false;
 
   void updateList(List list) {
@@ -95,7 +91,8 @@ class _innerfileScreenState extends State<innerfileScreen> {
   }
 
   String prettifySubjectName(String subjectName) {
-    return subjectName.replaceFirst("\r\n", "");
+    var name = subjectName.replaceFirst("\r", "");
+    return name.replaceFirst("\n", "");
   }
 
   @override
@@ -218,27 +215,15 @@ class _innerfileScreenState extends State<innerfileScreen> {
   void initData() async {
     _streamController.add('loading');
     http.Response res;
-    if (!kIsWeb)
-      res = await http.post(Uri.parse(innerFileApi), body: {
-        'token': token,
-        'fileid': widget.inner_file,
-      });
-    else {
-      print('get data for web');
-      print(
-          'inner web$webAPI?domain=${Provider.of<loadingProvider>(context, listen: false).getdomainId}&url_structure=${widget.url_structure}');
-      res = await http.post(Uri.parse("$webAPI?page=inner_file"), body: {
-        // 'domain': widget.domain,
-        // 'url_structure': url_structure,
-        'domain':
-            Provider.of<loadingProvider>(context, listen: false).getdomainId,
-        'url_structure': widget.url_structure,
-        'token': token
-      });
-    }
+    res = await http.post(Uri.parse(innerFileApi), body: {
+      'token': token,
+      'fileid': widget.inner_file,
+    });
+
     clearifyData(res, false);
   }
 
+  bool isrever = false;
   List<String> blockList = [];
   List foodItems = [];
   List<String> favItem = [];
@@ -344,6 +329,8 @@ class _innerfileScreenState extends State<innerfileScreen> {
       appBar: StudentoAppBar(
         title: widget.title,
         context: context,
+        centerTitle: false,
+        isFile: true,
         actions: [
           (allItem.length >= 2 &&
                   funHelper().heartFilter(allItem[0].urlPdf.toString()) ==
@@ -356,6 +343,26 @@ class _innerfileScreenState extends State<innerfileScreen> {
                       child: multiViewBTN(context, multiProvider))
                   : multiViewBTN(context, multiProvider)
               : SizedBox.shrink(),
+          IconButton(
+            onPressed: () {
+              if (isrever) {
+                setState(() {
+                  isrever = false;
+                });
+              } else {
+                setState(() {
+                  isrever = true;
+                });
+              }
+              print(isrever.toString());
+            },
+            icon: Icon(
+              Icons.sort,
+              color: isrever
+                  ? Color(0xff6C63FF)
+                  : Theme.of(context).iconTheme.color,
+            ),
+          )
         ],
       ),
       body: mobileLayout(multiProvider, removeFromFav, openMultiPaperView,
@@ -524,6 +531,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
                     ),
               ListView.separated(
                 itemCount: allItem.length,
+                reverse: isrever,
                 physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 separatorBuilder: (context, index) {
@@ -539,7 +547,7 @@ class _innerfileScreenState extends State<innerfileScreen> {
                   return filesListTile(
                       index,
                       context,
-                      allItem[index].urlPdf!,
+                      allItem[index].urlPdf ?? '',
                       allItem[index].id,
                       allItem[index].name!,
                       multiProvider,

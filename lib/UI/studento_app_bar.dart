@@ -5,6 +5,7 @@ class StudentoAppBar extends AppBar {
   StudentoAppBar(
       {Key? key,
       required BuildContext context,
+      double? fontSize = 20.0,
       String title = '',
       bool centerTitle = true,
       bool isFile = false,
@@ -20,7 +21,7 @@ class StudentoAppBar extends AppBar {
               title,
               style: TextStyle(
                 fontWeight: FontWeight.w400,
-                fontSize: 20.0,
+                fontSize: fontSize,
                 color: Theme.of(context).textTheme.bodyLarge!.color,
               ),
               textScaleFactor: isFile ? 1.0 : 1.2,

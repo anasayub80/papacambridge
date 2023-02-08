@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:go_router/go_router.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -502,19 +501,15 @@ class _SetupState extends State<Setup> {
     selectedlevelid = [];
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('setup', true);
-    if (kIsWeb) {
-      // ignore: use_build_context_synchronously
-      GoRouter.of(context).pushNamed('home');
-    } else {
-      // ignore: use_build_context_synchronously
-      Navigator.of(context).popUntil((route) => route.isFirst);
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacement(context, MaterialPageRoute(
-        builder: (context) {
-          return HomePage();
-        },
-      ));
-    }
+
+    // ignore: use_build_context_synchronously
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    // ignore: use_build_context_synchronously
+    Navigator.pushReplacement(context, MaterialPageRoute(
+      builder: (context) {
+        return HomePage();
+      },
+    ));
   }
 
   /// Pushes the [SetupPage] which is found at [pageIndex] in the [List]

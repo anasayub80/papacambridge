@@ -208,7 +208,7 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
                   ),
                   IconButton(
                     icon: Icon(
-                      Icons.download,
+                      isDownloaded ? Icons.verified : Icons.download,
                       color: isDownloaded
                           ? Colors.green
                           : Theme.of(context).iconTheme.color,

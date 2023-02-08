@@ -8,7 +8,6 @@ import '../utils/theme_provider.dart';
 import 'home_page.dart';
 import 'intro.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -42,17 +41,11 @@ class _SplashPageState extends State<SplashPage> {
     Future.delayed(
       Duration(seconds: 3),
       () {
-        if (kIsWeb) {
-          isSetupComplete!
-              ? GoRouter.of(context).pushReplacementNamed('home')
-              : GoRouter.of(context).pushReplacementNamed('setup');
-        } else {
-          Navigator.pushReplacement(context, MaterialPageRoute(
-            builder: (context) {
-              return isSetupComplete! ? HomePage() : IntroPage();
-            },
-          ));
-        }
+        Navigator.pushReplacement(context, MaterialPageRoute(
+          builder: (context) {
+            return isSetupComplete! ? HomePage() : IntroPage();
+          },
+        ));
       },
     );
   }

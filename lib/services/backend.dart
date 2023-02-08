@@ -5,18 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
 const token = 'C8xWxGvIue37SwP2MEU7W5oKE32fm7Z3JxHfeK897a8eE0SdLl';
-// const boardApi =
-//     'https://pastpapers.papacambridge.com/api/api.php?page=select_board';
-// const domainApi =
-//     'https://pastpapers.papacambridge.com/api/api.php?page=domains';
-// const innerFileApi =
-//     'https://pastpapers.papacambridge.com/api/api.php?page=inner_file';
-// const mainFileApi =
-//     'https://pastpapers.papacambridge.com/api/api.php?page=main_file';
-// const searchSubjectApi =
-//     'https://pastpapers.papacambridge.com/api/api.php?page=search';
-// const levelApi =
-//     'https://pastpapers.papacambridge.com/api/api.php?page=inner_file';
+
 const boardApi = 'https://api.papacambridge.com/api.php?page=select_board';
 const domainApi = 'https://api.papacambridge.com/api.php?page=domains';
 const innerFileApi = 'https://api.papacambridge.com/api.php?page=inner_file';
@@ -24,9 +13,6 @@ const mainFileApi = 'https://api.papacambridge.com/api.php?page=main_file';
 const searchSubjectApi = 'https://api.papacambridge.com/api.php?page=search';
 const levelApi = 'https://api.papacambridge.com/api.php?page=inner_file';
 const caeiAPI = 'https://api.papacambridge.com/api-caie.php';
-const webAPI = 'https://api.papacambridge.com/api-web.php';
-// const subjectApi =
-//     'https://papacambridge.redrhinoz.com/api.php?page=inner_file';
 
 class backEnd {
   fetchBoard() async {
@@ -106,28 +92,6 @@ class backEnd {
     http.Response res = await http.post(Uri.parse(innerFileApi), body: {
       'token': token,
       'fileid': fileid,
-    });
-    if (res.statusCode == 200) {
-      if (res.body.isNotEmpty) {
-        log(res.body.length.toString());
-        if (res.body.length <= 64) {
-          // no data found
-          return null;
-        } else {
-          var response = jsonDecode(res.body.toString());
-          debugPrint("innerFile Response $response");
-          return response;
-        }
-      } else {
-        print('Something Wrong');
-      }
-    }
-  }
-
-  fetchwebInnerFiles(url_structure, domain) async {
-    http.Response res = await http.post(Uri.parse(webAPI), body: {
-      'domain': domain,
-      'url_structure': url_structure,
     });
     if (res.statusCode == 200) {
       if (res.body.isNotEmpty) {

@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../UI/mainFilesList.dart';
 import '../UI/studento_app_bar.dart';
-import '../UI/web_appbar.dart';
 import '../provider/loadigProvider.dart';
-import '../utils/theme_provider.dart';
 import 'searchPage.dart';
 import 'package:provider/provider.dart';
 
@@ -35,32 +33,28 @@ class _TimeTablePageState extends State<TimeTablePage> {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeSettings>(context, listen: false);
-
     return Scaffold(
-        appBar: kIsWeb
-            ? webAppBar(themeProvider, context)
-            : StudentoAppBar(
-                title: "Time Table",
-                context: context,
-                actions: [
-                  IconButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(
-                          builder: (context) {
-                            return SearchPage(
-                              domainId: widget.domainId,
-                              domainName: "Past Papers",
-                            );
-                          },
-                        ));
-                      },
-                      icon: Icon(Icons.search))
-                ],
-              ),
+        appBar: StudentoAppBar(
+          title: "Time Table",
+          context: context,
+          actions: [
+            IconButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return SearchPage(
+                        domainId: widget.domainId,
+                        domainName: "Past Papers",
+                      );
+                    },
+                  ));
+                },
+                icon: Icon(Icons.search))
+          ],
+        ),
         body: mainFilesList(
           domainId: widget.domainId,
-          title: 'Time Table',
+          title: 'TimeTable',
           domainName: 'timetable',
         ));
   }

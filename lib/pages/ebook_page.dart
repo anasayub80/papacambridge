@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:studento/UI/studento_app_bar.dart';
 
-import '../UI/web_appbar.dart';
 import '../provider/loadigProvider.dart';
-import '../utils/theme_provider.dart';
 import 'searchPage.dart';
 import 'package:provider/provider.dart';
 
@@ -36,28 +34,25 @@ class _EBooksPageState extends State<EBooksPage> {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeSettings>(context, listen: false);
     return Scaffold(
-        appBar: kIsWeb
-            ? webAppBar(themeProvider, context)
-            : StudentoAppBar(
-                title: "E-Books",
-                context: context,
-                actions: [
-                  IconButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(
-                          builder: (context) {
-                            return SearchPage(
-                              domainId: widget.domainId,
-                              domainName: "E-Books",
-                            );
-                          },
-                        ));
-                      },
-                      icon: Icon(Icons.search))
-                ],
-              ),
+        appBar: StudentoAppBar(
+          title: "E-Books",
+          context: context,
+          actions: [
+            IconButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return SearchPage(
+                        domainId: widget.domainId,
+                        domainName: "E-Books",
+                      );
+                    },
+                  ));
+                },
+                icon: Icon(Icons.search))
+          ],
+        ),
         body: mainFilesList(
           domainId: widget.domainId,
           title: 'E-Books',

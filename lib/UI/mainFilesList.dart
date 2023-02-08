@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,14 +13,11 @@ import 'package:studento/services/backend.dart';
 import 'package:studento/utils/sideAdsWidget.dart';
 import '../model/MainFolder.dart';
 import 'package:http/http.dart' as http;
-import '../provider/loadigProvider.dart';
 import '../utils/ads_helper.dart';
 import '../utils/funHelper.dart';
 import '../utils/pdf_helper.dart';
 import '../utils/theme_provider.dart';
 import 'package:provider/provider.dart';
-
-import 'web_appbar.dart';
 
 // ignore: must_be_immutable
 class mainFilesList extends StatefulWidget {
@@ -199,20 +195,11 @@ class _mainFilesListState extends State<mainFilesList> {
     allItem.clear();
     favItem.clear();
     favItemName.clear();
-    if (!kIsWeb)
-      res = await http.post(Uri.parse(mainFileApi), body: {
-        'token': token,
-        'domain': widget.domainId,
-      });
-    else {
-      print('get data for web');
-      res = await http.post(Uri.parse("$webAPI?page=main_file"), body: {
-        // 'domain': widget.domain,
-        // 'url_structure': url_structure,
-        'domain': widget.domainId,
-        'token': token,
-      });
-    }
+    res = await http.post(Uri.parse(mainFileApi), body: {
+      'token': token,
+      'domain': widget.domainId,
+    });
+
     debugPrint(res.body);
     clearifyData(res, false);
   }
@@ -234,7 +221,8 @@ class _mainFilesListState extends State<mainFilesList> {
   }
 
   String prettifySubjectName(String subjectName) {
-    return subjectName.replaceFirst("\r\n", "");
+    var name = subjectName.replaceFirst("\r", "");
+    return name.replaceFirst("\n", "");
   }
 
   removeFromFav(index, id, name) async {
@@ -429,21 +417,10 @@ class _mainFilesListState extends State<mainFilesList> {
                 itemBuilder: (context, index) {
                   return ListTile(
                     onTap: () {
-                      if (kIsWeb) {
-                        GoRouter.of(context).pushNamed('innerfile', params: {
-                          'domainName': widget.domainName,
-                          'boardName': returnBoardName(
-                              Provider.of<loadingProvider>(context,
-                                      listen: false)
-                                  .getboardId),
-                          'url': allItem[index].mainUrl.toString(),
-                        });
-                      } else {
-                        Navigator.push(
-                            context,
-                            innerfileScreen.getRoute(allItem[index].name!,
-                                allItem[index].id, widget.title, true));
-                      }
+                      Navigator.push(
+                          context,
+                          innerfileScreen.getRoute(allItem[index].name!,
+                              allItem[index].id, widget.title, true));
                     },
                     leading: Padding(
                       padding: const EdgeInsets.all(8.0),
