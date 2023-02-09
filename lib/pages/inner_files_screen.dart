@@ -475,9 +475,10 @@ class _innerfileScreenState extends State<innerfileScreen> {
             ),
           );
         } else if (snapshot.hasData) {
-          if (multiItemurl.isEmpty)
+          if (multiItemurl.isEmpty) {
             selectedList = List.generate(
                 favItem.length + allItem.length, (index) => false);
+          }
           return ListView(
             children: [
               SizedBox(

@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:studento/utils/theme_provider.dart';
 import 'navigate_observe.dart';
 
-class BreadCrumbNavigator extends StatelessWidget {
+class BreadCrumbNavigator extends StatefulWidget {
   final List<Route> currentRouteStack;
 
   BreadCrumbNavigator() : currentRouteStack = routeStack.toList();
+
+  @override
+  State<BreadCrumbNavigator> createState() => _BreadCrumbNavigatorState();
+}
+
+class _BreadCrumbNavigatorState extends State<BreadCrumbNavigator> {
   String prettifySubjectName(String subjectName) {
-    return subjectName.replaceFirst("\r\n", "");
+    var name = subjectName.replaceFirst("\r", "");
+    return name.replaceFirst("\n", "");
   }
 
   @override
@@ -15,7 +21,9 @@ class BreadCrumbNavigator extends StatelessWidget {
     return ListView(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
-      children: List<Widget>.from(currentRouteStack
+      addAutomaticKeepAlives: false,
+
+      children: List<Widget>.from(widget.currentRouteStack
           .asMap()
           .map(
             (index, value) => MapEntry(
@@ -24,16 +32,16 @@ class BreadCrumbNavigator extends StatelessWidget {
                     onTap: () {
                       print('back call');
                       Navigator.popUntil(context,
-                          (route) => route == currentRouteStack[index]);
+                          (route) => route == widget.currentRouteStack[index]);
                     },
-                    child: currentRouteStack[index].settings.name == null
+                    child: widget.currentRouteStack[index].settings.name == null
                         ? SizedBox.shrink()
                         : _BreadButton(
                             prettifySubjectName(
-                                currentRouteStack[index].settings.name!),
+                                widget.currentRouteStack[index].settings.name!),
                             index == 0,
-                            currentRouteStack[index] ==
-                                currentRouteStack.last))),
+                            widget.currentRouteStack[index] ==
+                                widget.currentRouteStack.last))),
           )
           .values),
       // mainAxisSize: MainAxisSize.max,
