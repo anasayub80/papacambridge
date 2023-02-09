@@ -166,12 +166,6 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
               )
             : StudentoAppBar(
                 context: context,
-                // centerTitle: false,
-                // title: (widget.isOthers)
-                //     ? widget.fileName
-                //     : (isQP)
-                //         ? widget.fileName
-                //         : "Marking Scheme",
                 isFile: true,
                 actions: <Widget>[
                   widget.boarId == '1'

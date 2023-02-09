@@ -194,6 +194,8 @@ class _PastPapersPageCAIEState extends State<PastPapersPageCAIE> {
     return Scaffold(
       appBar: StudentoAppBar(
         title: "Past Papers",
+        isFile: true,
+        centerTitle: false,
         context: context,
         actions: [
           IconButton(

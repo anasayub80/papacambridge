@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:studento/utils/theme_provider.dart';
 import 'navigate_observe.dart';
 
 class BreadCrumbNavigator extends StatelessWidget {
@@ -11,37 +12,33 @@ class BreadCrumbNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      child: ListView(
-        shrinkWrap: true,
-        children: List<Widget>.from(currentRouteStack
-            .asMap()
-            .map(
-              (index, value) => MapEntry(
-                  index,
-                  GestureDetector(
-                      onTap: () {
-                        if (currentRouteStack[index] == currentRouteStack[0]) {
-                        } else {
-                          print('back call');
-                          Navigator.popUntil(context,
-                              (route) => route == currentRouteStack[index]);
-                        }
-                      },
-                      child: currentRouteStack[index].settings.name == null
-                          ? SizedBox.shrink()
-                          : _BreadButton(
-                              prettifySubjectName(
-                                  currentRouteStack[index].settings.name!),
-                              index == 0))),
-            )
-            .values),
-        // mainAxisSize: MainAxisSize.max,
-        // innerDistance: -16,
-        scrollDirection: Axis.horizontal,
-      ),
-      width: MediaQuery.of(context).size.width,
-      height: 30,
+    return ListView(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      children: List<Widget>.from(currentRouteStack
+          .asMap()
+          .map(
+            (index, value) => MapEntry(
+                index,
+                GestureDetector(
+                    onTap: () {
+                      print('back call');
+                      Navigator.popUntil(context,
+                          (route) => route == currentRouteStack[index]);
+                    },
+                    child: currentRouteStack[index].settings.name == null
+                        ? SizedBox.shrink()
+                        : _BreadButton(
+                            prettifySubjectName(
+                                currentRouteStack[index].settings.name!),
+                            index == 0,
+                            currentRouteStack[index] ==
+                                currentRouteStack.last))),
+          )
+          .values),
+      // mainAxisSize: MainAxisSize.max,
+      // innerDistance: -16,
+      scrollDirection: Axis.horizontal,
     );
   }
 }
@@ -49,15 +46,16 @@ class BreadCrumbNavigator extends StatelessWidget {
 class _BreadButton extends StatelessWidget {
   final String text;
   final bool isFirstButton;
+  final bool isLastButton;
 
-  const _BreadButton(this.text, this.isFirstButton);
+  const _BreadButton(this.text, this.isFirstButton, this.isLastButton);
 
   @override
   Widget build(BuildContext context) {
     return ClipPath(
       clipper: _TriangleClipper(!isFirstButton),
       child: Container(
-        color: Colors.pink,
+        color: isLastButton ? Colors.grey : Colors.pink,
         child: Padding(
           padding: EdgeInsetsDirectional.only(
               start: isFirstButton ? 8 : 20, end: 28, top: 5, bottom: 8),

@@ -9,20 +9,18 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:showcaseview/showcaseview.dart';
-import 'package:studento/pages/editable_pdf.dart';
-import 'package:studento/pages/home_page.dart';
 import 'package:studento/pages/multiPaperView.dart';
 import 'package:studento/provider/multiViewhelper.dart';
 import 'package:studento/services/backend.dart';
 import 'package:studento/utils/bannerAdmob.dart';
 import 'package:studento/utils/funHelper.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../UI/show_case_widget.dart';
 import '../UI/studento_app_bar.dart';
 import '../model/MainFolder.dart';
 import '../provider/loadigProvider.dart';
 import '../services/bread_crumb_navigation.dart';
 import '../utils/pdf_helper.dart';
+import 'home_page.dart';
 import 'other_fileView.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
@@ -36,7 +34,6 @@ class innerfileScreen extends StatefulWidget {
   String? domainId;
   String? boardName;
   final title;
-  final url_structure;
   bool iscomeFromMainFiles;
   static const isShowCaseLaunch = "isShowCaseLaunchinnerScreen";
 
@@ -47,9 +44,27 @@ class innerfileScreen extends StatefulWidget {
     this.boardName,
     this.domainId,
     required this.title,
-    required this.url_structure,
     required this.iscomeFromMainFiles,
   });
+  // static MaterialPageRoute getRoute(
+  //         String name, innerfile, title, bool iscomeFromMainFiles) =>
+  //     MaterialPageRoute(
+  //         settings: RouteSettings(name: name),
+  //         builder: (context) => (iscomeFromMainFiles)
+  //             ? ShowCaseWidget(
+  //                 builder: Builder(builder: (context) {
+  //                   return innerfileScreen(
+  //                     inner_file: innerfile,
+  //                     title: title,
+  //                     iscomeFromMainFiles: iscomeFromMainFiles,
+  //                   );
+  //                 }),
+  //               )
+  //             : innerfileScreen(
+  //                 inner_file: innerfile,
+  //                 iscomeFromMainFiles: iscomeFromMainFiles,
+  //                 title: title,
+  //               ));
   static MaterialPageRoute getRoute(
           String name, innerfile, title, bool iscomeFromMainFiles) =>
       MaterialPageRoute(
@@ -61,7 +76,6 @@ class innerfileScreen extends StatefulWidget {
                       inner_file: innerfile,
                       title: title,
                       iscomeFromMainFiles: iscomeFromMainFiles,
-                      url_structure: '',
                     );
                   }),
                 )
@@ -69,7 +83,6 @@ class innerfileScreen extends StatefulWidget {
                   inner_file: innerfile,
                   iscomeFromMainFiles: iscomeFromMainFiles,
                   title: title,
-                  url_structure: 'none',
                 ));
   @override
   State<innerfileScreen> createState() => _innerfileScreenState();
@@ -265,17 +278,6 @@ class _innerfileScreenState extends State<innerfileScreen> {
   Widget build(BuildContext context) {
     final multiProvider = Provider.of<multiViewProvider>(context, listen: true);
     void openPaper(String url, fileName) async {
-      // Navigator.push(
-      //   context,
-      //   MaterialPageRoute(
-      //     builder: (_) => EditablePastPaperView([
-      //       url,
-      //     ],
-      //         fileName,
-      //         Provider.of<loadingProvider>(context, listen: false).getboardId,
-      //         false),
-      //   ),
-      // );
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -481,8 +483,8 @@ class _innerfileScreenState extends State<innerfileScreen> {
               SizedBox(
                 height: 10,
               ),
-              SizedBox(
-                width: double.infinity,
+              Container(
+                width: MediaQuery.of(context).size.width,
                 height: 30,
                 child: ListView(
                   scrollDirection: Axis.horizontal,

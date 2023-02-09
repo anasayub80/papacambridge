@@ -237,12 +237,19 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
       http.Response res1 = await http.get(Uri.parse(url1));
       print(res1.body);
       List<PdfModal> pdfModalL = pdfModalFromJson(res1.body);
+      List<PdfModal> dataL = pdfModalL;
+      for (var subject in dataL) {
+        bool isFileAlreadyDownloaded = await PdfHelper.checkIfDownloaded(
+            prettifySubjectName(subject.name!));
+        if (isFileAlreadyDownloaded) {
+          downloadedId.add(subject.id);
+        }
+      }
       setState(() {
         // check if data null or not []
         resCheck = res1.body;
         // check if data null or not []
         pdfModal = pdfModalL;
-
         _isLoading = false;
       });
       Scrollable.ensureVisible(dataKey2.currentContext!,
@@ -267,6 +274,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
           icon: Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        actions: [],
       ),
       body: loading
           ? Center(child: CircularProgressIndicator())
@@ -468,6 +476,12 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
                                                           fontSize: 16,
                                                         ),
                                                       ),
+                                                      trailing: downloadedId
+                                                              .contains(e.id)
+                                                          ? Icon(Icons.verified,
+                                                              color:
+                                                                  Colors.green)
+                                                          : SizedBox.shrink(),
                                                     );
                                                   } else {
                                                     log("No Past paper Component Called!");
@@ -480,7 +494,6 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
                                                 .toList()
                                                 .cast<Widget>()),
                                       ),
-
                             BannerAdmob(size: AdSize.banner),
                             if (selectedPdf != null)
                               Padding(
@@ -513,44 +526,6 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
                                   ),
                                 ),
                               ),
-                            // InkWell(
-                            //     onTap: () {
-                            //       // print(selectedComponent);
-                            //       // Filtered item =
-                            //       //     filtered.elementAt(selectedComponent);
-                            //       // print(item.id);
-                            //       // return;
-                            //       openPaper(selectedPdf!);
-                            //     },
-                            //     child: Container(
-                            //       height: 50,
-                            //       width: 100,
-                            //       margin: EdgeInsets.only(
-                            //           top: 25, bottom: 25, left: 40),
-                            //       alignment: Alignment.center,
-                            //       decoration: BoxDecoration(
-                            //           color: Colors.blue,
-                            //           boxShadow: [
-                            //             BoxShadow(color: Colors.grey)
-                            //           ],
-                            //           borderRadius:
-                            //               BorderRadius.circular(30)),
-                            //       child: Row(
-                            //         mainAxisAlignment:
-                            //             MainAxisAlignment.center,
-                            //         children: [
-                            //           Text(
-                            //             ,
-                            //             style: TextStyle(color: Colors.white),
-                            //           ),
-                            //           Icon(
-                            //
-                            //             color: Colors.white,
-                            //             size: 12,
-                            //           )
-                            //         ],
-                            //       ),
-                            //     )),
                             SizedBox(
                               key: dataKey,
                               height: 100,

@@ -62,49 +62,30 @@ class _StudentoState extends State<Studento> {
       ],
       builder: (context, child) {
         final themeProvider = Provider.of<ThemeSettings>(context);
-        return mobileBody(themeProvider);
+        return MaterialApp(
+          title: 'PapaCambridge',
+          builder: BotToastInit(), //1. call BotToastInit
+          navigatorObservers: [
+            AppNavigatorObserver(),
+            BotToastNavigatorObserver(),
+            NavigatorObserver(),
+          ],
+          // navigatorObservers: <NavigatorObserver>[observer],
+          themeMode: themeProvider.currentTheme,
+          theme: MyTheme().lightTheme,
+          darkTheme: MyTheme().darkTheme,
+          color: Colors.red,
+          home: SplashPage(),
+          // home: TestPage(),
+          routes: routes,
+          debugShowCheckedModeBanner: false,
+        );
         // );
       },
     );
     return ScopedModel<TodoListModel>(
       model: TodoListModel(),
       child: app,
-    );
-  }
-
-  // MaterialApp webBody(ThemeSettings themeProvider) {
-  //   return MaterialApp.router(
-  //     // routerConfig: MyGoRouter().router,
-  //     routeInformationParser: MyGoRouter.router.routeInformationParser,
-  //     routeInformationProvider: MyGoRouter.router.routeInformationProvider,
-  //     routerDelegate: MyGoRouter.router.routerDelegate,
-  //     builder: BotToastInit(),
-  //     themeMode: themeProvider.currentTheme,
-  //     theme: MyTheme().lightTheme,
-  //     darkTheme: MyTheme().darkTheme,
-  //     color: Colors.red,
-  //     debugShowCheckedModeBanner: false,
-  //   );
-  // }
-
-  MaterialApp mobileBody(ThemeSettings themeProvider) {
-    return MaterialApp(
-      title: 'PapaCambridge',
-      builder: BotToastInit(), //1. call BotToastInit
-      navigatorObservers: [
-        BotToastNavigatorObserver(),
-        NavigatorObserver(),
-        AppNavigatorObserver(),
-      ],
-      // navigatorObservers: <NavigatorObserver>[observer],
-      themeMode: themeProvider.currentTheme,
-      theme: MyTheme().lightTheme,
-      darkTheme: MyTheme().darkTheme,
-      color: Colors.red,
-      home: SplashPage(),
-      // home: TestPage(),
-      routes: routes,
-      debugShowCheckedModeBanner: false,
     );
   }
 }
