@@ -35,7 +35,7 @@ class _OtherResourcesState extends State<OtherResources> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: StudentoAppBar(
-          title: "Other Resources",
+          title: "Other",
           context: context,
           actions: [
             IconButton(
@@ -54,7 +54,7 @@ class _OtherResourcesState extends State<OtherResources> {
         ),
         body: mainFilesList(
           domainId: widget.domainId,
-          title: 'Other Resources',
+          title: 'Other',
           domainName: 'other-resources',
         ));
   }

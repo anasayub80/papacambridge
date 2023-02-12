@@ -180,6 +180,8 @@ class _SetupState extends State<Setup> {
   List<String> levelid = [];
   Level? levelG;
   getLevel(boardId) async {
+    log('get level ');
+    // _levelController.close();
     var isConnected = await PdfHelper.checkIfConnected();
     if (isConnected) {
       var res = await backEnd().fetchMainFiles(boardId);
@@ -227,7 +229,7 @@ class _SetupState extends State<Setup> {
                       value: selectedItem.contains(level[index]),
                       selected: selectedItem.contains(level[index]),
                       title: Text(
-                        level[index].toString(),
+                        " ${level[index].toString()}",
                         style: TextStyle(fontWeight: FontWeight.w500),
                       ),
                       // secondary: Text(subjectCode),

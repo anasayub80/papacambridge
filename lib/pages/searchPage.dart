@@ -99,7 +99,7 @@ class _SearchPageState extends State<SearchPage> {
                 if (_searchController.text.isNotEmpty &&
                     _searchController.text.trim().isNotEmpty) initSubjects();
               },
-              icon: Icon(Icons.search))
+              icon: Icon(Icons.done))
         ],
       ),
       body: StreamBuilder<dynamic>(

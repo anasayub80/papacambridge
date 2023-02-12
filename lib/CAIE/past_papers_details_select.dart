@@ -2,7 +2,9 @@
 
 import 'dart:convert';
 import 'dart:developer';
+import 'package:bot_toast/bot_toast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:need_resume/need_resume.dart';
 import 'package:studento/CAIE/pastPaperViewCAIE.dart';
 import 'package:studento/UI/studento_app_bar.dart';
 import 'package:studento/model/MainFolder.dart';
@@ -17,8 +19,12 @@ import 'package:studento/UI/steps/season.dart';
 import 'package:studento/model/MainFolderInit.dart';
 import 'package:http/http.dart' as http;
 import 'package:studento/services/backend.dart';
+import 'package:studento/utils/funHelper.dart';
+import '../Globals.dart';
+import '../pages/multiPaperView.dart';
 import '../pages/other_fileView.dart';
 import '../provider/loadigProvider.dart';
+import '../provider/multiViewhelper.dart';
 import '../utils/bannerAdmob.dart';
 import 'package:provider/provider.dart';
 
@@ -60,11 +66,31 @@ class PaperDetailsSelectionPage extends StatefulWidget {
   }
 }
 
-class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
+class _PaperDetailsSelectionPageState
+    extends ResumableState<PaperDetailsSelectionPage> {
   int _currentStep = 0;
   set currentStep(int currentStep) =>
       setState(() => _currentStep = currentStep);
   int get currentStep => _currentStep;
+  @override
+  Future<void> onResume() async {
+    super.onResume();
+    log('State Resume**');
+    for (var subject in pdfModal) {
+      bool isFileAlreadyDownloaded =
+          await PdfHelper.checkIfDownloaded(prettifySubjectName(subject.name!));
+      if (isFileAlreadyDownloaded) {
+        downloadedId.add(subject.id);
+      }
+    }
+    setState(() {});
+  }
+
+  @override
+  void onPause() {
+    super.onPause();
+    log('State Pause**');
+  }
 
   int? _selectedComponent;
   set selectedComponent(int? componentNo) =>
@@ -147,12 +173,6 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
           isActive: (_currentStep == _seasonStepNo),
           state: getState(_seasonStepNo),
         ),
-        // Step(
-        //   title: Text("Component"),
-        //   content: ComponentStep(widget.subject,session: selectedSeason,year: selectedYear,),
-        //   isActive: (_currentStep == _componentStepNo),
-        //   state: getState(_componentStepNo),
-        // ),
       ];
 
   @override
@@ -250,6 +270,14 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
         resCheck = res1.body;
         // check if data null or not []
         pdfModal = pdfModalL;
+        if (Provider.of<multiViewProvider>(context, listen: false).multiView ==
+            false) {
+          debugPrint('set true');
+        } else {
+          selectedList = List.generate(resCheck!.length, (index) => false);
+          multiItemname.clear();
+          multiItemurl.clear();
+        }
         _isLoading = false;
       });
       Scrollable.ensureVisible(dataKey2.currentContext!,
@@ -258,15 +286,84 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
   }
 
   List downloadedId = [];
+  Widget multiViewBTN(BuildContext context, multiViewProvider multiProvider) {
+    return Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: ElevatedButton.icon(
+            onPressed: () {
+              if (Provider.of<multiViewProvider>(context, listen: false)
+                      .multiView ==
+                  false) {
+                debugPrint('set true');
+                multiProvider.setMultiViewTrue();
+              } else {
+                multiProvider.setMultiViewFalse();
+                debugPrint('set false');
+                selectedList =
+                    List.generate(resCheck!.length, (index) => false);
+                multiItemname.clear();
+                multiItemurl.clear();
+              }
+            },
+            label: Text(
+              'Multi View',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: multiProvider.multiView == false
+                    ? Theme.of(context).textTheme.bodyMedium!.color
+                    : Colors.white,
+                fontSize: 12,
+              ),
+            ),
+            style: IconButton.styleFrom(
+              backgroundColor: multiProvider.multiView == false
+                  ? Colors.white
+                  : Color(0xff6C63FF),
+              side: BorderSide(
+                  color: multiProvider.multiView == true
+                      ? Colors.transparent
+                      : Theme.of(context).unselectedWidgetColor),
+            ),
+            icon: Icon(Icons.view_agenda_outlined,
+                color: multiProvider.multiView == false
+                    ? Theme.of(context).iconTheme.color
+                    : Colors.white),
+          ),
+        ),
+      ],
+    );
+  }
 
+  void openMultiPaperView() async {
+    push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MultiPaperView(
+            url1: multiItemurl[0],
+            url2: multiItemurl[1],
+            fileName1: multiItemname[0],
+            fileName2: multiItemname[1],
+            boarId:
+                Provider.of<loadingProvider>(context, listen: false).getboardId,
+            isOthers: false),
+      ),
+    );
+  }
+
+  List multiItemurl = [];
+  List multiItemname = [];
+  List selectedList = [];
   // check if data null or not []
   var resCheck;
   @override
   Widget build(BuildContext context) {
+    final multiProvider = Provider.of<multiViewProvider>(context, listen: true);
     return Scaffold(
       key: _scaffoldKey,
       appBar: StudentoAppBar(
-        title: "Past Paper Details",
+        title: "Past Paper",
         context: context,
         centerTitle: false,
         isFile: true,
@@ -274,7 +371,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
           icon: Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        actions: [],
+        actions: [multiViewBTN(context, multiProvider)],
       ),
       body: loading
           ? Center(child: CircularProgressIndicator())
@@ -414,40 +511,241 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
                                                   // type contain filter QP MS Or Others
                                                   if (type == e.paper) {
                                                     log("Comg Widget Called! is ${e.paper}");
-                                                    return Container(
-                                                      child: ComponentWidget(
-                                                        index,
-                                                        pdf: e,
-                                                        type,
-                                                      ),
-                                                    );
+                                                    return multiProvider
+                                                            .multiView
+                                                        ? SizedBox(
+                                                            height: 40.0,
+                                                            width: 100.0,
+                                                            child:
+                                                                RawMaterialButton(
+                                                              onPressed: () {
+                                                                Scrollable.ensureVisible(
+                                                                    dataKey
+                                                                        .currentContext!,
+                                                                    duration: Duration(
+                                                                        seconds:
+                                                                            1));
+
+                                                                if (multiProvider
+                                                                            .multiView ==
+                                                                        true &&
+                                                                    resCheck.length >=
+                                                                        2) {
+                                                                  if (selectedList[
+                                                                          index] ==
+                                                                      true) {
+                                                                    multiItemurl
+                                                                        .remove(
+                                                                            e.urlPdf);
+                                                                    multiItemname
+                                                                        .remove(
+                                                                            e.name);
+                                                                    selectedList[
+                                                                            index] =
+                                                                        false;
+                                                                    setState(
+                                                                        () {});
+                                                                  } else if (multiItemurl
+                                                                          .length !=
+                                                                      2) {
+                                                                    multiItemurl
+                                                                        .add(
+                                                                      e.urlPdf,
+                                                                    );
+                                                                    multiItemname
+                                                                        .add(
+                                                                      e.name,
+                                                                    );
+                                                                    selectedList[
+                                                                            index] =
+                                                                        true;
+                                                                    setState(
+                                                                        () {});
+                                                                    if (multiItemurl
+                                                                            .length >=
+                                                                        2) {
+                                                                      openMultiPaperView();
+                                                                    }
+                                                                  } else {
+                                                                    ScaffoldMessenger.of(
+                                                                            context)
+                                                                        .showSnackBar(
+                                                                      SnackBar(
+                                                                        content:
+                                                                            Text("Only Two Paper Supported in MultiView"),
+                                                                        backgroundColor:
+                                                                            Colors.red[900],
+                                                                      ),
+                                                                    );
+                                                                  }
+                                                                }
+                                                                // PaperDetailsSelectionPage.of(
+                                                                //             context)!
+                                                                //         .selectedComponent =
+                                                                //     widget
+                                                                //         .component;
+                                                                // PaperDetailsSelectionPage.of(
+                                                                //             context)!
+                                                                //         .selectedPdf =
+                                                                //     widget.pdf;
+                                                              },
+                                                              child: Card(
+                                                                elevation:
+                                                                    (selectedList[index] ==
+                                                                            true)
+                                                                        ? 2
+                                                                        : 4,
+                                                                shape:
+                                                                    StadiumBorder(),
+                                                                child:
+                                                                    Container(
+                                                                  decoration:
+                                                                      ShapeDecoration(
+                                                                    color: (selectedList[index] ==
+                                                                            true)
+                                                                        ? Theme.of(context)
+                                                                            .iconTheme
+                                                                            .color
+                                                                        : Colors
+                                                                            .transparent,
+                                                                    shape:
+                                                                        StadiumBorder(),
+                                                                  ),
+                                                                  child: Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .center,
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .center,
+                                                                    children: [
+                                                                      Center(
+                                                                        child:
+                                                                            Text(
+                                                                          e.keyword!,
+                                                                          style:
+                                                                              TextStyle(
+                                                                            fontSize:
+                                                                                16.0,
+                                                                            // fontSize: 12.0,
+                                                                            fontWeight:
+                                                                                FontWeight.w600,
+                                                                            color: (selectedList[index] == true)
+                                                                                ? Colors.blue
+                                                                                : Theme.of(context).textTheme.bodyLarge!.color,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          )
+                                                        : Container(
+                                                            child:
+                                                                ComponentWidget(
+                                                              index,
+                                                              pdf: e,
+                                                              type,
+                                                            ),
+                                                          );
                                                   } else if (type == 'Others' &&
                                                       e.paper != 'QP' &&
                                                       e.paper != 'MS') {
                                                     log("Comg Widget Called! is ${e.paper}");
                                                     return ListTile(
                                                       onTap: () {
-                                                        e.urlPdf
-                                                                .toString()
-                                                                .contains(
-                                                                    '.pdf')
-                                                            ? openPaper2(
-                                                                e.urlPdf!,
-                                                                e.name!,
-                                                              )
-                                                            : Navigator.push(
-                                                                context,
-                                                                MaterialPageRoute(
-                                                                  builder: (_) =>
-                                                                      OtherFilesViewPage(
-                                                                    [
-                                                                      e.urlPdf!,
-                                                                    ],
-                                                                    e.name!,
-                                                                    e.id.toString(),
-                                                                  ),
-                                                                ),
+                                                        if (funHelper()
+                                                            .pdfFilter(
+                                                                e.urlPdf)) {
+                                                          if (multiProvider
+                                                                      .multiView ==
+                                                                  true &&
+                                                              resCheck.length >=
+                                                                  2) {
+                                                            if (selectedList[
+                                                                    index] ==
+                                                                true) {
+                                                              multiItemurl
+                                                                  .remove(
+                                                                      e.urlPdf);
+                                                              multiItemname
+                                                                  .remove(
+                                                                      e.name);
+                                                              selectedList[
+                                                                      index] =
+                                                                  false;
+                                                              setState(() {});
+                                                            } else if (multiItemurl
+                                                                    .length !=
+                                                                2) {
+                                                              multiItemurl.add(
+                                                                e.urlPdf,
                                                               );
+                                                              multiItemname.add(
+                                                                e.name,
+                                                              );
+                                                              selectedList[
+                                                                  index] = true;
+                                                              setState(() {});
+                                                              if (multiItemurl
+                                                                      .length >=
+                                                                  2) {
+                                                                openMultiPaperView();
+                                                              }
+                                                            } else {
+                                                              BotToast.showText(
+                                                                  text:
+                                                                      'Only Two Paper Supported in MultiView');
+                                                            }
+                                                          } else {
+                                                            openPaper2(
+                                                                e.urlPdf!,
+                                                                prettifySubjectName(
+                                                                    e.name!));
+                                                          }
+                                                        } else {
+                                                          push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder: (_) =>
+                                                                  OtherFilesViewPage(
+                                                                [
+                                                                  e.urlPdf!,
+                                                                ],
+                                                                prettifySubjectName(
+                                                                    e.name!),
+                                                                e.id
+                                                                    .toString()
+                                                                    .replaceFirst(
+                                                                        " ",
+                                                                        " \n"),
+                                                              ),
+                                                            ),
+                                                          );
+                                                        }
+                                                        // e.urlPdf
+                                                        //         .toString()
+                                                        //         .contains(
+                                                        //             '.pdf')
+                                                        //     ? openPaper2(
+                                                        //         e.urlPdf!,
+                                                        //         e.name!,
+                                                        //       )
+                                                        //     : push(
+                                                        //         context,
+                                                        //         MaterialPageRoute(
+                                                        //           builder: (_) =>
+                                                        //               OtherFilesViewPage(
+                                                        //             [
+                                                        //               e.urlPdf!,
+                                                        //             ],
+                                                        //             e.name!,
+                                                        //             e.id.toString(),
+                                                        //           ),
+                                                        //         ),
+                                                        //       );
                                                       },
                                                       leading: Padding(
                                                         padding:
@@ -476,12 +774,24 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
                                                           fontSize: 16,
                                                         ),
                                                       ),
-                                                      trailing: downloadedId
-                                                              .contains(e.id)
-                                                          ? Icon(Icons.verified,
+                                                      trailing: selectedList[
+                                                                  index] ==
+                                                              true
+                                                          ? Icon(
+                                                              Icons.check,
                                                               color:
-                                                                  Colors.green)
-                                                          : SizedBox.shrink(),
+                                                                  Colors.green,
+                                                            )
+                                                          : downloadedId
+                                                                  .contains(
+                                                                      e.id)
+                                                              ? Icon(
+                                                                  Icons
+                                                                      .verified,
+                                                                  color: Colors
+                                                                      .green)
+                                                              : SizedBox
+                                                                  .shrink(),
                                                     );
                                                   } else {
                                                     log("No Past paper Component Called!");
@@ -495,7 +805,8 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
                                                 .cast<Widget>()),
                                       ),
                             BannerAdmob(size: AdSize.banner),
-                            if (selectedPdf != null)
+                            if (selectedPdf != null &&
+                                multiProvider.multiView == false)
                               Padding(
                                 padding: const EdgeInsets.only(top: 16.0),
                                 child: SizedBox(
@@ -706,14 +1017,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
 
   /// Open the Paper in the PastPaperView.
   void openPaper(String url, fileName) async {
-    List<String> moreUrls = [];
-    // print(id.urlPdf);
-    // moreUrls.add(id.urlPdf!);
-
-    print('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk');
-    print(moreUrls);
-    print('lllllllllllllllllllllllllllllllllllllll');
-    Navigator.push(
+    push(
       context,
       MaterialPageRoute(
         builder: (_) => PastPaperViewCAIE(
@@ -738,7 +1042,7 @@ class _PaperDetailsSelectionPageState extends State<PaperDetailsSelectionPage> {
     print('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk');
     // print(moreUrls);
     print('lllllllllllllllllllllllllllllllllllllll');
-    Navigator.push(
+    push(
       context,
       MaterialPageRoute(
         builder: (_) => PastPaperViewCAIE(
@@ -792,11 +1096,6 @@ Widget buildNextButton(VoidCallback onPressed, IconData icon, String label) {
   );
 }
 
-String prettifySubjectName(String subjectName) {
-  var name = subjectName.replaceFirst("\r", "");
-  return name.replaceFirst("\n", "");
-}
-
 class ComponentWidget extends StatefulWidget {
   final PdfModal? pdf;
   final type;
@@ -811,6 +1110,10 @@ class _ComponentWidgetState extends State<ComponentWidget> {
   @override
   void initState() {
     checkifDownloaded();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<multiViewProvider>(context, listen: false)
+          .setMultiViewFalse();
+    });
     super.initState();
   }
 
@@ -828,6 +1131,9 @@ class _ComponentWidgetState extends State<ComponentWidget> {
 
   @override
   build(BuildContext context) {
+    // ignore: unused_local_variable
+    final multiProvider = Provider.of<multiViewProvider>(context, listen: true);
+
     Widget? mywidget = SizedBox.shrink();
     bool isComponentSelected =
         (PaperDetailsSelectionPage.of(context)!.selectedComponent ==
@@ -873,23 +1179,22 @@ class _ComponentWidgetState extends State<ComponentWidget> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      isFileAlreadyDownloadedresult
-                          ? Icon(Icons.verified, color: Colors.green)
-                          : SizedBox.shrink(),
                       Center(
                         child: Text(
                           widget.pdf!.keyword!,
                           style: textStyle,
                         ),
                       ),
+                      isFileAlreadyDownloadedresult
+                          ? Icon(Icons.verified, color: Colors.green)
+                          : SizedBox.shrink(),
                     ],
                   ),
                 ),
               ),
             ),
           );
-    //   }
-    // }
+
     return mywidget;
   }
 }

@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 import 'dart:async';
 import 'dart:math';
+import 'package:fullscreen/fullscreen.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:studento/UI/error_report_dialog.dart';
 import 'package:studento/UI/show_message_dialog.dart';
@@ -120,19 +121,24 @@ class _MultiPaperViewState extends State<MultiPaperView> {
       //&& _isPro != null
       return Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text(
-            widget.fileName1,
-            style: TextStyle(
-              fontWeight: FontWeight.w400,
-              fontSize: 14.0,
-              color: Theme.of(context).textTheme.bodyLarge!.color,
-            ),
-          ),
-          iconTheme: Theme.of(context).iconTheme,
-          backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-        ),
+        appBar: isFullScreen
+            ? PreferredSize(
+                preferredSize: Size.fromHeight(0),
+                child: SizedBox.shrink(),
+              )
+            : AppBar(
+                centerTitle: true,
+                title: Text(
+                  widget.fileName1,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 14.0,
+                    color: Theme.of(context).textTheme.bodyLarge!.color,
+                  ),
+                ),
+                iconTheme: Theme.of(context).iconTheme,
+                backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+              ),
         body: ResizableWidget(
           isHorizontalSeparator: true, // optional
           isDisabledSmartHide: true, // optional
@@ -168,24 +174,6 @@ class _MultiPaperViewState extends State<MultiPaperView> {
             Container(
               child: Column(
                 children: [
-                  // Container(
-                  //   child: Center(
-                  //     child: Padding(
-                  //       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  //       child: Text(
-                  //         prettifySubjectName(widget.fileName2),
-                  //         maxLines: 1,
-                  //         style: TextStyle(
-                  //           fontWeight: FontWeight.w400,
-                  //           fontSize: 14.0,
-                  //           color: Colors.white,
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ),
-                  //   height: 48,
-                  //   color: Color(0xff6C63FF),
-                  // ),
                   Expanded(
                     child: PDFView(
                       filePath: filePath2,
@@ -214,6 +202,27 @@ class _MultiPaperViewState extends State<MultiPaperView> {
             )
           ],
         ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            if (isFullScreen) {
+              FullScreen.exitFullScreen();
+              setState(() {
+                isFullScreen = false;
+              });
+              debugPrint('exit fullScreen ${isFullScreen.toString()}');
+            } else {
+              FullScreen.enterFullScreen(FullScreenMode.EMERSIVE);
+              setState(() {
+                isFullScreen = true;
+              });
+              debugPrint('enter fullScreen ${isFullScreen.toString()}');
+            }
+          },
+          child: Icon(
+            isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen,
+            color: Theme.of(context).iconTheme.color,
+          ),
+        ),
       );
     }
 
@@ -225,9 +234,15 @@ class _MultiPaperViewState extends State<MultiPaperView> {
     );
   }
 
+  bool isFullScreen = false;
+
   @override
   void dispose() {
     _interstitialAd?.dispose();
+    if (isFullScreen) {
+      debugPrint('exist fullScreen');
+      FullScreen.exitFullScreen();
+    }
     super.dispose();
   }
 

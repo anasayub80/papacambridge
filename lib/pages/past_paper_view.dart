@@ -17,6 +17,7 @@ import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:studento/UI/loading_indicator.dart';
 import 'package:fullscreen/fullscreen.dart';
 
+import '../Globals.dart';
 import '../utils/ads_helper.dart';
 
 class PastPaperView extends StatefulWidget {
@@ -86,17 +87,13 @@ class _PastPaperViewState extends State<PastPaperView> {
       default:
     }
     initPapers();
+    // checkFileDownloaded();
     if (Platform.isAndroid) {
       platform = TargetPlatform.android;
     } else {
       platform = TargetPlatform.iOS;
     }
-    checkFileDownloaded();
     // loadDocs();
-  }
-
-  String prettifySubjectName(String subjectName) {
-    return subjectName.replaceFirst("\r\n", "");
   }
 
   InterstitialAd? _interstitialAd;
@@ -223,6 +220,7 @@ class _PastPaperViewState extends State<PastPaperView> {
 
   /// Check if papers are already downloaded, and download if not.
   void initPapers() async {
+    debugPrint('**check download** ');
     // ignore: no_leading_underscores_for_local_identifiers
     var _path = await PdfHelper.getFilePath(_fileName);
     setState(() => filePath = _path);
@@ -234,6 +232,7 @@ class _PastPaperViewState extends State<PastPaperView> {
         Duration(milliseconds: 500),
         () {
           if (mounted) {
+            setState(() => isDownloaded = true);
             setState(() => isLoaded = true);
           }
         },
@@ -348,6 +347,7 @@ class _PastPaperViewState extends State<PastPaperView> {
       setState(() {
         isFileAlreadyDownloaded = true;
         downloading = false;
+        isDownloaded = true;
         isLoaded = true;
       });
       checkFileDownloaded();

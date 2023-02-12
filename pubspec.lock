@@ -656,6 +656,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
+  need_resume:
+    dependency: "direct main"
+    description:
+      name: need_resume
+      sha256: "06fc913cd01481382810a156b11ea20f7fa83250c0872412779f0689f1258ce8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.7+1"
   nested:
     dependency: transitive
     description:

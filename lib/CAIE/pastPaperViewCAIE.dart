@@ -97,7 +97,6 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
     } else {
       platform = TargetPlatform.iOS;
     }
-    checkFileDownloaded();
     // loadDocs();
   }
 
@@ -312,7 +311,7 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
         Duration(milliseconds: 500),
         () {
           if (mounted) {
-            setState(() => isLoaded = true);
+            setState(() => {isLoaded = true, isDownloaded = true});
           }
         },
       );
@@ -384,6 +383,7 @@ class _PastPaperViewCAIEState extends State<PastPaperViewCAIE> {
       setState(() {
         isFileAlreadyDownloaded = true;
         downloading = false;
+        isDownloaded = true;
         isLoaded = true;
       });
       checkFileDownloaded();
