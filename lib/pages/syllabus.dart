@@ -30,29 +30,43 @@ class _SyllabusPageState extends State<SyllabusPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: StudentoAppBar(
-          title: "Syllabus",
-          context: context,
-          actions: [
-            IconButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return SearchPage(
-                        domainId: widget.domainId,
-                        domainName: "Syllabus",
-                      );
-                    },
-                  ));
-                },
-                icon: Icon(Icons.search))
-          ],
-        ),
-        body: mainFilesList(
-          domainId: widget.domainId,
-          title: 'Syllabus',
-          domainName: 'syllabus',
-        ));
+      appBar: StudentoAppBar(
+        title: "Syllabus",
+        context: context,
+        // actions: [
+        //   IconButton(
+        //       onPressed: () {
+        //         Navigator.push(context, MaterialPageRoute(
+        //           builder: (context) {
+        //             return SearchPage(
+        //               domainId: widget.domainId,
+        //               domainName: "Syllabus",
+        //             );
+        //           },
+        //         ));
+        //       },
+        //       icon: Icon(Icons.search))
+        // ],
+      ),
+      body: mainFilesList(
+        domainId: widget.domainId,
+        title: 'Syllabus',
+        domainName: 'syllabus',
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) {
+              return SearchPage(
+                domainId: widget.domainId,
+                domainName: "Syllabus ",
+              );
+            },
+          ));
+        },
+        child: Icon(Icons.search),
+      ),
+    );
   }
 }
 

@@ -20,42 +20,47 @@ class _TimeTablePageState extends State<TimeTablePage> {
   @override
   void initState() {
     super.initState();
-    if (kIsWeb) {
-      Future.delayed(
-        Duration.zero,
-        () {
-          Provider.of<loadingProvider>(context, listen: false)
-              .changeDomainid(widget.domainId);
-        },
-      );
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: StudentoAppBar(
-          title: "Time Table",
-          context: context,
-          actions: [
-            IconButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return SearchPage(
-                        domainId: widget.domainId,
-                        domainName: "Past Papers",
-                      );
-                    },
-                  ));
-                },
-                icon: Icon(Icons.search))
-          ],
-        ),
-        body: mainFilesList(
-          domainId: widget.domainId,
-          title: 'TimeTable',
-          domainName: 'timetable',
-        ));
+      appBar: StudentoAppBar(
+        title: "Time Table",
+        context: context,
+        // actions: [
+        //   IconButton(
+        //       onPressed: () {
+        //         Navigator.push(context, MaterialPageRoute(
+        //           builder: (context) {
+        //             return SearchPage(
+        //               domainId: widget.domainId,
+        //               domainName: "Past Papers",
+        //             );
+        //           },
+        //         ));
+        //       },
+        //       icon: Icon(Icons.search))
+        // ],
+      ),
+      body: mainFilesList(
+        domainId: widget.domainId,
+        title: 'TimeTable',
+        domainName: 'timetable',
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) {
+              return SearchPage(
+                domainId: widget.domainId,
+                domainName: "TimeTable",
+              );
+            },
+          ));
+        },
+        child: Icon(Icons.search),
+      ),
+    );
   }
 }

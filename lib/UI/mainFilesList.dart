@@ -98,6 +98,8 @@ class _mainFilesListState extends State<mainFilesList> {
     super.dispose();
   }
 
+  List<String> blockList = [];
+
   getStoredData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -142,6 +144,7 @@ class _mainFilesListState extends State<mainFilesList> {
     favItemName = prefs.getStringList(
             'favItemName${widget.domainId}${widget.title.trim()}') ??
         [];
+    blockList = prefs.getStringList('blockList') ?? [];
     if (!isLocal) {
       // get Data From Api
       if (res.statusCode == 200) {
@@ -159,6 +162,8 @@ class _mainFilesListState extends State<mainFilesList> {
             for (var subject in dataL) {
               if (favItem.contains(subject.id.toString())) {
                 // if that specific item already in fav item
+              } else if (blockList.contains(subject.id.toString())) {
+                // print('Should not to show bcz it is blocked ');
               } else {
                 selectedM.add(subject);
               }
@@ -177,6 +182,8 @@ class _mainFilesListState extends State<mainFilesList> {
       List<MainFolder> selectedM = [];
       for (var subject in dataL) {
         if (favItem.contains(subject.id.toString())) {
+        } else if (blockList.contains(subject.id.toString())) {
+          // print('Should not to show bcz it is blocked ');
         } else {
           selectedM.add(subject);
         }
@@ -383,8 +390,13 @@ class _mainFilesListState extends State<mainFilesList> {
                             debugPrint('not syllabus');
                             Navigator.push(
                                 context,
-                                innerfileScreen.getRoute(favItemName[i],
-                                    favItem[i], widget.title, false));
+                                innerfileScreen.getRoute(
+                                    favItemName[i],
+                                    favItem[i],
+                                    widget.title,
+                                    false,
+                                    widget.domainId,
+                                    widget.domainName));
                           },
                           leading: Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -419,8 +431,13 @@ class _mainFilesListState extends State<mainFilesList> {
                     onTap: () {
                       Navigator.push(
                           context,
-                          innerfileScreen.getRoute(allItem[index].name!,
-                              allItem[index].id, widget.title, true));
+                          innerfileScreen.getRoute(
+                              allItem[index].name!,
+                              allItem[index].id,
+                              widget.title,
+                              true,
+                              widget.domainId,
+                              widget.domainName));
                     },
                     leading: Padding(
                       padding: const EdgeInsets.all(8.0),

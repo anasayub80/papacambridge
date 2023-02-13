@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
+import 'package:in_app_update/in_app_update.dart';
 import 'package:studento/model/subject.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,6 +21,21 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage> {
   bool? isSetupComplete;
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> checkForUpdate() async {
+    InAppUpdate.checkForUpdate().then((info) {
+      if (info.updateAvailability == UpdateAvailability.updateAvailable) {
+        InAppUpdate.performImmediateUpdate()
+            // ignore: invalid_return_type_for_catch_error
+            .catchError((e) => debugPrint(e.toString()));
+      } else
+        checkifSetupComplete();
+    }).catchError((e) {
+      debugPrint(e.toString());
+      checkifSetupComplete();
+    });
+  }
 
   bool timeUp = false;
   void checkifSetupComplete() async {
@@ -54,7 +72,11 @@ class _SplashPageState extends State<SplashPage> {
   void initState() {
     super.initState();
     initHive();
-    checkifSetupComplete();
+    if (Platform.isAndroid) {
+      checkForUpdate();
+    } else {
+      checkifSetupComplete();
+    }
   }
 
   initHive() async {

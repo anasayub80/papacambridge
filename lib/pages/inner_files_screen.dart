@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
@@ -48,8 +50,8 @@ class innerfileScreen extends StatefulWidget {
     required this.iscomeFromMainFiles,
   });
 
-  static MaterialPageRoute getRoute(
-          String name, innerfile, title, bool iscomeFromMainFiles) =>
+  static MaterialPageRoute getRoute(String name, innerfile, title,
+          bool iscomeFromMainFiles, domainId, domainName) =>
       MaterialPageRoute(
           settings: RouteSettings(name: name),
           builder: (context) => (iscomeFromMainFiles)
@@ -59,6 +61,8 @@ class innerfileScreen extends StatefulWidget {
                       inner_file: innerfile,
                       title: title,
                       iscomeFromMainFiles: iscomeFromMainFiles,
+                      domainId: domainId,
+                      domainName: domainName,
                     );
                   }),
                 )
@@ -66,6 +70,8 @@ class innerfileScreen extends StatefulWidget {
                   inner_file: innerfile,
                   iscomeFromMainFiles: iscomeFromMainFiles,
                   title: title,
+                  domainId: domainId,
+                  domainName: domainName,
                 ));
   @override
   State<innerfileScreen> createState() => _innerfileScreenState();
@@ -101,14 +107,21 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
   Future<void> onResume() async {
     super.onResume();
     log('State Resume**');
-    for (var subject in dataL!) {
-      bool isFileAlreadyDownloaded =
-          await PdfHelper.checkIfDownloaded(prettifySubjectName(subject.name!));
-      if (isFileAlreadyDownloaded) {
-        downloadedId.add(subject.id);
+    for (var subject in allItem) {
+      if (subject.urlPdf != '') {
+        bool isFileAlreadyDownloaded = await PdfHelper.checkIfDownloaded(
+            prettifySubjectName(subject.name!));
+        if (isFileAlreadyDownloaded) {
+          log('downloaded ${subject.name} && ${subject.id}');
+          downloadedId.add(subject.id);
+        }
+      } else {
+        log('State Res Res ${subject.name}');
       }
     }
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   getStoredData() async {
@@ -154,7 +167,7 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
     favItem = prefs.getStringList(
             'favItem${widget.inner_file}${widget.title.trim()}') ??
         [];
-    blockList = prefs.getStringList('blockList') ?? [];
+    // blockList = prefs.getStringList('blockList') ?? [];
     favItemName = prefs.getStringList(
             'favItemName${widget.inner_file}${widget.title.trim()}') ??
         [];
@@ -173,8 +186,9 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
           for (var subject in dataL!) {
             if (favItem.contains(subject.id.toString())) {
               // print('Should not to show');
-            } else if (blockList.contains(subject.id.toString())) {
-              // print('Should not to show bcz it is blocked ');
+            } else if (subject.count == 0 && subject.urlPdf == '') {
+              log("Count Detected${subject.name}");
+              // print('Should not to show');
             } else {
               selectedM.add(subject);
             }
@@ -185,14 +199,16 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
         }
       }
     } else {
+      log('filter local data');
       // get local data
       dataL = mainFolderFromJson(res.toString());
       List<MainFolder> selectedM = [];
       for (var subject in dataL!) {
         if (favItem.contains(subject.id.toString())) {
           // print('Should not to show');
-        } else if (blockList.contains(subject.id.toString())) {
-          // print('Should not to show bcz it is blocked ');
+        } else if (subject.count == 0 && subject.urlPdf == '') {
+          // print('Should not to show');
+          log("Count Detected${subject.name}");
         } else {
           bool isFileAlreadyDownloaded = await PdfHelper.checkIfDownloaded(
               prettifySubjectName(subject.name!));
@@ -238,19 +254,24 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
   }
 
   bool isrever = false;
-  List<String> blockList = [];
+  // List<String> blockList = [];
   List foodItems = [];
   List<String> favItem = [];
   List<MainFolder> allItem = [];
   List<String> favItemName = [];
   var url;
   StreamController _streamController = BehaviorSubject();
-  addtoBlockList(id) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    blockList = prefs.getStringList('blockList') ?? [];
-    blockList.add(id);
-    prefs.setStringList('blockList', blockList);
-  }
+  // addtoBlockList(id) async {
+  //   debugPrint('remove $id');
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   blockList = prefs.getStringList('blockList') ?? [];
+  //   blockList.add(id);
+  //   prefs.setStringList('blockList', blockList);
+  //   setState(() {
+  //     allItem.removeWhere((item) => item.id == id);
+  //   });
+  // }
+  List<String> blockList = [];
 
   List multiItemurl = [];
   List multiItemname = [];
@@ -262,6 +283,13 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
     if (!isFirstLaunch)
       sharedPreferences.setBool(innerfileScreen.isShowCaseLaunch, true);
     return isFirstLaunch;
+  }
+
+  addtoBlockList(id) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    blockList = prefs.getStringList('blockList') ?? [];
+    blockList.add(id);
+    prefs.setStringList('blockList', blockList);
   }
 
   @override
@@ -387,24 +415,29 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
         ),
         body: mobileLayout(multiProvider, removeFromFav, openMultiPaperView,
             openPaper, addtoFav),
-        floatingActionButton: (showmultiView())
-            ? SizedBox.shrink()
-            : FloatingActionButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return SearchPage(
-                        domainId: widget.domainId!,
-                        domainName: widget.domainName!,
-                      );
-                    },
-                  ));
-                },
-                child: Icon(Icons.search),
-              ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(
+              builder: (context) {
+                return SearchPage(
+                  domainId: widget.domainId ?? '',
+                  domainName: widget.domainName ?? '',
+                );
+              },
+            ));
+          },
+          child: Icon(Icons.search),
+        ),
         bottomNavigationBar: allItem.length <= 5
-            ? BannerAdmob(
-                size: AdSize.banner,
+            ? Column(
+                // width: 320,
+                // height:  ,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  BannerAdmob(
+                    size: AdSize.banner,
+                  ),
+                ],
               )
             : SizedBox.shrink());
   }
@@ -440,7 +473,7 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
           ),
           style: IconButton.styleFrom(
             backgroundColor: multiProvider.multiView == false
-                ? Colors.white
+                ? Theme.of(context).cardColor
                 : Color(0xff6C63FF),
             side: BorderSide(
                 color: multiProvider.multiView == true
@@ -540,10 +573,13 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
                             push(
                                 context,
                                 innerfileScreen.getRoute(
-                                    favItemName[i],
-                                    favItem[i],
-                                    widget.title,
-                                    widget.iscomeFromMainFiles));
+                                  favItemName[i],
+                                  favItem[i],
+                                  widget.title,
+                                  widget.iscomeFromMainFiles,
+                                  widget.domainId,
+                                  widget.domainName,
+                                ));
                           },
                           leading: Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -632,8 +668,8 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
           debugPrint('newScreen');
           push(
               context,
-              innerfileScreen.getRoute(
-                  name, allItem[index].id, widget.title, true));
+              innerfileScreen.getRoute(name, allItem[index].id, widget.title,
+                  true, widget.domainId, widget.domainName));
         } else {
           if (funHelper().pdfFilter(urlPdf)) {
             if (multiProvider.multiView == true && allItem.length >= 2) {

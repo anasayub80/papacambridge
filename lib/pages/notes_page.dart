@@ -21,28 +21,42 @@ class _NotesPageState extends State<NotesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: StudentoAppBar(
-          title: "Notes",
-          context: context,
-          actions: [
-            IconButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return SearchPage(
-                        domainId: widget.domainId,
-                        domainName: "Notes",
-                      );
-                    },
-                  ));
-                },
-                icon: Icon(Icons.search))
-          ],
-        ),
-        body: mainFilesList(
-          domainId: widget.domainId,
-          title: 'Notes',
-          domainName: 'notes',
-        ));
+      appBar: StudentoAppBar(
+        title: "Notes",
+        context: context,
+        // actions: [
+        //   IconButton(
+        //       onPressed: () {
+        //         Navigator.push(context, MaterialPageRoute(
+        //           builder: (context) {
+        //             return SearchPage(
+        //               domainId: widget.domainId,
+        //               domainName: "Notes",
+        //             );
+        //           },
+        //         ));
+        //       },
+        //       icon: Icon(Icons.search))
+        // ],
+      ),
+      body: mainFilesList(
+        domainId: widget.domainId,
+        title: 'Notes',
+        domainName: 'notes',
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) {
+              return SearchPage(
+                domainId: widget.domainId,
+                domainName: "Notes",
+              );
+            },
+          ));
+        },
+        child: Icon(Icons.search),
+      ),
+    );
   }
 }

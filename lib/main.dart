@@ -1,14 +1,12 @@
 import 'dart:async';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:studento/model/todo/todo_list_model.dart';
 import 'package:studento/pages/splash_page.dart';
 import 'package:studento/provider/loadigProvider.dart';
 import 'package:studento/provider/multiViewhelper.dart';
-import 'package:studento/routes.dart';
 import 'package:studento/services/navigate_observe.dart';
 import 'package:studento/utils/theme_provider.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +15,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MobileAds.instance.initialize();
-  PurchasesConfiguration("AuXGxOAwTbgrcvIVwCYYAPoHhcRHUdLa");
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
   final isDark = sharedPreferences.getBool('is_dark') ?? false;
   WidgetsFlutterBinding.ensureInitialized();
@@ -77,7 +74,7 @@ class _StudentoState extends State<Studento> {
           color: Colors.red,
           home: SplashPage(),
           // home: TestPage(),
-          routes: routes,
+          // routes: routes,
           debugShowCheckedModeBanner: false,
         );
         // );

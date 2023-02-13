@@ -76,10 +76,12 @@ class _PaperDetailsSelectionPageState
   Future<void> onResume() async {
     super.onResume();
     log('State Resume**');
+    selectedPdf = null;
     for (var subject in pdfModal) {
       bool isFileAlreadyDownloaded =
           await PdfHelper.checkIfDownloaded(prettifySubjectName(subject.name!));
       if (isFileAlreadyDownloaded) {
+        log('downloaded ${subject.name} && ${subject.keyword}');
         downloadedId.add(subject.id);
       }
     }
@@ -214,6 +216,7 @@ class _PaperDetailsSelectionPageState
   String? season;
 
   loadData(Season selectedSeason) async {
+    log('load data');
     setState(() {
       _isLoading = true;
       showPapers = true;
@@ -273,8 +276,13 @@ class _PaperDetailsSelectionPageState
         if (Provider.of<multiViewProvider>(context, listen: false).multiView ==
             false) {
           debugPrint('set true');
+          selectedList = List.generate(resCheck!.length, (index) => false);
+          log('my selected list length ${selectedList.length}');
+          multiItemname.clear();
+          multiItemurl.clear();
         } else {
           selectedList = List.generate(resCheck!.length, (index) => false);
+          log('my selected list length ${selectedList.length}');
           multiItemname.clear();
           multiItemurl.clear();
         }
@@ -298,11 +306,15 @@ class _PaperDetailsSelectionPageState
                   false) {
                 debugPrint('set true');
                 multiProvider.setMultiViewTrue();
+                selectedList =
+                    List.generate(resCheck!.length, (index) => false);
+                log('selected list length${selectedList.length}');
               } else {
                 multiProvider.setMultiViewFalse();
                 debugPrint('set false');
                 selectedList =
                     List.generate(resCheck!.length, (index) => false);
+                log('selected list length${selectedList.length}');
                 multiItemname.clear();
                 multiItemurl.clear();
               }
@@ -319,7 +331,7 @@ class _PaperDetailsSelectionPageState
             ),
             style: IconButton.styleFrom(
               backgroundColor: multiProvider.multiView == false
-                  ? Colors.white
+                  ? Theme.of(context).cardColor
                   : Color(0xff6C63FF),
               side: BorderSide(
                   color: multiProvider.multiView == true
@@ -355,6 +367,7 @@ class _PaperDetailsSelectionPageState
   List multiItemurl = [];
   List multiItemname = [];
   List selectedList = [];
+
   // check if data null or not []
   var resCheck;
   @override
@@ -579,15 +592,6 @@ class _PaperDetailsSelectionPageState
                                                                     );
                                                                   }
                                                                 }
-                                                                // PaperDetailsSelectionPage.of(
-                                                                //             context)!
-                                                                //         .selectedComponent =
-                                                                //     widget
-                                                                //         .component;
-                                                                // PaperDetailsSelectionPage.of(
-                                                                //             context)!
-                                                                //         .selectedPdf =
-                                                                //     widget.pdf;
                                                               },
                                                               child: Card(
                                                                 elevation:
@@ -619,6 +623,12 @@ class _PaperDetailsSelectionPageState
                                                                         CrossAxisAlignment
                                                                             .center,
                                                                     children: [
+                                                                      downloadedId.contains(e
+                                                                              .id)
+                                                                          ? Text(
+                                                                              '      ')
+                                                                          : SizedBox
+                                                                              .shrink(),
                                                                       Center(
                                                                         child:
                                                                             Text(
@@ -636,6 +646,12 @@ class _PaperDetailsSelectionPageState
                                                                           ),
                                                                         ),
                                                                       ),
+                                                                      downloadedId.contains(e
+                                                                              .id)
+                                                                          ? Icon(
+                                                                              Icons.verified,
+                                                                              color: Colors.green)
+                                                                          : SizedBox.shrink(),
                                                                     ],
                                                                   ),
                                                                 ),
@@ -725,27 +741,6 @@ class _PaperDetailsSelectionPageState
                                                             ),
                                                           );
                                                         }
-                                                        // e.urlPdf
-                                                        //         .toString()
-                                                        //         .contains(
-                                                        //             '.pdf')
-                                                        //     ? openPaper2(
-                                                        //         e.urlPdf!,
-                                                        //         e.name!,
-                                                        //       )
-                                                        //     : push(
-                                                        //         context,
-                                                        //         MaterialPageRoute(
-                                                        //           builder: (_) =>
-                                                        //               OtherFilesViewPage(
-                                                        //             [
-                                                        //               e.urlPdf!,
-                                                        //             ],
-                                                        //             e.name!,
-                                                        //             e.id.toString(),
-                                                        //           ),
-                                                        //         ),
-                                                        //       );
                                                       },
                                                       leading: Padding(
                                                         padding:
@@ -1179,6 +1174,9 @@ class _ComponentWidgetState extends State<ComponentWidget> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      isFileAlreadyDownloadedresult
+                          ? Text('      ')
+                          : SizedBox.shrink(),
                       Center(
                         child: Text(
                           widget.pdf!.keyword!,

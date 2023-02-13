@@ -14,6 +14,7 @@ class MainFolder {
   MainFolder({
     this.id,
     this.name,
+    this.count = 1,
     this.active,
     this.parent,
     this.folder,
@@ -29,6 +30,7 @@ class MainFolder {
   var id;
   String? name;
   String? mainUrl;
+  int count = 1;
   int? active;
   int? parent;
   int? folder;
@@ -42,6 +44,7 @@ class MainFolder {
   factory MainFolder.fromJson(Map<String, dynamic> json) => MainFolder(
         id: json["id"],
         name: json["name"],
+        count: json["count"] ?? 1,
         active: json["active"],
         parent: json["parent"],
         folder: json["folder"],
@@ -58,6 +61,7 @@ class MainFolder {
         "id": id,
         "name": name,
         "active": active,
+        "count": count,
         "parent": parent,
         "folder": folder,
         "url_pdf": urlPdf,

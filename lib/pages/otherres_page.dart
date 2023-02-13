@@ -20,42 +20,47 @@ class _OtherResourcesState extends State<OtherResources> {
   @override
   void initState() {
     super.initState();
-    if (kIsWeb) {
-      Future.delayed(
-        Duration.zero,
-        () {
-          Provider.of<loadingProvider>(context, listen: false)
-              .changeDomainid(widget.domainId);
-        },
-      );
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: StudentoAppBar(
-          title: "Other",
-          context: context,
-          actions: [
-            IconButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return SearchPage(
-                        domainId: widget.domainId,
-                        domainName: "Others",
-                      );
-                    },
-                  ));
-                },
-                icon: Icon(Icons.search))
-          ],
-        ),
-        body: mainFilesList(
-          domainId: widget.domainId,
-          title: 'Other',
-          domainName: 'other-resources',
-        ));
+      appBar: StudentoAppBar(
+        title: "Other",
+        context: context,
+        // actions: [
+        //   IconButton(
+        //       onPressed: () {
+        //         Navigator.push(context, MaterialPageRoute(
+        //           builder: (context) {
+        //             return SearchPage(
+        //               domainId: widget.domainId,
+        //               domainName: "Others",
+        //             );
+        //           },
+        //         ));
+        //       },
+        //       icon: Icon(Icons.search))
+        // ],
+      ),
+      body: mainFilesList(
+        domainId: widget.domainId,
+        title: 'Other',
+        domainName: 'other-resources',
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) {
+              return SearchPage(
+                domainId: widget.domainId,
+                domainName: "Others",
+              );
+            },
+          ));
+        },
+        child: Icon(Icons.search),
+      ),
+    );
   }
 }

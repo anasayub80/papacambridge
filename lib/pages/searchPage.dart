@@ -38,6 +38,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void initSubjects() async {
+    log('${widget.domainId} & ${widget.domainName} ');
     _streamController.add('loading');
     allItem.clear();
     log(_searchController.text);
@@ -137,8 +138,13 @@ class _SearchPageState extends State<SearchPage> {
                     // if (widget.title != 'Syllabus') {
                     Navigator.push(
                         context,
-                        innerfileScreen.getRoute(allItem[index].name!,
-                            allItem[index].id, widget.domainName, false));
+                        innerfileScreen.getRoute(
+                            allItem[index].name!,
+                            allItem[index].id,
+                            widget.domainName,
+                            false,
+                            widget.domainId,
+                            widget.domainName));
                   },
                   leading: Padding(
                     padding: const EdgeInsets.all(8.0),

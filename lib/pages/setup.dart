@@ -179,12 +179,11 @@ class _SetupState extends State<Setup> {
   List<String> selectedlevelid = [];
   List<String> levelid = [];
   Level? levelG;
-  getLevel(boardId) async {
+  getLevel() async {
     log('get level ');
-    // _levelController.close();
     var isConnected = await PdfHelper.checkIfConnected();
     if (isConnected) {
-      var res = await backEnd().fetchMainFiles(boardId);
+      var res = await backEnd().fetchMainFiles('1');
       // ignore: unused_local_variable
       var resp = res.toString().replaceAll("\n", "");
       debugPrint("checking response ${res.toString()}");
@@ -205,8 +204,7 @@ class _SetupState extends State<Setup> {
   StreamController _levelController = BehaviorSubject();
   StreamController _boardController = BehaviorSubject();
   _buildInfoBody(boardId) {
-    // save from auto refresh data in setState
-    getLevel(boardId);
+    getLevel();
     return StreamBuilder<dynamic>(
         // get Data for CAIE
         // future: backEnd().fetchMainFiles(boardId),

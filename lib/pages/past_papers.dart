@@ -43,36 +43,49 @@ class _PastPapersPageState extends State<PastPapersPage> {
   Widget build(BuildContext context) {
     print('past paper domain id ${widget.domainId}');
     return Scaffold(
-        appBar: StudentoAppBar(
-          title: "Past Papers",
-          context: context,
-          actions: [
-            IconButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return SearchPage(
-                        domainId: widget.domainId,
-                        domainName: "Past Papers",
-                      );
-                    },
-                  ));
-                },
-                icon: Icon(Icons.search)),
-          ],
-        ),
-        body: ShowCaseWidget(
-          builder: Builder(builder: (context) {
-            return mainFilesList(
-              domainId: widget.domainId,
-              title: 'Papers',
-              isPastPapers: true,
-              domainName: 'papers',
-            );
-          }),
-        )
-        //  SubjectsStaggeredListView(openPastPapersDetailsSelect),
-        );
+      appBar: StudentoAppBar(
+        title: "Past Papers",
+        context: context,
+        // actions: [
+        //   IconButton(
+        //       onPressed: () {
+        //         Navigator.push(context, MaterialPageRoute(
+        //           builder: (context) {
+        //             return SearchPage(
+        //               domainId: widget.domainId,
+        //               domainName: "Past Papers",
+        //             );
+        //           },
+        //         ));
+        //       },
+        //       icon: Icon(Icons.search)),
+        // ],
+      ),
+      body: ShowCaseWidget(
+        builder: Builder(builder: (context) {
+          return mainFilesList(
+            domainId: widget.domainId,
+            title: 'Papers',
+            isPastPapers: true,
+            domainName: 'papers',
+          );
+        }),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) {
+              return SearchPage(
+                domainId: widget.domainId,
+                domainName: "Past Papers",
+              );
+            },
+          ));
+        },
+        child: Icon(Icons.search),
+      ),
+      //  SubjectsStaggeredListView(openPastPapersDetailsSelect),
+    );
   }
 }
 
@@ -197,20 +210,20 @@ class _PastPapersPageCAIEState extends State<PastPapersPageCAIE> {
         isFile: true,
         centerTitle: false,
         context: context,
-        actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (context) {
-                    return SearchPage(
-                      domainId: '1',
-                      domainName: "Past Papers",
-                    );
-                  },
-                ));
-              },
-              icon: Icon(Icons.search)),
-        ],
+        // actions: [
+        //   IconButton(
+        //       onPressed: () {
+        //         Navigator.push(context, MaterialPageRoute(
+        //           builder: (context) {
+        //             return SearchPage(
+        //               domainId: '1',
+        //               domainName: "Past Papers",
+        //             );
+        //           },
+        //         ));
+        //       },
+        //       icon: Icon(Icons.search)),
+        // ],
       ),
       // body: SubjectsStaggeredListView(openPastPapersDetailsSelect),
       body: StreamBuilder(
@@ -235,6 +248,19 @@ class _PastPapersPageCAIEState extends State<PastPapersPageCAIE> {
               }
           }
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) {
+              return SearchPage(
+                domainId: '1',
+                domainName: "Past Papers",
+              );
+            },
+          ));
+        },
+        child: Icon(Icons.search),
       ),
       bottomNavigationBar: _ad != null
           ? Container(
