@@ -61,6 +61,7 @@ dependencies:
   json_serializable: ^6.5.3
   launch_review: ^3.0.1
   liquid_swipe: ^3.0.0
+  mysql1: ^0.20.0
   need_resume: ^1.0.7+1
   numberpicker: ^2.1.1
   open_filex: ^4.3.2

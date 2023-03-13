@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'dart:developer' as dv;
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,8 @@ import 'package:studento/services/backend.dart';
 import 'package:studento/utils/sideAdsWidget.dart';
 import '../model/MainFolder.dart';
 import 'package:http/http.dart' as http;
+import '../model/mainFolderRes.dart';
+import '../services/database/mysql.dart';
 import '../utils/ads_helper.dart';
 import '../utils/funHelper.dart';
 import '../utils/pdf_helper.dart';
@@ -37,7 +40,7 @@ class mainFilesList extends StatefulWidget {
 }
 
 class _mainFilesListState extends State<mainFilesList> {
-  List<MainFolder> allItem = [];
+  List<MainFolderRes> allItem = [];
   List<String> favItem = [];
   List<String> favItemName = [];
   Random random = Random();
@@ -49,7 +52,8 @@ class _mainFilesListState extends State<mainFilesList> {
     // TODO: implement initState
     super.initState();
     prettyTitle = widget.title.toString().replaceAll(' ', '-');
-    getStoredData();
+    // getStoredData();
+    initSubjects();
     int randomNumber = random.nextInt(5);
     switch (randomNumber) {
       case 2:
@@ -95,120 +99,146 @@ class _mainFilesListState extends State<mainFilesList> {
     allItem = [];
     favItem = [];
     favItemName = [];
+    if (_interstitialAd != null) {
+      _interstitialAd!.dispose();
+    }
     super.dispose();
   }
 
   List<String> blockList = [];
 
   getStoredData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    var isConnected = await PdfHelper.checkIfConnected();
-    if (isConnected) {
-      var res = await funHelper().checkifDataExist(
-          'mainFileData${widget.domainId}${widget.title.trim()}');
-      if (res != null) {
-        http.Response myres = await http.post(Uri.parse(mainFileApi), body: {
-          'token': token,
-          'domain': widget.domainId,
-        });
-        if (myres.body.length <= res.length) {
-          print('equal');
-          clearifyData(res, true);
-        } else {
-          print('not equal update');
-          prefs.remove('mainFileData${widget.domainId}${widget.title.trim()}');
-        }
-      } else {
-        initSubjects();
-      }
-    } else {
-      var res = await funHelper().checkifDataExist(
-          'mainFileData${widget.domainId}${widget.title.trim()}');
-      if (res != null) {
-        clearifyData(res, true);
-      } else {
-        _streamController.add('NetworkError');
-      }
-    }
+    // var isConnected = await PdfHelper.checkIfConnected();
+    // if (isConnected) {
+    //   var res = await funHelper().checkifDataExist(
+    //       'mainFileData${widget.domainId}${widget.title.trim()}');
+    //   if (res != null) {
+    //     http.Response myres = await http.post(Uri.parse(mainFileApi), body: {
+    //       'token': token,
+    //       'domain': widget.domainId,
+    //     });
+    //     if (myres.body.length <= res.length) {
+    //       print('equal');
+    //       clearifyData(res, true);
+    //     } else {
+    //       print('not equal update');
+    //       prefs.remove('mainFileData${widget.domainId}${widget.title.trim()}');
+    //     }
+    //   } else {
+    //     initSubjects();
+    //   }
+    // } else {
+    //   var res = await funHelper().checkifDataExist(
+    //       'mainFileData${widget.domainId}${widget.title.trim()}');
+    //   if (res != null) {
+    //     clearifyData(res, true);
+    //   } else {
+    //     _streamController.add('NetworkError');
+    //   }
+    // }
   }
 
-  clearifyData(dynamic res, bool isLocal) async {
-    allItem.clear();
-    favItem.clear();
-    favItemName.clear();
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    favItem = prefs
-            .getStringList('favItem${widget.domainId}${widget.title.trim()}') ??
-        [];
-    favItemName = prefs.getStringList(
-            'favItemName${widget.domainId}${widget.title.trim()}') ??
-        [];
-    blockList = prefs.getStringList('blockList') ?? [];
-    if (!isLocal) {
-      // get Data From Api
-      if (res.statusCode == 200) {
-        if (res.body.isNotEmpty) {
-          if (res.body.length <= 64) {
-            print('Something Wrong');
-          } else {
-            var response = jsonEncode(res.body);
-            await prefs.setString(
-                'mainFileData${widget.domainId}${widget.title.trim()}',
-                response);
+  // clearifyData(dynamic res, bool isLocal) async {
+  //   allItem.clear();
+  //   favItem.clear();
+  //   favItemName.clear();
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   favItem = prefs
+  //           .getStringList('favItem${widget.domainId}${widget.title.trim()}') ??
+  //       [];
+  //   favItemName = prefs.getStringList(
+  //           'favItemName${widget.domainId}${widget.title.trim()}') ??
+  //       [];
+  //   blockList = prefs.getStringList('blockList') ?? [];
+  //   if (!isLocal) {
+  //     // get Data From Api
+  //     if (res.statusCode == 200) {
+  //       if (res.body.isNotEmpty) {
+  //         if (res.body.length <= 64) {
+  //           print('Something Wrong');
+  //         } else {
+  //           var response = jsonEncode(res.body);
+  //           await prefs.setString(
+  //               'mainFileData${widget.domainId}${widget.title.trim()}',
+  //               response);
 
-            List<MainFolder> dataL = mainFolderFromJson(res.body.toString());
-            List<MainFolder> selectedM = [];
-            for (var subject in dataL) {
-              if (favItem.contains(subject.id.toString())) {
-                // if that specific item already in fav item
-              } else if (blockList.contains(subject.id.toString())) {
-                // print('Should not to show bcz it is blocked ');
-              } else {
-                selectedM.add(subject);
-              }
-            }
-            setState(() {
-              allItem = selectedM;
-            });
-          }
-        } else {
-          print('Something Wrong');
-        }
-      }
-    } else {
-      // get local data
-      List<MainFolder> dataL = mainFolderFromJson(res.toString());
-      List<MainFolder> selectedM = [];
-      for (var subject in dataL) {
-        if (favItem.contains(subject.id.toString())) {
-        } else if (blockList.contains(subject.id.toString())) {
-          // print('Should not to show bcz it is blocked ');
-        } else {
-          selectedM.add(subject);
-        }
-      }
-      setState(() {
-        allItem = selectedM;
-      });
-    }
+  //           List<MainFolder> dataL = mainFolderFromJson(res.body.toString());
+  //           List<MainFolder> selectedM = [];
+  //           for (var subject in dataL) {
+  //             if (favItem.contains(subject.id.toString())) {
+  //               // if that specific item already in fav item
+  //             } else if (blockList.contains(subject.id.toString())) {
+  //               // print('Should not to show bcz it is blocked ');
+  //             } else {
+  //               selectedM.add(subject);
+  //             }
+  //           }
+  //           setState(() {
+  //             allItem = selectedM;
+  //           });
+  //         }
+  //       } else {
+  //         print('Something Wrong');
+  //       }
+  //     }
+  //   } else {
+  //     // get local data
+  //     List<MainFolder> dataL = mainFolderFromJson(res.toString());
+  //     List<MainFolder> selectedM = [];
+  //     for (var subject in dataL) {
+  //       if (favItem.contains(subject.id.toString())) {
+  //       } else if (blockList.contains(subject.id.toString())) {
+  //         // print('Should not to show bcz it is blocked ');
+  //       } else {
+  //         selectedM.add(subject);
+  //       }
+  //     }
+  //     setState(() {
+  //       allItem = selectedM;
+  //     });
+  //   }
 
-    _streamController.add('event');
-  }
+  //   _streamController.add('event');
+  // }
+
+  var db = Mysql();
 
   void initSubjects() async {
-    http.Response res;
-    _streamController.add('loading');
+    // http.Response res;
+    // _streamController.add('loading');
     allItem.clear();
     favItem.clear();
     favItemName.clear();
-    res = await http.post(Uri.parse(mainFileApi), body: {
-      'token': token,
-      'domain': widget.domainId,
+    // res = await http.post(Uri.parse(mainFileApi), body: {
+    //   'token': token,
+    //   'domain': widget.domainId,
+    // });
+    // debugPrint(res.body);
+    // clearifyData(res, false);
+    List<MainFolderRes> data = await db.fetchMainFolderRes(
+        // ignore: use_build_context_synchronously
+        widget.domainId);
+    // var mydata = jsonEncode(data.toString());
+    dv.log(data[0].alias.toString());
+    // List<MainFolderRes> dataL = mainFolderResFromJson(mydata.toString());
+    List<MainFolderRes> selectedM = [];
+    for (var subject in data) {
+      if (favItem.contains(subject.id.toString())) {
+        // if that specific item already in fav item
+      } else if (blockList.contains(subject.id.toString())) {
+        // print('Should not to show bcz it is blocked ');
+      } else {
+        selectedM.add(subject);
+      }
+    }
+    setState(() {
+      allItem = selectedM;
+      _streamController.add('event');
+      dv.log(
+          'add selected item ${selectedM.length} & allitem is ${allItem.length}');
     });
-
-    debugPrint(res.body);
-    clearifyData(res, false);
   }
 
   addtoFav(index, String id, String name) async {
@@ -236,8 +266,8 @@ class _mainFilesListState extends State<mainFilesList> {
     debugPrint('to remove $id & $name');
     BotToast.showLoading();
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    MainFolder folderModel = MainFolder(
-      name: favItemName[index],
+    MainFolderRes folderModel = MainFolderRes(
+      alias: favItemName[index],
       id: favItem[index],
     );
     setState(() {
@@ -361,14 +391,13 @@ class _mainFilesListState extends State<mainFilesList> {
     return StreamBuilder<dynamic>(
       stream: _streamController.stream,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting ||
-            snapshot.data == 'loading') {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: CircularProgressIndicator(),
           );
         } else if (snapshot.data == 'NetworkError') {
           return Center(child: Text('No Internet Connection'));
-        } else if (allItem.isEmpty && favItem.isEmpty) {
+        } else if (allItem.isEmpty) {
           return Center(
             child: Text(
               'No Data Found',
@@ -432,7 +461,7 @@ class _mainFilesListState extends State<mainFilesList> {
                       Navigator.push(
                           context,
                           innerfileScreen.getRoute(
-                              allItem[index].name!,
+                              allItem[index].alias,
                               allItem[index].id,
                               widget.title,
                               true,
@@ -451,8 +480,8 @@ class _mainFilesListState extends State<mainFilesList> {
                             onPressed: (() {
                               addtoFav(
                                 index,
-                                allItem[index].id,
-                                allItem[index].name!,
+                                allItem[index].id.toString(),
+                                allItem[index].alias,
                               );
                             }),
                             icon: Icon(
@@ -467,7 +496,7 @@ class _mainFilesListState extends State<mainFilesList> {
                       padding: EdgeInsets.all(0),
                       child: Text(
                         // allItem[index].name!,
-                        prettifySubjectName(allItem[index].name!),
+                        prettifySubjectName(allItem[index].alias),
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                         ),

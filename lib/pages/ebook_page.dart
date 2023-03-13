@@ -54,7 +54,7 @@ class _EBooksPageState extends State<EBooksPage> {
         // ],
       ),
       body: mainFilesList(
-        domainId: widget.domainId,
+        domainId: 3,
         title: 'E-Books',
         domainName: 'ebooks',
       ),

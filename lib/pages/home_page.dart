@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 import 'package:flutter/material.dart';
+import 'dart:math';
 import 'package:after_layout/after_layout.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,6 +13,7 @@ import 'package:studento/pages/schedule.dart';
 import 'package:studento/pages/timetable_page.dart';
 import 'package:studento/pages/todo_list.dart';
 import 'package:studento/provider/loadigProvider.dart';
+import 'package:studento/services/database/mysql.dart';
 import 'package:studento/utils/funHelper.dart';
 import 'package:studento/utils/theme_provider.dart';
 import 'package:provider/provider.dart';
@@ -47,8 +48,10 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
     getDomains();
   }
 
+  var db = Mysql();
   getDomains() async {
     final prefs = await SharedPreferences.getInstance();
+
     // ignore: use_build_context_synchronously
     Provider.of<loadingProvider>(context, listen: false)
         .changeBoardId(prefs.getString('board')!);
@@ -61,9 +64,13 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
           // ignore: use_build_context_synchronously
           'DomainsData${Provider.of<loadingProvider>(context, listen: false).getboardId}');
       if (res != null) {
-        var myres = await backEnd().fetchDomains(
+        // var myres = await backEnd().fetchDomains(
+        //     // ignore: use_build_context_synchronously
+        //     Provider.of<loadingProvider>(context, listen: false).getboardId);
+        var myres = await db.fetchDomainds(
             // ignore: use_build_context_synchronously
             Provider.of<loadingProvider>(context, listen: false).getboardId);
+        _domainStream.add(myres);
         if (myres.length <= res.length) {
           print('equal');
           _domainStream.add(res);
@@ -72,19 +79,19 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
           prefs.remove(
               // ignore: use_build_context_synchronously
               'DomainsData${Provider.of<loadingProvider>(context, listen: false).getboardId}');
+          _domainStream.add(myres);
         }
       } else {
-        var res = await backEnd()
+        var data = await db.fetchDomainds(
             // ignore: use_build_context_synchronously
-            .fetchDomains(Provider.of<loadingProvider>(context, listen: false)
-                .getboardId);
+            Provider.of<loadingProvider>(context, listen: false).getboardId);
+        _domainStream.add(data);
         var response = jsonEncode(res);
         await prefs.setString(
             // ignore: use_build_context_synchronously
             'DomainsData${Provider.of<loadingProvider>(context, listen: false).getboardId}',
             response);
         debugPrint(res.toString());
-        _domainStream.add(res);
       }
     } else {
       debugPrint('get local data');
@@ -179,13 +186,20 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
                   ),
                 );
               } else if (snapshot.hasData) {
-                List snap = snapshot.data;
-                print("*****$snap**** ${snapshot.data}");
+                var snap = snapshot.data;
                 if (!updated) {
                   // Merging Static data with api requested data
                   snap.addAll([
-                    {'id': 'static', 'domain': 'Schedule'},
-                    {'id': 'static', 'domain': 'Todo List'},
+                    {
+                      'id': 'static',
+                      'website_name': 'Schedule',
+                      'website_name2': ''
+                    },
+                    {
+                      'id': 'static',
+                      'website_name': 'Todo List',
+                      'website_name2': ''
+                    },
                   ]);
                   updated = true;
                 }
@@ -205,10 +219,13 @@ class _HomePageState extends State<HomePage> with AfterLayoutMixin<HomePage> {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: HomePageButton(
-                        label: snap[index]['domain'],
-                        iconFileName: returnfileName(snap[index]['domain']),
+                        label: snap[index]['website_name'] +
+                            " ${snap[index]['website_name2']}",
+                        iconFileName: returnfileName(snap[index]
+                                ['website_name'] +
+                            " ${snap[index]['website_name2']}"),
                         routeToBePushedWhenTapped: 'ignorethisline',
-                        domainId: snap[index]['id'],
+                        domainId: snap[index]['id'].toString(),
                       ),
                     );
                   },

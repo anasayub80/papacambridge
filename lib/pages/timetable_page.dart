@@ -1,11 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../UI/mainFilesList.dart';
 import '../UI/studento_app_bar.dart';
-import '../provider/loadigProvider.dart';
 import 'searchPage.dart';
-import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
 class TimeTablePage extends StatefulWidget {

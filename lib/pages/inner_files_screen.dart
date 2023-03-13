@@ -21,8 +21,10 @@ import '../Globals.dart';
 import '../UI/show_case_widget.dart';
 import '../UI/studento_app_bar.dart';
 import '../model/MainFolder.dart';
+import '../model/mainFolderRes.dart';
 import '../provider/loadigProvider.dart';
 import '../services/bread_crumb_navigation.dart';
+import '../services/database/mysql.dart';
 import '../utils/pdf_helper.dart';
 import 'home_page.dart';
 import 'other_fileView.dart';
@@ -58,7 +60,7 @@ class innerfileScreen extends StatefulWidget {
               ? ShowCaseWidget(
                   builder: Builder(builder: (context) {
                     return innerfileScreen(
-                      inner_file: innerfile,
+                      inner_file: innerfile.toString(),
                       title: title,
                       iscomeFromMainFiles: iscomeFromMainFiles,
                       domainId: domainId,
@@ -94,7 +96,8 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
       Provider.of<multiViewProvider>(context, listen: false)
           .setMultiViewFalse();
     });
-    getStoredData();
+    // getStoredData();
+    initData();
   }
 
   @override
@@ -239,18 +242,42 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
     // }
   }
 
+  var db = Mysql();
+
   GlobalKey favLogoKey = GlobalKey();
   GlobalKey searchLogoKey = GlobalKey();
   List<MainFolder>? dataL;
   void initData() async {
     _streamController.add('loading');
-    http.Response res;
-    res = await http.post(Uri.parse(innerFileApi), body: {
-      'token': token,
-      'fileid': widget.inner_file,
+    // http.Response res = ;
+    List<MainFolder> data = await db.fetchInnerFile(
+        // ignore: use_build_context_synchronously
+        widget.inner_file);
+    // res = await http.post(Uri.parse(innerFileApi), body: {
+    //   'token': token,
+    //   'fileid': widget.inner_file,
+    // });
+    dataL = data;
+    //  dataL = mainFolderFromJson(res.body);
+    List<MainFolder> selectedM = [];
+    // debugPrint('innerFile list ${res.body}');
+    for (var subject in dataL!) {
+      if (favItem.contains(subject.id.toString())) {
+        // print('Should not to show');
+      } else if (subject.count == 0 && subject.urlPdf == '') {
+        log("Count Detected${subject.name}");
+        // print('Should not to show');
+      } else {
+        log('add selected m');
+        selectedM.add(subject);
+      }
+    }
+    setState(() {
+      allItem = selectedM;
     });
+    _streamController.add('event');
 
-    clearifyData(res, false);
+    // clearifyData(res, false);
   }
 
   bool isrever = false;
@@ -628,7 +655,7 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
                       index,
                       context,
                       allItem[index].urlPdf ?? '',
-                      allItem[index].id,
+                      allItem[index].id.toString(),
                       allItem[index].name!,
                       multiProvider,
                       openMultiPaperView,
@@ -665,11 +692,11 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
       selected: selectedList[index],
       onTap: () {
         if (urlPdf == "" || urlPdf == 'null') {
-          debugPrint('newScreen');
+          debugPrint('newScreen $urlPdf');
           push(
               context,
-              innerfileScreen.getRoute(name, allItem[index].id, widget.title,
-                  true, widget.domainId, widget.domainName));
+              innerfileScreen.getRoute(name, allItem[index].id.toString(),
+                  widget.title, true, widget.domainId, widget.domainName));
         } else {
           if (funHelper().pdfFilter(urlPdf)) {
             if (multiProvider.multiView == true && allItem.length >= 2) {
