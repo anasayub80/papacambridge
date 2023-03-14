@@ -67,21 +67,29 @@
 //     return data;
 //   }
 // }
+import 'dart:convert';
+
+List<MainFolderRes> mainFolderResFromJson(String str) =>
+    List<MainFolderRes>.from(
+        json.decode(str).map((x) => MainFolderRes.fromJson(x)));
 
 class MainFolderRes {
   var id;
   var alias;
-  var urlStructure;
+  int count = 1;
+  String? urlStructure;
 
   MainFolderRes({
     required this.id,
-    required this.alias,
+    this.alias,
+    this.count = 1,
     this.urlStructure,
   });
 
   factory MainFolderRes.fromJson(Map<String, dynamic> json) {
     return MainFolderRes(
       id: json['id'] as int,
+      count: json["count"] ?? 1,
       alias: json['alias'] as String,
       urlStructure: json['url_structure'] as String,
     );

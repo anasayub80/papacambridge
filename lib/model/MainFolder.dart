@@ -34,7 +34,7 @@ class MainFolder {
   int? active;
   int? parent;
   int? folder;
-  String? urlPdf;
+  var urlPdf;
   String? keyword;
   String? paper;
   String? folderCode;

@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
+import 'package:mysql1/mysql1.dart';
 import 'package:need_resume/need_resume.dart';
 import 'package:provider/provider.dart';
 import 'package:bot_toast/bot_toast.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:studento/model/mainFolderRes.dart';
 import 'package:studento/pages/multiPaperView.dart';
 import 'package:studento/provider/multiViewhelper.dart';
 import 'package:studento/services/backend.dart';
@@ -21,7 +23,6 @@ import '../Globals.dart';
 import '../UI/show_case_widget.dart';
 import '../UI/studento_app_bar.dart';
 import '../model/MainFolder.dart';
-import '../model/mainFolderRes.dart';
 import '../provider/loadigProvider.dart';
 import '../services/bread_crumb_navigation.dart';
 import '../services/database/mysql.dart';
@@ -63,7 +64,7 @@ class innerfileScreen extends StatefulWidget {
                       inner_file: innerfile.toString(),
                       title: title,
                       iscomeFromMainFiles: iscomeFromMainFiles,
-                      domainId: domainId,
+                      domainId: domainId.toString(),
                       domainName: domainName,
                     );
                   }),
@@ -111,15 +112,15 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
     super.onResume();
     log('State Resume**');
     for (var subject in allItem) {
-      if (subject.urlPdf != '') {
+      if (subject.urlStructure != '') {
         bool isFileAlreadyDownloaded = await PdfHelper.checkIfDownloaded(
-            prettifySubjectName(subject.name!));
+            prettifySubjectName(subject.alias!));
         if (isFileAlreadyDownloaded) {
-          log('downloaded ${subject.name} && ${subject.id}');
+          log('downloaded ${subject.alias} && ${subject.id}');
           downloadedId.add(subject.id);
         }
       } else {
-        log('State Res Res ${subject.name}');
+        log('State Res Res ${subject.alias}');
       }
     }
     if (mounted) {
@@ -183,14 +184,14 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
           var response = jsonEncode(res.body);
           await prefs.setString(
               'innerData${widget.inner_file}${widget.title.trim()}', response);
-          dataL = mainFolderFromJson(res.body);
-          List<MainFolder> selectedM = [];
+          dataL = mainFolderResFromJson(res.body);
+          List<MainFolderRes> selectedM = [];
           debugPrint('innerFile list ${res.body}');
           for (var subject in dataL!) {
             if (favItem.contains(subject.id.toString())) {
               // print('Should not to show');
-            } else if (subject.count == 0 && subject.urlPdf == '') {
-              log("Count Detected${subject.name}");
+            } else if (subject.count == 0 && subject.urlStructure == '') {
+              log("Count Detected${subject.alias}");
               // print('Should not to show');
             } else {
               selectedM.add(subject);
@@ -204,17 +205,17 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
     } else {
       log('filter local data');
       // get local data
-      dataL = mainFolderFromJson(res.toString());
-      List<MainFolder> selectedM = [];
+      dataL = mainFolderResFromJson(res.toString());
+      List<MainFolderRes> selectedM = [];
       for (var subject in dataL!) {
         if (favItem.contains(subject.id.toString())) {
           // print('Should not to show');
-        } else if (subject.count == 0 && subject.urlPdf == '') {
+        } else if (subject.count == 0 && subject.urlStructure == '') {
           // print('Should not to show');
-          log("Count Detected${subject.name}");
+          log("Count Detected${subject.alias}");
         } else {
           bool isFileAlreadyDownloaded = await PdfHelper.checkIfDownloaded(
-              prettifySubjectName(subject.name!));
+              prettifySubjectName(subject.alias!));
           if (isFileAlreadyDownloaded) {
             downloadedId.add(subject.id);
           }
@@ -231,7 +232,8 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
     Future.delayed(
       Duration(milliseconds: 500),
       () {
-        if (funHelper().heartFilter(allItem[0].urlPdf.toString()) == false)
+        if (funHelper().heartFilter(allItem[0].urlStructure.toString()) ==
+            false)
           _isFirstLaunch().then((result) {
             if (!result)
               ShowCaseWidget.of(context)
@@ -246,11 +248,11 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
 
   GlobalKey favLogoKey = GlobalKey();
   GlobalKey searchLogoKey = GlobalKey();
-  List<MainFolder>? dataL;
+  List<MainFolderRes>? dataL;
   void initData() async {
     _streamController.add('loading');
     // http.Response res = ;
-    List<MainFolder> data = await db.fetchInnerFile(
+    List<MainFolderRes> data = await db.fetchFiles(
         // ignore: use_build_context_synchronously
         widget.inner_file);
     // res = await http.post(Uri.parse(innerFileApi), body: {
@@ -258,14 +260,14 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
     //   'fileid': widget.inner_file,
     // });
     dataL = data;
-    //  dataL = mainFolderFromJson(res.body);
-    List<MainFolder> selectedM = [];
+    //  dataL = mainFolderResFromJson(res.body);
+    List<MainFolderRes> selectedM = [];
     // debugPrint('innerFile list ${res.body}');
     for (var subject in dataL!) {
       if (favItem.contains(subject.id.toString())) {
         // print('Should not to show');
-      } else if (subject.count == 0 && subject.urlPdf == '') {
-        log("Count Detected${subject.name}");
+      } else if (subject.count == 0 && subject.urlStructure == '') {
+        log("Count Detected${subject.alias}");
         // print('Should not to show');
       } else {
         log('add selected m');
@@ -284,7 +286,7 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
   // List<String> blockList = [];
   List foodItems = [];
   List<String> favItem = [];
-  List<MainFolder> allItem = [];
+  List<MainFolderRes> allItem = [];
   List<String> favItemName = [];
   var url;
   StreamController _streamController = BehaviorSubject();
@@ -372,8 +374,8 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
       log('to remove $id & $name');
       BotToast.showLoading();
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      MainFolder folderModel = MainFolder(
-        name: favItemName[index],
+      MainFolderRes folderModel = MainFolderRes(
+        alias: favItemName[index],
         id: favItem[index],
       );
       setState(() {
@@ -392,7 +394,8 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
 
     showmultiView() {
       if (allItem.length >= 2 &&
-          funHelper().heartFilter(allItem[0].urlPdf.toString()) == false) {
+          funHelper().heartFilter(allItem[0].urlStructure.toString()) ==
+              false) {
         return true;
       } else {
         return false;
@@ -654,9 +657,9 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
                   return filesListTile(
                       index,
                       context,
-                      allItem[index].urlPdf ?? '',
+                      allItem[index].urlStructure,
                       allItem[index].id.toString(),
-                      allItem[index].name!,
+                      allItem[index].alias!,
                       multiProvider,
                       openMultiPaperView,
                       openPaper,
@@ -678,7 +681,7 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
   Widget filesListTile(
       int index,
       BuildContext context,
-      String urlPdf,
+      String? urlPdf,
       String id,
       String name,
       multiViewProvider multiProvider,
@@ -702,7 +705,7 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
             if (multiProvider.multiView == true && allItem.length >= 2) {
               if (selectedList[index] == true) {
                 multiItemurl.remove(urlPdf);
-                multiItemname.remove(allItem[index].name);
+                multiItemname.remove(allItem[index].alias);
                 selectedList[index] = false;
                 setState(() {});
               } else if (multiItemurl.length != 2) {
@@ -710,7 +713,7 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
                   urlPdf,
                 );
                 multiItemname.add(
-                  allItem[index].name,
+                  allItem[index].alias,
                 );
                 selectedList[index] = true;
                 setState(() {});
@@ -722,7 +725,7 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
                     text: 'Only Two Paper Supported in MultiView');
               }
             } else {
-              openPaper(urlPdf, name.replaceFirst(" ", " \n"));
+              openPaper(urlPdf.toString(), name.replaceFirst(" ", " \n"));
             }
           } else {
             push(
@@ -730,7 +733,7 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
               MaterialPageRoute(
                 builder: (_) => OtherFilesViewPage(
                   [
-                    urlPdf,
+                    urlPdf.toString(),
                   ],
                   prettifySubjectName(name),
                   allItem[index].id.toString().replaceFirst(" ", " \n"),

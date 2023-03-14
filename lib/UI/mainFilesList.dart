@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 import 'dart:developer' as dv;
 import 'package:bot_toast/bot_toast.dart';
@@ -10,15 +9,10 @@ import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:showcaseview/showcaseview.dart';
 import 'package:studento/pages/inner_files_screen.dart';
-import 'package:studento/services/backend.dart';
 import 'package:studento/utils/sideAdsWidget.dart';
-import '../model/MainFolder.dart';
-import 'package:http/http.dart' as http;
 import '../model/mainFolderRes.dart';
 import '../services/database/mysql.dart';
 import '../utils/ads_helper.dart';
-import '../utils/funHelper.dart';
-import '../utils/pdf_helper.dart';
 import '../utils/theme_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -68,6 +62,8 @@ class _mainFilesListState extends State<mainFilesList> {
     }
   }
 
+  int numInterstitialLoadAttempts = 0;
+
   InterstitialAd? _interstitialAd;
 
   void createInterstitialAd() {
@@ -78,13 +74,13 @@ class _mainFilesListState extends State<mainFilesList> {
           onAdLoaded: (InterstitialAd ad) {
             print('$ad loaded');
             _interstitialAd = ad;
-            // _numInterstitialLoadAttempts = 0;
+            numInterstitialLoadAttempts = 0;
             _interstitialAd!.setImmersiveMode(true);
             _interstitialAd!.show();
           },
           onAdFailedToLoad: (LoadAdError error) {
             print('InterstitialAd failed to load: $error.');
-            // _numInterstitialLoadAttempts += 1;
+            numInterstitialLoadAttempts += 1;
             _interstitialAd = null;
             if (numInterstitialLoadAttempts < 3) {
               createInterstitialAd();
@@ -474,22 +470,19 @@ class _mainFilesListState extends State<mainFilesList> {
                         'assets/icons/folder.png',
                       ),
                     ),
-                    trailing: kIsWeb
-                        ? SizedBox.shrink()
-                        : IconButton(
-                            onPressed: (() {
-                              addtoFav(
-                                index,
-                                allItem[index].id.toString(),
-                                allItem[index].alias,
-                              );
-                            }),
-                            icon: Icon(
-                              Icons.favorite_border,
-                              color:
-                                  Theme.of(context).textTheme.bodyLarge!.color,
-                            ),
-                          ),
+                    trailing: IconButton(
+                      onPressed: (() {
+                        addtoFav(
+                          index,
+                          allItem[index].id.toString(),
+                          allItem[index].alias,
+                        );
+                      }),
+                      icon: Icon(
+                        Icons.favorite_border,
+                        color: Theme.of(context).textTheme.bodyLarge!.color,
+                      ),
+                    ),
                     title: Container(
                       // color: Colors.brown,
                       width: double.infinity,

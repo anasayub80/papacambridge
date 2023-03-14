@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class funHelper {
   String fileLogoAssets(String url) {
+    log("my filter logo assets ${url.toString()}");
     if (url == '') {
       return 'assets/icons/folder.png';
     } else if (url.contains('.pdf')) {
@@ -24,7 +26,7 @@ class funHelper {
     } else if (url.contains('.xlsx')) {
       return 'assets/icons/xlsx.png';
     } else {
-      return 'assets/icons/file.png';
+      return 'assets/icons/folder.png';
     }
   }
 
