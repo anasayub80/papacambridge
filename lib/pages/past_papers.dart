@@ -84,7 +84,6 @@ class _PastPapersPageState extends State<PastPapersPage> {
         },
         child: Icon(Icons.search),
       ),
-      //  SubjectsStaggeredListView(openPastPapersDetailsSelect),
     );
   }
 }
@@ -161,20 +160,24 @@ class _PastPapersPageCAIEState extends State<PastPapersPageCAIE> {
             return AlertDialog(
               title: Text('Select Level'),
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              content: ListView.builder(
-                shrinkWrap: true,
-                itemCount: level!.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    onTap: () {
-                      Navigator.pop(context, index);
-                    },
-                    title: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(level![index]),
-                    ),
-                  );
-                },
+              content: SizedBox(
+                width: 200,
+                height: 500,
+                child: ListView.builder(
+                  // shrinkWrap: true,
+                  itemCount: level!.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      onTap: () {
+                        Navigator.pop(context, index);
+                      },
+                      title: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(level![index]),
+                      ),
+                    );
+                  },
+                ),
               ),
             );
           },

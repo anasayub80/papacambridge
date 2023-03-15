@@ -1,11 +1,8 @@
-// ignore_for_file: unused_local_variable
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
-import 'package:mysql1/mysql1.dart';
 import 'package:need_resume/need_resume.dart';
 import 'package:provider/provider.dart';
 import 'package:bot_toast/bot_toast.dart';
@@ -22,7 +19,6 @@ import 'package:studento/utils/funHelper.dart';
 import '../Globals.dart';
 import '../UI/show_case_widget.dart';
 import '../UI/studento_app_bar.dart';
-import '../model/MainFolder.dart';
 import '../provider/loadigProvider.dart';
 import '../services/bread_crumb_navigation.dart';
 import '../services/database/mysql.dart';
@@ -99,12 +95,6 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
     });
     // getStoredData();
     initData();
-  }
-
-  @override
-  void dispose() {
-    // Remove the observer
-    super.dispose();
   }
 
   @override
@@ -255,10 +245,6 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
     List<MainFolderRes> data = await db.fetchFiles(
         // ignore: use_build_context_synchronously
         widget.inner_file);
-    // res = await http.post(Uri.parse(innerFileApi), body: {
-    //   'token': token,
-    //   'fileid': widget.inner_file,
-    // });
     dataL = data;
     //  dataL = mainFolderResFromJson(res.body);
     List<MainFolderRes> selectedM = [];
@@ -339,6 +325,10 @@ class _innerfileScreenState extends ResumableState<innerfileScreen> {
     }
 
     void openMultiPaperView() async {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Provider.of<multiViewProvider>(context, listen: false)
+            .setMultiViewFalse();
+      });
       push(
         context,
         MaterialPageRoute(

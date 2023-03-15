@@ -71,7 +71,6 @@ class _EBooksPageState extends State<EBooksPage> {
         },
         child: Icon(Icons.search),
       ),
-      //  SubjectsStaggeredListView(openPastPapersDetailsSelect),
     );
   }
 }

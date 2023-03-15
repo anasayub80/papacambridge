@@ -82,7 +82,7 @@ class _SubjectsStaggeredListViewState extends State<SubjectsStaggeredListView> {
                   )
                 : Expanded(
                     child: StaggeredGridView(
-                      shrinkWrap: true,
+                      // shrinkWrap: true,
                       // physics: NeverScrollableScrollPhysics(),
                       padding: EdgeInsets.all(15),
                       children: data
@@ -182,32 +182,36 @@ class _SubjectsStaggeredListViewState extends State<SubjectsStaggeredListView> {
       style: TextStyle(fontSize: 14.0, color: Colors.white),
     );
 
-    return Material(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.0),
-      ),
-      elevation: 2.0,
-      color: Colors.transparent,
-      child: Ink(
-        child: InkWell(
-          onTap: () => widget.onGridTileTap(subject),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: subjectNameText,
-              ),
-              subjectCodeText,
-              SizedBox(
-                height: 10,
-              )
-            ],
-          ),
+    return SizedBox(
+      height: 200,
+      width: 200,
+      child: Material(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
         ),
-        decoration: BoxDecoration(
-          gradient: getRandomGradient(),
-          borderRadius: BorderRadius.all(Radius.circular(15.0)),
+        elevation: 2.0,
+        color: Colors.transparent,
+        child: Ink(
+          child: InkWell(
+            onTap: () => widget.onGridTileTap(subject),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: subjectNameText,
+                ),
+                subjectCodeText,
+                SizedBox(
+                  height: 10,
+                )
+              ],
+            ),
+          ),
+          decoration: BoxDecoration(
+            gradient: getRandomGradient(),
+            borderRadius: BorderRadius.all(Radius.circular(15.0)),
+          ),
         ),
       ),
     );

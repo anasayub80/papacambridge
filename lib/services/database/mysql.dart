@@ -1,7 +1,4 @@
-import 'dart:math';
-
 import 'package:mysql1/mysql1.dart';
-import 'package:studento/model/MainFolder.dart';
 import 'dart:developer' as dv;
 
 import '../../model/mainFolderRes.dart';
@@ -75,20 +72,16 @@ class Mysql {
   Future<List<MainFolderRes>> fetchFiles(var fileid) async {
     var conn = await getConnection();
     List<MainFolderRes> response = [];
-    var select =
-        await conn.query('SELECT * from files where parent=?', [fileid]);
+    var select = await conn
+        .query('SELECT * from files where parent=? Limit 5', [fileid]);
     var selectResult = select.toList();
 
     if (selectResult.isEmpty) {
-      // response.add(MainFolderRes(
-      //   status: "error",
-      //   msg: "Data Not Found",
-      // ));
     } else {
       for (var fetch in selectResult) {
         var idc = fetch['id'];
-        var select2 =
-            await conn.query('SELECT * from files where parent=?', [idc]);
+        var select2 = await conn
+            .query('SELECT id from files where parent=? Limit 1', [idc]);
         var select2Result = select2.toList();
         var res = MainFolderRes(
           id: fetch['id'],
@@ -116,47 +109,4 @@ class Mysql {
     }
     return response;
   }
-
-  // List<MainFolder?>? mainFolderResList;
-
-  // Future<List<MainFolder>> fetchInnerFile(var fileid) async {
-  //   try {
-  //     var conn = await getConnection();
-  //     String sql =
-  //         // ignore: use_build_context_synchronously
-  //         "SELECT * from files where parent=$fileid";
-  //     var result = await conn.query(sql);
-  //     if (result.isNotEmpty) {
-  //       // for (var res in result) {
-  //       //   mainFolderResList!;
-  //       // }
-
-  //       final mainFolderResList = result.map((row) {
-  //         // var fetchLink;
-  //         // var url =
-  //         //     "https://${fetchLink['websiteurl']}/${fetchLink['path_folder']}upload/${row['name']}";
-  //         MainFolder res = MainFolder.fromJson({
-  //           'id': row['id'],
-  //           'name': row['alias'].toString(),
-  //           'url_pdf': row['folder'] == 1 ? "" : row['url_pdf'],
-  //         });
-
-  //         if (row['folder'] == 1) {
-  //           dv.log('res folder ${row['url_pdf']}');
-  //         } else {
-  //           dv.log('res file ${row['url_pdf']}');
-  //         }
-
-  //         return res;
-  //       }).toList();
-  //       await conn.close();
-  //       return mainFolderResList;
-  //     } else {
-  //       return []; // Return an empty list when there is no data to return
-  //     }
-  //   } catch (e) {
-  //     dv.log(e.toString());
-  //     return []; // Return an empty list when an error occurs
-  //   }
-  // }
 }
